@@ -1,8 +1,9 @@
 """MAC 离散上的降阶闭合运算，全部在 GPU 上（torch float64，cuDSS）。
 
-状态为内部角点流函数 ψ，基方向 Ψ_B（列）；W = C Ψ_B 为对应的面速度。温度为辅助场 T = S(ψ)：
+状态为内部角点流函数 ψ，基方向 Ψ_B（列）；W = C Ψ_B 为对应的面速度。
   g = Ψ_Bᵀ r_ψ = Wᵀ R_w(w, T)
-  G = Ψ_Bᵀ J_eff Ψ_B = Wᵀ [ (∂R_w/∂w) W + (∂R_w/∂T) S_W ]，S_W = −J_TT⁻¹ (∂R_T/∂w) W
+  G = Ψ_Bᵀ J_eff Ψ_B = Wᵀ [ (∂R_w/∂w) W + (∂R_w/∂T) S_W ]
+有温度时（cav.thermal）温度为辅助场 T = S(ψ)，S_W = −J_TT⁻¹ (∂R_T/∂w) W；无温度时没有 T 与 S_W 两项。
 ∂R_T/∂T = J_TT = S_e diag(A_e w) H_e + κ K_e 的非零元对面通量 A_e w 线性：values = G_T (A_e w) + κ k₀，G_T 预先算好，
 J_TT 的结构固定，cuDSS 符号分析只做一次。温度（1 列）与灵敏度（cols 列）各用一个求解器。
 """
@@ -28,13 +29,18 @@ def _g(a):
 
 
 class Closure:
-    """cav：thermal 的 mac.Cavity；cols：基方向数上限。"""
+    """cav：mac.Cavity；cols：基方向数上限（有温度时为灵敏度右端项列数）。"""
 
     def __init__(self, cav, cols=256):
-        mo, en = cav.mo, cav.en
-        self.C, self.Sm, self.Am, self.Hm, self.Km, self.Bt = (_t(M) for M in (cav.C, mo.S, mo.A, mo.H, mo.K, cav.Bt))
-        self.Se, self.Ae, self.He = (_t(M) for M in (en.S, en.A, en.H))
-        self.bm, self.be, self.sqMu = _g(mo.b), _g(en.b), _g(np.sqrt(cav.Mu))
+        mo = cav.mo
+        self.thermal = cav.thermal
+        self.C, self.Sm, self.Am, self.Hm, self.Km = (_t(M) for M in (cav.C, mo.S, mo.A, mo.H, mo.K))
+        self.bm, self.sqMu = _g(mo.b), _g(np.sqrt(cav.Mu))
+        if not self.thermal:
+            return
+        en = cav.en
+        self.Bt, self.Se, self.Ae, self.He = (_t(M) for M in (cav.Bt, en.S, en.A, en.H))
+        self.be = _g(en.b)
         # J_TT 的模板结构与 G_T：S_e 的每个元 (i, f, s) 与 H_e 第 f 行的每个元 (j, h) 给出 (i, j) 处的系数 s·h·F_f
         tpl = (en.S @ sp.diags(np.random.default_rng(0).standard_normal(en.m)) @ en.H + en.K).tocsr()
         key = _keys(tpl)
@@ -70,16 +76,18 @@ class Closure:
     def temperature(self, psi, kap):
         return self._temperature(self.C @ psi, kap)
 
-    def reduced(self, psi, PsiB, nu, kap):
-        """约化残差 g (k,)、约化雅可比 G (k, k) 与温度 T。"""
+    def reduced(self, psi, PsiB, nu, kap=None):
+        """约化残差 g (k,)、约化雅可比 G (k, k) 与温度 T（无温度时为 None）。"""
         w, W = self.C @ psi, self.C @ PsiB
+        Fw, Hw = self.Am @ w, self.Hm @ w
+        Rw = self.Sm @ (Fw * Hw) + nu * (self.Km @ w - self.bm)
+        JW = self.Sm @ (Hw[:, None] * (self.Am @ W) + Fw[:, None] * (self.Hm @ W)) + nu * (self.Km @ W)
+        if not self.thermal:
+            return W.T @ Rw, W.T @ JW, None
         T = self._temperature(w, kap)
         self.sk.factorize()
         k = W.shape[1]
         self.bk.zero_()
         self.bk[:k] = -(self.Se @ ((self.He @ T)[:, None] * (self.Ae @ W))).T
         ST = self.sk.solve()[:, :k]
-        Fw, Hw = self.Am @ w, self.Hm @ w
-        Rw = self.Sm @ (Fw * Hw) + nu * (self.Km @ w - self.bm) - self.Bt @ T
-        JW = self.Sm @ (Hw[:, None] * (self.Am @ W) + Fw[:, None] * (self.Hm @ W)) + nu * (self.Km @ W) - self.Bt @ ST
-        return W.T @ Rw, W.T @ JW, T
+        return W.T @ (Rw - self.Bt @ T), W.T @ (JW - self.Bt @ ST), T
