@@ -5,7 +5,7 @@
 - torch 与 numpy 的 MKL 冲突会报 "OMP: Error #15"：导入 numpy 前设置 MKL_THREADING_LAYER=SEQUENTIAL；不要用 KMP_DUPLICATE_LIB_OK=TRUE（可能静默算错）。
 
 # 仓库结构
-- `nepodg/`：降阶核心（完整 POD、神经字典、互补空间、Galerkin 闭合、误差评价），不依赖任何具体求解器。
+- `nepodg/`：降阶核心（完整 POD、神经候选方向、互补空间、Galerkin 闭合、误差评价），不依赖任何具体求解器。
 - `solvers/`：高保真离散，提供残差、雅可比、度量、容许映射与辅助场求解。
 - `cases/<算例>/`：算例实例化，调用 `nepodg/` 与 `solvers/`；通用代码只在 `nepodg/` 写一份，不复制到算例中。
 - 方法定义以 `方法设计.md` 为准，求解器以 `solvers/*/求解器说明.md` 为准；代码与文档不一致时以文档为准，或先改文档。
