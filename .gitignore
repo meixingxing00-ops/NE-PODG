@@ -13,3 +13,6 @@ __pycache__/
 # 临时输出
 Temp/
 tmp/
+
+# 文献原文（版权）
+reference/
