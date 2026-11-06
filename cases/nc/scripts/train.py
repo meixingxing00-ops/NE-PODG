@@ -9,7 +9,7 @@ from cases.nc.case import NC, ROOT, cases, eta
 from nepodg import candidates
 
 STEPS, LR, BATCH, SEED = 100000, 1e-3, 8, 1234
-NET = dict(m=128, layers=5, width=128, rlayers=2, rwidth=64)
+NET = dict(m=128, layers=5, width=128, rlayers=2, rwidth=64, alayers=2, awidth=32)
 
 budget = int(sys.argv[1])
 steps = int(sys.argv[2]) if len(sys.argv) > 2 else STEPS
@@ -25,4 +25,4 @@ hist = candidates.train(net, nc.X, [eta(s[2]) for s in snaps], U, mean, nc.admis
                         steps, LR, BATCH, SEED, log=max(1, steps // 100))
 print(f"n{budget}：{len(train)} 个训练快照，{steps} 步，{time.perf_counter() - t0:.0f} s，末段损失 {hist[-1]:.3e}")
 (ROOT / "models").mkdir(exist_ok=True)
-candidates.save(ROOT / "models" / f"n{budget}.pt", net, mean)
+candidates.save(ROOT / "models" / f"n{budget}.pt", net, mean, hist)

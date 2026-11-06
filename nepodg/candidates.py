@@ -23,16 +23,17 @@ def _mlp(dims, last_act):
 class Net(nn.Module):
     """主干 (x, η) → m 个原始场（tanh）；读出 η → w(η) = exp(ℓ(η)) r(η)。x、η 已缩放到 [−1, 1] 附近。"""
 
-    def __init__(self, dx=2, deta=2, m=128, layers=5, width=128, rlayers=2, rwidth=64):
+    def __init__(self, dx=2, deta=2, m=128, layers=5, width=128, rlayers=2, rwidth=64, alayers=2, awidth=32):
         super().__init__()
         self.trunk = _mlp([dx + deta] + [width] * (layers - 1) + [m], True)
         self.r = _mlp([deta] + [rwidth] * rlayers + [m], False)
-        self.amp = _mlp([deta] + [rwidth] * rlayers + [1], False)
+        self.amp = _mlp([deta] + [awidth] * alayers + [1], False)
         for mod in self.modules():
             if isinstance(mod, nn.Linear):
                 nn.init.xavier_normal_(mod.weight)
                 nn.init.zeros_(mod.bias)
-        self.cfg = dict(dx=dx, deta=deta, m=m, layers=layers, width=width, rlayers=rlayers, rwidth=rwidth)
+        self.cfg = dict(dx=dx, deta=deta, m=m, layers=layers, width=width, rlayers=rlayers, rwidth=rwidth,
+                        alayers=alayers, awidth=awidth)
 
     def fields(self, X, eta):
         """采样点 X (P, dx) 上的原始场 (P, m)。"""
@@ -77,8 +78,9 @@ def directions(net, X, eta, admissible):
     return admissible(net.fields(X, e).double())
 
 
-def save(path, net, mean):
-    torch.save({"cfg": net.cfg, "state": net.state_dict(), "mean": mean.cpu()}, path)
+def save(path, net, mean, hist):
+    """hist：训练损失曲线（train 的返回值）。"""
+    torch.save({"cfg": net.cfg, "state": net.state_dict(), "mean": mean.cpu(), "hist": hist}, path)
 
 
 def load(path, device):
