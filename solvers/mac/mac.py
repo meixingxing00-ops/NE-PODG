@@ -249,6 +249,17 @@ class Cavity:
             return T
         return T, self._ts.solve(-((en.S @ sp.diags(en.H @ T) @ en.A) @ dw))
 
+    def sensitivity(self, psi, T, nu, kap=None):
+        """稳态解对 ν、κ 的导数：J ∂q/∂ν = −∂R/∂ν，J ∂q/∂κ = −∂R/∂κ，q = [ψ, T]，J 为解处的完整雅可比（分解一次）。
+        ν、κ 只出现在扩散项：∂r_ψ/∂ν = Cᵀ(K_w w − b_w)，∂R_T/∂κ = K_T T − b_T。返回 (∂q/∂ν, ∂q/∂κ)；无温度时只返回 ∂ψ/∂ν。"""
+        rnu = self.C.T @ (self.mo.K @ (self.C @ psi) - self.mo.b)
+        if not self.thermal:
+            return self._lin(self.jac_full(psi, None, nu), -rnu)
+        z = np.zeros(self.nT)
+        dnu = self._lin(self.jac_full(psi, T, nu, kap), -np.concatenate([rnu, z]))
+        dkap = self._ds.solve(-np.concatenate([np.zeros(self.npsi), self.en.K @ T - self.en.b]))[:, 0]
+        return dnu, dkap
+
     # ---------------- 高保真求解 ----------------
     def solve(self, nu, kap=None, psi=None, T=None, tol=1e-8, maxit=30):
         """Newton（回溯线搜索）求 r_ψ = 0（与 R_T = 0）。返回 ψ、T 与状态。"""

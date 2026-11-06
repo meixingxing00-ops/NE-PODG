@@ -3,6 +3,7 @@
   python -m solvers.mac.checks lid N [s]               恒速顶盖驱动方腔 Re = 100 → 1000，对照 Ghia 等、Botella & Peyret
   python -m solvers.mac.checks nc N s [Pr]             自然对流 log10 Ra = 3 → 6，平均 Nu 对照参考值
   python -m solvers.mac.checks comsol N s DATA         与 paper-podnn 训练池 55 个 COMSOL 工况的平均 Nu 对照（DATA 为其 data 目录）
+  python -m solvers.mac.checks sens N s                稳态灵敏度与中心差分（自然对流对 log10 Ra、log10 Pr，顶盖对 log10 Re）
 """
 import csv
 import sys
@@ -106,6 +107,33 @@ def comsol(n, s, root):
                   flush=True)
 
 
+def sens(n, s, h=1e-4):
+    """灵敏度经 ν、κ 对对数参数的链式法则（d ln ν/d log10 Ra = −ln10/2 等）与步长 h 的中心差分对照，相对差按 M 范数。"""
+    c, x = np.log(10) / 2, nodes(n, s)
+    cav = Cavity(x, x, thermal=True)
+    for ra, pr in ((1e3, 0.71), (1e5, 0.1), (3.16e5, 10)):
+        psi = T = None
+        for r in [10 ** k for k in np.arange(3, np.log10(ra) + 1e-9, 0.5)] + [ra]:
+            psi, T, _ = cav.solve(np.sqrt(pr / r), 1 / np.sqrt(r * pr), psi, T)
+        nu, kap = np.sqrt(pr / ra), 1 / np.sqrt(ra * pr)
+        dnu, dkap = cav.sensitivity(psi, T, nu, kap)
+        for name, an, f in (("log10 Ra", -c * (nu * dnu + kap * dkap), lambda e: (ra * 10 ** e, pr)),
+                            ("log10 Pr", c * (nu * dnu - kap * dkap), lambda e: (ra, pr * 10 ** e))):
+            q = [np.concatenate(cav.solve(np.sqrt(p / r), 1 / np.sqrt(r * p), psi, T)[:2]) for r, p in (f(h), f(-h))]
+            fd = (q[0] - q[1]) / (2 * h)
+            err = lambda d: np.sqrt(d[:cav.npsi] @ (cav.Mpsi @ d[:cav.npsi]))
+            print(f"Ra {ra:g} Pr {pr:g}  d/d{name}  ψ 相对差 {err(an - fd) / err(fd):.1e}  "
+                  f"T 相对差 {np.linalg.norm(an[cav.npsi:] - fd[cav.npsi:]) / np.linalg.norm(fd[cav.npsi:]):.1e}")
+    cav = Cavity(x, x, lid=lambda x: np.ones_like(x))
+    psi = None
+    for re in (100, 400, 1000):
+        psi, _, _ = cav.solve(1 / re, psi=psi)
+    an = -np.log(10) / re * cav.sensitivity(psi, None, 1 / re)
+    fd = (cav.solve(1 / (re * 10 ** h), psi=psi)[0] - cav.solve(1 / (re * 10 ** -h), psi=psi)[0]) / (2 * h)
+    d = an - fd
+    print(f"顶盖 Re {re}  d/dlog10 Re  ψ 相对差 {np.sqrt(d @ (cav.Mpsi @ d) / (fd @ (cav.Mpsi @ fd))):.1e}")
+
+
 if __name__ == "__main__":
     cmd, args = sys.argv[1], sys.argv[2:]
     if cmd == "ops":
@@ -114,5 +142,7 @@ if __name__ == "__main__":
         lid(int(args[0]), *map(float, args[1:]))
     elif cmd == "nc":
         nc(int(args[0]), *map(float, args[1:]))
+    elif cmd == "sens":
+        sens(int(args[0]), float(args[1]))
     else:
         comsol(int(args[0]), float(args[1]), args[2])
