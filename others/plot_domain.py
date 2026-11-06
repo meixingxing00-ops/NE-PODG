@@ -19,7 +19,7 @@ groups = [("N12（各档共有）", pick(lambda r: on(r, "n12")), dict(marker="s
           ("N20 新增（Pr 加密）", pick(lambda r: on(r, "n20") and not on(r, "n12")), dict(marker="D", c=[cmap(0.80)], ec="white", lw=0.4, s=24)),
           ("N30 新增（Ra 加密）", pick(lambda r: on(r, "n30") and not on(r, "n12")), dict(marker="o", c=[cmap(0.66)], ec="white", lw=0.4, s=26)),
           ("仅 N50", pick(lambda r: on(r, "n50") and not on(r, "n20") and not on(r, "n30")), dict(marker="^", c=[cmap(0.20)], ec="white", lw=0.4, s=28)),
-          ("内插测试", pick(lambda r: r["role"] == "test"), dict(marker="o", fc="none", ec=cmap(0.05), lw=0.7, s=12)),
+          ("内插测试", pick(lambda r: r["role"] == "interp"), dict(marker="o", fc="none", ec=cmap(0.05), lw=0.7, s=12)),
           ("外推测试", pick(lambda r: r["role"] == "extrap"), dict(marker="x", c=[cmap(0.05)], lw=0.8, s=14))]
 
 fig, ax = plt.subplots(figsize=(6.8, 3.8))

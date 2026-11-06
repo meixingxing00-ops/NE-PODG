@@ -32,7 +32,7 @@ print(f"1. 重构相对误差 ≤ {max(rec):.1e}；‖g(a_i)‖/‖g(0)‖ ≤ {
 
 # 2
 rng = np.random.default_rng(0)
-psi, _, mu = nc.load("T050")
+psi, _, mu = nc.load("I050")
 c, d, e = rng.standard_normal(pod.V.shape[1]) * 1e-3, rng.standard_normal(pod.V.shape[1]), 1e-6
 gt = lambda c: nc.reduced(pod.mean + pod.V @ torch.as_tensor(c, device=pod.V.device), pod.V, mu)
 G = gt(c)[1].cpu().numpy()
@@ -50,7 +50,7 @@ print(f"3. 候选方向在 span V 内：n_Z = {Z.shape[1]}（s_max = {float(s.ma
 # 4
 init = closure.Init([eta(m) for _, _, m in snaps], pod.a)
 print("4. POD 空间闭合（初值为 POD 系数插值）：")
-for cid in ["P001", "P025", "P050", "T001", "T030", "T060", "T090", "E001", "E014", "E027"]:
+for cid in ["P001", "P025", "P050", "I001", "I030", "I060", "I090", "E001", "E014", "E027"]:
     psi_r, _, mu = nc.load(cid)
     t0 = time.perf_counter()
     y, _, st = closure.solve(nc.reduced, pod.mean, pod.V, mu, init(eta(mu)))

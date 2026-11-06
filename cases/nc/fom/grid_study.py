@@ -1,5 +1,5 @@
 """网格收敛：Pr = 0.1、1、10，沿 Ra = 10 → 10⁶ 延拓，各网格（N，s）在每个 Ra 上记录平均 Nu、壁面最大局部 Nu、|ψ|max、
-竖直中线 u_max、水平中线 v_max。结果 cases/nc/results/grid_study.csv。
+竖直中线 u_max、水平中线 v_max。结果 cases/nc/results/fom/grid_study.csv。
 用法（仓库根目录，PINNGPU）：python -m cases.nc.fom.grid_study"""
 import csv
 import time
@@ -22,8 +22,8 @@ def peak(t, f):
     return float(-minimize_scalar(lambda z: -cs(z), bounds=(t[max(k - 1, 0)], t[min(k + 1, len(t) - 1)]), method="bounded").fun)
 
 
-out = Path(__file__).resolve().parents[1] / "results" / "grid_study.csv"
-out.parent.mkdir(exist_ok=True)
+out = Path(__file__).resolve().parents[1] / "results" / "fom" / "grid_study.csv"
+out.parent.mkdir(parents=True, exist_ok=True)
 with open(out, "w", newline="") as fh:
     wr = csv.writer(fh)
     wr.writerow(["N", "s", "Ra", "Pr", "Nu", "Nu_loc_max", "psi_max", "u_max", "v_max", "iters", "time"])
