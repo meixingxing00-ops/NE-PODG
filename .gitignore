@@ -1,0 +1,15 @@
+# 快照、模型与大体积数组
+cases/*/data/
+cases/*/models/
+*.npy
+*.npz
+*.pt
+*.h5
+
+# Python
+__pycache__/
+*.pyc
+
+# 临时输出
+Temp/
+tmp/
