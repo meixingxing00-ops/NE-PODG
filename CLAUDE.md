@@ -1,5 +1,7 @@
 # 环境
-- 训练默认用 GPU；Python 用 conda 环境 PINN，直接调用 D:\Anaconda\envs\PINN\python.exe，无需激活。
+- 训练默认用 GPU。两个 conda 环境，直接调用解释器的绝对路径，无需激活：
+  - PINN：D:\Anaconda\envs\PINN\python.exe（Python 3.9）。
+  - PINNGPU：D:\Anaconda\envs\PINNGPU\python.exe（Python 3.11，含 nvmath / cuDSS）。`solvers/mac` 依赖 cuDSS，凡导入它的脚本用 PINNGPU。
 - torch 与 numpy 的 MKL 冲突会报 "OMP: Error #15"：导入 numpy 前设置 MKL_THREADING_LAYER=SEQUENTIAL；不要用 KMP_DUPLICATE_LIB_OK=TRUE（可能静默算错）。
 
 # 仓库结构
