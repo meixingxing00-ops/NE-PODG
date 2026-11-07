@@ -62,7 +62,7 @@ class Graetz:
 
     @staticmethod
     def sens_directions(budget):
-        """SA-PODG 候选方向：预算 N<budget> 全部训练点的 ∂T/∂η₁、∂T/∂η₂，(n, 2 N_B)，与查询参数无关。"""
+        """预算 N<budget> 全部训练点的灵敏度 ∂T/∂η₁、∂T/∂η₂，(n, 2 N_B)：张成基础空间中的 S，也作网络训练的导数监督。"""
         cols = []
         for r in cases():
             if r[f"n{budget}"] == "1":

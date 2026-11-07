@@ -1,6 +1,6 @@
-"""网络直接输出（教师预测 û = ū + Φ w）的误差：预算 nB 的模型在 interp（内插）或 extrap（外推）工况上，速度误差 e（M 范数）；
-另以 û 的速度在全网格上解能量方程得温度，记温度误差与平均 Nu 误差。结果 results/n<B>/teacher_<role>.csv。
-用法（仓库根目录，PINNGPU）：python -m cases.nc.scripts.teacher B role"""
+"""网络直接输出 û = ū + Φ w 的误差：预算 N<B> 的网络（kind 为 d 或 v，同 train.py）在 interp（内插）或 extrap（外推）工况上，
+速度误差 e（M 范数）；另以 û 的速度在全网格上解能量方程得温度，记温度误差与平均 Nu 误差。结果 results/n<B>/teacher_<kind>_<role>.csv。
+用法（仓库根目录，PINNGPU）：python -m cases.nc.scripts.teacher B role [kind]"""
 import csv
 import sys
 
@@ -8,14 +8,14 @@ import numpy as np
 import torch
 
 from cases.nc.case import NC, ROOT, cases, eta, nu_kap
-
-budget, role = int(sys.argv[1]), sys.argv[2]
-nc = NC()
 from nepodg import candidates
 
-net, mean = candidates.load(ROOT / "models" / f"n{budget}.pt", nc.X.device)
+budget, role = int(sys.argv[1]), sys.argv[2]
+kind = sys.argv[3] if len(sys.argv) > 3 else "d"
+nc = NC()
+net, mean = candidates.load(ROOT / "models" / f"n{budget}{'' if kind == 'd' else '_v'}.pt", nc.X.device)
 Mp = nc.cav.Mp
-out = ROOT / "results" / f"n{budget}" / f"teacher_{role}.csv"
+out = ROOT / "results" / f"n{budget}" / f"teacher_{kind}_{role}.csv"
 out.parent.mkdir(parents=True, exist_ok=True)
 with open(out, "w", newline="") as fh:
     wr = csv.writer(fh)

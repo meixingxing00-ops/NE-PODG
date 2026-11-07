@@ -1,5 +1,5 @@
 """方腔自然对流的实例化（实例化设计）：主场为内部角点流函数 ψ（容许坐标，提升为 0），度量为速度 L²，温度为辅助场。
-向 nepodg 提供 whiten、reduced、网络采样点 X 与容许映射 admissible、参数坐标 eta 与快照读取。"""
+向 nepodg 提供 whiten、reduced、网络采样点 X 与容许映射 admissible、参数坐标 eta、快照与灵敏度读取。"""
 import csv
 from pathlib import Path
 
@@ -10,6 +10,7 @@ from solvers.mac.gpu import DEV, Closure
 from solvers.mac.mac import Cavity, nodes
 
 ROOT = Path(__file__).resolve().parent
+SENS = ROOT / "data" / "sens"
 N, S = 128, 2.0
 
 
@@ -55,3 +56,10 @@ class NC:
         """快照：内部角点 ψ（GPU）、温度、参数。"""
         d = np.load(ROOT / "data" / f"{cid}.npz")
         return torch.as_tensor(d["psi"][1:-1, 1:-1].ravel(), device=DEV), d["T"].ravel(), (float(d["Ra"]), float(d["Pr"]))
+
+    @staticmethod
+    def sens(ids):
+        """训练点流函数对参数坐标的灵敏度 ∂ψ/∂η，(n, len(ids), 2) 的 GPU 张量。
+        η₁ = (log10 Ra − 3.25)/2.25、η₂ = log10 Pr，故 ∂/∂η₁ = 2.25 ∂/∂log10 Ra、∂/∂η₂ = ∂/∂log10 Pr。"""
+        d = [np.load(SENS / f"{i}.npz") for i in ids]
+        return torch.as_tensor(np.stack([np.stack([2.25 * x["psi_Ra"], x["psi_Pr"]], 1) for x in d], 1), device=DEV)

@@ -1,6 +1,6 @@
 """降阶求解：快照预算 nB 的完整 POD，role 为 pool、interp 或 extrap。space：
   pod     只用 POD 空间
-  sapodg  SA-PODG，候选方向为预算内训练点的 ∂T/∂η₁、∂T/∂η₂，与查询参数无关
+  sapodg  SA-PODG：基础空间 V⊕S，S 由预算内训练点的 ∂T/∂η₁、∂T/∂η₂ 张成，与查询参数无关
 闭合为线性 Galerkin 直接求解（case.Graetz.solve）。每个工况记录 n_V、n_Z、温度误差 e、所用空间与 POD 空间的最佳逼近误差、
 e_real、T_av 相对误差与耗时，有候选方向时另记主角正弦谱 s 的最小值、中位数与 s > 0.1、s > 0.01 的个数，
 结果 results/n<B>/<space>_<role>.csv。

@@ -1,0 +1,27 @@
+E:\XJTUscientific_research\NE-PODG\solvers\mac\gpu.py:23: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\SparseCsrTensorImpl.cpp:55.)
+  return torch.sparse_csr_tensor(torch.as_tensor(A.indptr, dtype=idx), torch.as_tensor(A.indices, dtype=idx),
+E:\XJTUscientific_research\NE-PODG\cases\nc\explore\sob.py:73: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:836.)
+  acc += [float(lv), float(ls)]
+5000 1.448e+02 9.621e+01 763s
+10000 4.744e+00 7.168e-01 1529s
+15000 5.224e+00 6.039e-01 2303s
+20000 1.893e+00 3.424e-01 2868s
+25000 6.963e-01 1.703e-01 3242s
+30000 3.500e-01 9.036e-02 3615s
+35000 4.523e-01 7.663e-02 3989s
+40000 1.835e-01 4.903e-02 4362s
+45000 1.760e-01 4.578e-02 4735s
+50000 1.270e-01 3.061e-02 5108s
+55000 2.879e-02 1.844e-02 5481s
+60000 1.800e-02 1.184e-02 5855s
+65000 1.483e-02 9.453e-03 6228s
+70000 1.013e-02 7.326e-03 6601s
+75000 9.867e-03 6.481e-03 6975s
+80000 5.478e-03 5.060e-03 7750s
+85000 4.773e-03 4.581e-03 8329s
+90000 4.303e-03 4.253e-03 8742s
+95000 3.868e-03 3.990e-03 9136s
+100000 3.574e-03 3.792e-03 9530s
+训练点相对误差中位数（值、灵敏度） 3.629e-02 4.114e-02
+done
