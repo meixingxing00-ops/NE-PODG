@@ -1,5 +1,5 @@
 """工况表 cases/graetz/cases.csv（实例化设计 §3–4）。参数取 3 位有效数字。
-- pool：训练池 35 点，log10 L = 0, 0.25, …, 1，log10 Pe = −1, −0.5, …, 2；n6、n9、n21、n35 标记所属快照预算。
+- pool：训练池 35 点，log10 L = 0, 0.25, …, 1，log10 Pe = −1, −0.5, …, 2；n4 标记快照预算 N4（四角 L ∈ {1, 10} × Pe ∈ {0.1, 100}）。
 - interp：训练区内 100 点，(log10 L, log10 Pe) ∈ [0, 1] × [−1, 2] 上的拉丁超立方取样；与任一训练池点在两个对数坐标上
   都相差不到 0.05 的取样作废，按种子从 0 起依次试，取第一个全部满足的种子。
 - extrap：外推区 27 点，log10 Pe = 2 + 0.125、0.25、0.5（133、178、316），log10 L = 0, 0.125, …, 1。
@@ -12,12 +12,11 @@ from scipy.stats import qmc
 
 r3 = lambda v: float(f"{v:.3g}")
 lL, lPe = np.arange(0, 1.01, 0.25), np.arange(-1, 2.01, 0.5)
-B = ["n6", "n9", "n21", "n35"]
+B = ["n4"]
 rows = []
 for j, b in enumerate(lPe):
     for i, a in enumerate(lL):
-        sp, se, sm = j % 3 == 0, i in (0, 4), i % 2 == 0
-        rows.append(dict(role="pool", L=r3(10 ** a), Pe=r3(10 ** b), n6=int(sp and se), n9=int(sp and sm), n21=int(sm), n35=1))
+        rows.append(dict(role="pool", L=r3(10 ** a), Pe=r3(10 ** b), n4=int(i in (0, 4) and j in (0, 6))))
 
 grid = np.array([(a, b) for a in lL for b in lPe])
 for seed in range(100000):
