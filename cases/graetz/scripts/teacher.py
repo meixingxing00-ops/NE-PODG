@@ -9,13 +9,13 @@ os.environ.setdefault("MKL_THREADING_LAYER", "SEQUENTIAL")
 import numpy as np
 import torch
 
-from cases.graetz.case import ROOT, Graetz, cases, eta
+from cases.graetz.case import MODELS, ROOT, Graetz, cases, eta
 from nepodg import candidates
 
 budget, role = int(sys.argv[1]), sys.argv[2]
 kind = sys.argv[3] if len(sys.argv) > 3 else "d"
 g = Graetz()
-net, mean = candidates.load(ROOT / "models" / f"n{budget}{'' if kind == 'd' else '_v'}.pt", g.X.device)
+net, mean = candidates.load(MODELS / kind / f"n{budget}.pt", g.X.device)
 out = ROOT / "results" / f"n{budget}" / f"teacher_{kind}_{role}.csv"
 out.parent.mkdir(parents=True, exist_ok=True)
 with open(out, "w", newline="") as fh:

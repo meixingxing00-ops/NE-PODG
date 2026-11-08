@@ -10,6 +10,7 @@ import torch
 from solvers.fv.fv import Channel, grid
 
 ROOT = Path(__file__).resolve().parent
+MODELS = ROOT / "models"                    # <kind>/n<B>.pt：d 值与导数监督，v 只用值监督
 DEV = torch.device("cuda")
 
 

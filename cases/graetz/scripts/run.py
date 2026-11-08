@@ -2,8 +2,8 @@
   pod           V：快照空间
   sapodg        W = V⊕S：加预算内训练点的稳态灵敏度（SA-PODG）
   <基>_<网络>   在基 V 或 VS（= W）上加查询点的网络方向（去基的分量）：
-                d        值与导数监督的网络 models/n<B>.pt
-                v        只用值监督的网络 models/n<B>_v.pt
+                d        值与导数监督的网络 models/d/n<B>.pt
+                v        只用值监督的网络 models/v/n<B>.pt
                 r<种子>  同结构、以该种子随机初始化的未训练网络
   主方法为 VS_d（默认）；VS_v、V_d、V_v、VS_r<种子> 为消融。
 闭合为线性 Galerkin 直接求解（case.Graetz.solve）。每个工况记录 n_V、n_S、n_Z、温度误差 e、所用空间与 POD 空间的最佳逼近误差、
@@ -19,7 +19,7 @@ os.environ.setdefault("MKL_THREADING_LAYER", "SEQUENTIAL")
 import numpy as np
 import torch
 
-from cases.graetz.case import ROOT, Graetz, cases, eta
+from cases.graetz.case import MODELS, ROOT, Graetz, cases, eta
 from nepodg import candidates, metrics, space
 
 budget, role = int(sys.argv[1]), sys.argv[2]
@@ -37,7 +37,7 @@ if "_" in mode:
         torch.manual_seed(int(kind[1:]))
         net = candidates.Net().to(g.X.device).eval()
     else:
-        net = candidates.load(ROOT / "models" / f"n{budget}{'' if kind == 'd' else '_v'}.pt", g.X.device)[0]
+        net = candidates.load(MODELS / kind / f"n{budget}.pt", g.X.device)[0]
 out = ROOT / "results" / f"n{budget}" / f"{mode}_{role}.csv"
 out.parent.mkdir(parents=True, exist_ok=True)
 with open(out, "w", newline="") as fh:
