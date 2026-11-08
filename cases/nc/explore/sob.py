@@ -78,5 +78,5 @@ for it in range(1, steps + 1):
 net.eval()
 print("训练点相对误差中位数（值、灵敏度）", " ".join(f"{v:.3e}" for v in check(net)))
 (HERE / "models").mkdir(exist_ok=True)
-candidates.save(HERE / "models" / f"n{budget}sob{'' if lam == 1.0 else f'_l{lam:g}'}.pt", net, mean, hist)
+candidates.save(HERE / "models" / f"n{budget}sob{'' if lam == 1.0 else f'_l{lam:g}'}.pt", net, hist)
 print("done")

@@ -81,8 +81,8 @@ def phys_loss(net, tnet, gen):
 
 
 def save(name, net, tnet, hist):
-    candidates.save(HERE / "models" / f"{name}.pt", net, mean, hist)
-    candidates.save(HERE / "models" / f"{name}_T.pt", tnet, Tmean, hist)
+    candidates.save(HERE / "models" / f"{name}.pt", net, hist)
+    candidates.save(HERE / "models" / f"{name}_T.pt", tnet, hist)
 
 
 # 残差核对：高保真快照处 e_ψ、e_T 应为求解器容差量级，与 Cavity.residual 一致
@@ -102,8 +102,8 @@ if mode == "sup":
     net, tnet = candidates.Net(**NET).to(DEV), candidates.Net(**NET).to(DEV)
     lr = LR
 else:
-    net = candidates.load(HERE / "models" / "n6sup.pt", DEV)[0].train()
-    tnet = candidates.load(HERE / "models" / "n6sup_T.pt", DEV)[0].train()
+    net = candidates.load(HERE / "models" / "n6sup.pt", DEV).train()
+    tnet = candidates.load(HERE / "models" / "n6sup_T.pt", DEV).train()
     lr = LR / 100
 opt = torch.optim.Adam(list(net.parameters()) + list(tnet.parameters()), lr=lr)
 sched = torch.optim.lr_scheduler.MultiStepLR(opt, [steps // 2, 3 * steps // 4], 0.1)

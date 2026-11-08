@@ -3,7 +3,7 @@
   sane          V⊕S⊕Z，Z 为查询点网络方向去 V⊕S 分量
   sanefix       V⊕S⊕Z，Z 为 Ra 最高训练点处的网络方向（固定）
   vne           V⊕Z，Z 为查询点网络方向去 V 分量（即 NE-PODG）
-  <名>:<模型>   以 explore/models/<模型>.pt 代替 cases/nc/models/v/n<B>.pt，<名> 为 sane、sanefix 或 vne
+  <名>:<模型>   以 explore/models/<模型>.pt 代替 cases/nc/models/archive/centered/v/n<B>.pt，<名> 为 sane、sanefix 或 vne
   vpoly<d>      V⊕P，P 为总次数 ≤ d 的多项式场 𝓑·P_a(x)P_b(y)（固定）
   sapoly<d>     V⊕S⊕P
 结果 explore/results/n<B>/<space>_<role>.csv（模型名中的冒号写作下划线）。
@@ -26,7 +26,7 @@ nc = NC()
 bd = Budget(nc, budget)
 kind, _, model = mode.partition(":")
 if kind.startswith("sane") or kind == "vne":
-    net = candidates.load(HERE / "models" / f"{model}.pt", nc.X.device)[0] if model else bd.net()
+    net = candidates.load(HERE / "models" / f"{model}.pt", nc.X.device) if model else bd.net()
 dirs = lambda e: candidates.directions(net, nc.X, e, nc.admissible)
 init = closure.Init(bd.etas, bd.pod.a)
 if kind.startswith("vpoly") or kind == "vne":

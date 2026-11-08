@@ -15,7 +15,7 @@ HERE = Path(__file__).resolve().parent
 names = sys.argv[1:]
 nc = NC()
 bd = Budget(nc, 6)
-nets = {m: candidates.load(HERE / "models" / f"{m}.pt", nc.X.device)[0] for m in names}
+nets = {m: candidates.load(HERE / "models" / f"{m}.pt", nc.X.device) for m in names}
 P = {d: cat(bd.VS, extend(bd.VS, poly(nc, d), nc.whiten)[:2])[1] for d in (6, 10, 14)}
 cols = ["id", "role", "Ra", "Pr", "V", "VS", "VSp6", "VSp10", "VSp14"] + [f"{k}{m}" for m in names for k in ("VS", "t", "pred")]
 print(f"n_V {bd.Vb[0].shape[1]}，n_VS {bd.VS[0].shape[1]}")

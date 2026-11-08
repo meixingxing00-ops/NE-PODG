@@ -37,7 +37,7 @@ if "_" in mode:
         torch.manual_seed(int(kind[1:]))
         net = candidates.Net().to(nc.X.device).eval()
     else:
-        net = candidates.load(MODELS / kind / f"n{budget}.pt", nc.X.device)[0]
+        net = candidates.load(MODELS / kind / f"n{budget}.pt", nc.X.device)
 Mp = nc.cav.Mp
 out = ROOT / "results" / f"n{budget}" / f"{mode}_{role}.csv"
 out.parent.mkdir(parents=True, exist_ok=True)

@@ -62,8 +62,8 @@ class Budget:
         self.VS = cat(self.Vb, (Z, Zw))
 
     def net(self):
-        """主线只用值监督的网络 cases/nc/models/v/n<B>.pt。"""
-        return candidates.load(MODELS / "v" / f"n{self.budget}.pt", self.nc.X.device)[0]
+        """主线只用值监督的网络 cases/nc/models/archive/centered/v/n<B>.pt。"""
+        return candidates.load(MODELS / "archive" / "centered" / "v" / f"n{self.budget}.pt", self.nc.X.device)
 
 
 def poly(nc, deg):

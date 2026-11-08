@@ -5,7 +5,7 @@
   Vb_h：V 上加 b 在查询点的预测 f 与 ∂f/∂η（3 个方向）
   Vb_S：V 上加 b 在各训练点的 ∂f/∂η（2 N_B 个，网络版的 S）
   preda、predb：网络直接输出误差
-模型名 main 指主线只用值监督的网络 cases/nc/models/v/n<B>.pt，其余为 explore/models/<名>.pt。结果 explore/results/sobeval_n<B>.csv。
+模型名 main 指主线只用值监督的网络 cases/nc/models/archive/centered/v/n<B>.pt，其余为 explore/models/<名>.pt。结果 explore/results/sobeval_n<B>.csv。
 用法：python -m cases.nc.explore.sobeval B a b"""
 import csv
 import sys
@@ -23,7 +23,7 @@ HERE = Path(__file__).resolve().parent
 budget, na, nb = int(sys.argv[1]), sys.argv[2], sys.argv[3]
 nc = NC()
 bd = Budget(nc, budget)
-load = lambda m: bd.net() if m == "main" else candidates.load(HERE / "models" / f"{m}.pt", nc.X.device)[0]
+load = lambda m: bd.net() if m == "main" else candidates.load(HERE / "models" / f"{m}.pt", nc.X.device)
 A, Bn = load(na), load(nb)
 dev = nc.X.device
 
