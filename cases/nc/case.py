@@ -11,6 +11,7 @@ from solvers.mac.mac import Cavity, nodes
 
 ROOT = Path(__file__).resolve().parent
 SENS = ROOT / "data" / "sens"
+MODELS = ROOT / "models"                    # <kind>/n<B>.pt：d 值与导数监督，v 只用值监督
 N, S = 128, 2.0
 
 

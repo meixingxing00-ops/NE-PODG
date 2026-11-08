@@ -3,8 +3,8 @@
 import numpy as np
 import torch
 
-from cases.nc.case import NC, ROOT, cases, eta
-from cases.nc.case import SENS as SA_DATA
+from cases.nc.case import NC, cases, eta
+from cases.nc.case import MODELS, SENS as SA_DATA
 from nepodg import candidates, space
 from solvers.mac.gpu import DEV
 
@@ -61,9 +61,9 @@ class Budget:
         Z, Zw, _ = extend(self.Vb, self.Sraw, nc.whiten)
         self.VS = cat(self.Vb, (Z, Zw))
 
-    def net(self, name=None):
-        here = ROOT / "explore" if self.budget in IDS else ROOT
-        return candidates.load(here / "models" / f"{name or f'n{self.budget}_v'}.pt", self.nc.X.device)[0]
+    def net(self):
+        """主线只用值监督的网络 cases/nc/models/v/n<B>.pt。"""
+        return candidates.load(MODELS / "v" / f"n{self.budget}.pt", self.nc.X.device)[0]
 
 
 def poly(nc, deg):

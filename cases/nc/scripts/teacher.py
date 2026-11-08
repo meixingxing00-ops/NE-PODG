@@ -7,13 +7,13 @@ import sys
 import numpy as np
 import torch
 
-from cases.nc.case import NC, ROOT, cases, eta, nu_kap
+from cases.nc.case import MODELS, NC, ROOT, cases, eta, nu_kap
 from nepodg import candidates
 
 budget, role = int(sys.argv[1]), sys.argv[2]
 kind = sys.argv[3] if len(sys.argv) > 3 else "d"
 nc = NC()
-net, mean = candidates.load(ROOT / "models" / f"n{budget}{'' if kind == 'd' else '_v'}.pt", nc.X.device)
+net, mean = candidates.load(MODELS / kind / f"n{budget}.pt", nc.X.device)
 Mp = nc.cav.Mp
 out = ROOT / "results" / f"n{budget}" / f"teacher_{kind}_{role}.csv"
 out.parent.mkdir(parents=True, exist_ok=True)
