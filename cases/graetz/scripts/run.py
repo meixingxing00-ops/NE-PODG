@@ -2,10 +2,11 @@
   pod           V：快照空间
   sapodg        W = V⊕S：加预算内训练点的稳态灵敏度（SA-PODG）
   <基>_<网络>   在基 V 或 VS（= W）上加查询点的网络方向（去基的分量）：
+                v        值监督的网络 models/v/n<B>.pt
                 d        值与导数监督的网络 models/d/n<B>.pt
-                v        只用值监督的网络 models/v/n<B>.pt
+                d<种子>、v<种子>  同上，以该种子训练的网络 models/d<种子>、v<种子>/n<B>.pt
                 r<种子>  同结构、以该种子随机初始化的未训练网络
-  主方法为 VS_d（默认）；VS_v、V_d、V_v、VS_r<种子> 为消融。
+  主方法为 VS_v（默认）；VS_d、V_v、V_d、VS_r<种子> 为消融。
 闭合为线性 Galerkin 直接求解（case.Graetz.solve）。每个工况记录 n_V、n_S、n_Z、温度误差 e、所用空间与 POD 空间的最佳逼近误差、
 e_real、T_av 误差、局部 Nu 沿受热壁的最大误差与耗时；有网络方向时另记其主角正弦谱 s 的最小值、中位数与 s > 0.1、s > 0.01 的个数。
 结果 results/n<B>/<space>_<role>.csv。
@@ -23,7 +24,7 @@ from cases.graetz.case import MODELS, ROOT, Graetz, cases, eta
 from nepodg import candidates, metrics, space
 
 budget, role = int(sys.argv[1]), sys.argv[2]
-mode = sys.argv[3] if len(sys.argv) > 3 else "VS_d"
+mode = sys.argv[3] if len(sys.argv) > 3 else "VS_v"
 g = Graetz()
 ids = [c["id"] for c in cases() if c[f"n{budget}"] == "1"]
 pod = space.POD(torch.stack([g.load(i)[0] for i in ids], 1), g.whiten)
