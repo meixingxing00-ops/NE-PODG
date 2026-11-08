@@ -1,5 +1,5 @@
 """Couette–Graetz 的实例化（实例化设计）：主场为全部单元温度 T（提升为 0，任意单元向量都容许），度量为参考域 L²，无辅助场。
-向 nepodg 提供 whiten、闭合 solve、网络采样点 X 与容许映射 admissible、参数坐标 eta 与快照读取。
+向 nepodg 提供 whiten、闭合 solve、网络采样点 X 与容许映射 admissible、参数坐标 eta、快照与灵敏度读取。
 闭合为线性 Galerkin：T_r = T₀ + B c，(Bᵀ A B) c = Bᵀ(f − A T₀)，直接求解。"""
 import csv
 from pathlib import Path
@@ -60,12 +60,13 @@ class Graetz:
         d = np.load(ROOT / "data" / f"{cid}.npz")
         return torch.as_tensor(d["T"], device=DEV), (float(d["L"]), float(d["Pe"]))
 
+    def nusselt(self, T, mu):
+        """受热段局部 Nu（各受热单元列）。"""
+        return self.ch.nusselt(T.cpu().numpy() if torch.is_tensor(T) else T, mu[1])
+
     @staticmethod
-    def sens_directions(budget):
-        """预算 N<budget> 全部训练点的灵敏度 ∂T/∂η₁、∂T/∂η₂，(n, 2 N_B)：张成基础空间中的 S，也作网络训练的导数监督。"""
-        cols = []
-        for r in cases():
-            if r[f"n{budget}"] == "1":
-                d = np.load(ROOT / "data" / f"{r['id']}.npz")
-                cols += [d["T_e1"], d["T_e2"]]
-        return torch.as_tensor(np.stack(cols, 1), device=DEV)
+    def sens(ids):
+        """训练点温度对参数坐标的灵敏度 ∂T/∂η，(n, len(ids), 2) 的 GPU 张量。快照文件中的 T_e1、T_e2 由 fom/snapshots.py
+        直接对 η 求得（η₁ = 2 log10 L − 1、η₂ = (log10 Pe − 0.5)/1.5，即 ∂/∂η₁ = ½ ∂/∂log10 L、∂/∂η₂ = 1.5 ∂/∂log10 Pe），不再换算。"""
+        d = [np.load(ROOT / "data" / f"{i}.npz") for i in ids]
+        return torch.as_tensor(np.stack([np.stack([x["T_e1"], x["T_e2"]], 1) for x in d], 1), device=DEV)
