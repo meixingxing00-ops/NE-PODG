@@ -16,3 +16,16 @@ tmp/
 
 # 文献原文（版权）
 reference/
+
+# LaTeX 编译产物
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.spl
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.xdv
+paper/main.pdf
