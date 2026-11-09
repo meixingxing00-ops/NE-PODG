@@ -2,15 +2,14 @@
 
 网络在算例给出的采样点 X 上输出 m 个原始场 χ_k(x; η)，并由 η 给出读出系数 w(η) = exp(ℓ(η)) r(η)（ℓ 为标量幅值）。
 算例的容许映射 admissible 把采样点上的原始场（列）线性映到容许坐标，候选方向 Φ(η) = admissible(χ(X; η))。
-网络预测为线性读出 û(η) = Φ(η) w(η)，直接拟合增量快照 u_i 与灵敏度 s_ij。损失为逐项相对误差平方（M 范数，经 whiten）：
-  L = mean_i ‖L(û(η_i) − u_i)‖² / ‖L u_i‖² + λ mean_{i,j} ‖L(∂û/∂η_j(η_i) − s_ij)‖² / ‖L s_ij‖²
-训练前先只拟合幅值分支 ℓ，使每个训练工况的初始 ‖L û(η_i)‖ = 0.1‖L u_i‖。每步随机取 batch 个训练工况，在全部采样点上计算；
-导数项每步对每个工况随机取一个 η 方向，以单切向量前向模式自动微分求出，期望与全部方向的平均相同。
+网络预测为线性读出 û(η) = Φ(η) w(η)，直接拟合增量快照 u_i。损失为逐工况相对误差平方（M 范数，经 whiten）：
+  L = mean_i ‖L(û(η_i) − u_i)‖² / ‖L u_i‖²
+训练前先只拟合幅值分支 ℓ，使每个训练工况的初始 ‖L û(η_i)‖ = 0.1‖L u_i‖。每步随机取 batch 个训练工况，在全部采样点上计算。
 """
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.func import jvp, vmap
+from torch.func import vmap
 
 PREFIT_STEPS, PREFIT_LR, INIT_RATIO, MILESTONES = 2000, 1e-2, 0.1, (1 / 3, 2 / 3)
 
@@ -52,18 +51,9 @@ def predict(net, X, E, admissible):
     return admissible(vmap(lambda e: net.fields(X, e) @ net.readout(e))(E).T.double())
 
 
-def _jvp(net, X, E, T, admissible):
-    """每个工况的 û 与沿切向量 T[i] 的方向导数 ∂û/∂η·T[i]，均为 (n, b)。"""
-    def g(e):
-        return net.fields(X, e) @ net.readout(e)
-    y, dy = vmap(lambda e, t: jvp(g, (e,), (t,)))(E, T)
-    return admissible(y.T.double()), admissible(dy.T.double())
-
-
-def train(net, X, etas, U, admissible, whiten, steps, lr, batch, seed=0, log=1000, S=None, lam=1.0):
-    """etas (Ns, deta)、U (n, Ns)：训练工况的参数坐标与增量快照（GPU float64）；
-    S (n, Ns, deta)：训练点对 η 的灵敏度，None 时只监督快照值（λ = 0）。
-    幅值分支预拟合后，Adam 训练全部参数，学习率在 steps 的 1/3、2/3 处各降为 1/10。返回每 log 步的平均损失 (值项, 导数项)。"""
+def train(net, X, etas, U, admissible, whiten, steps, lr, batch, seed=0, log=1000):
+    """etas (Ns, deta)、U (n, Ns)：训练工况的参数坐标与增量快照（GPU float64）。
+    幅值分支预拟合后，Adam 训练全部参数，学习率在 steps 的 1/3、2/3 处各降为 1/10。返回每 log 步的平均损失。"""
     torch.manual_seed(seed)
     gen = np.random.default_rng(seed)
     E = torch.as_tensor(np.asarray(etas), dtype=torch.float32, device=X.device)
@@ -77,31 +67,21 @@ def train(net, X, etas, U, admissible, whiten, steps, lr, batch, seed=0, log=100
         opt.zero_grad()
         loss.backward()
         opt.step()
-    if S is not None:
-        ss = torch.stack([torch.linalg.norm(whiten(S[:, :, j]), dim=0) ** 2 for j in range(S.shape[2])], 1)   # (Ns, deta)
-        I = torch.eye(E.shape[1], device=X.device)
     opt = torch.optim.Adam(net.parameters(), lr=lr)
     sched = torch.optim.lr_scheduler.MultiStepLR(opt, [int(r * steps) for r in MILESTONES], 0.1)
-    hist, acc = [], np.zeros(2)
+    hist, acc = [], 0.0
     for it in range(1, steps + 1):
         idx = torch.as_tensor(gen.choice(len(E), min(batch, len(E)), replace=False), device=X.device)
-        ls = torch.zeros((), dtype=U.dtype, device=X.device)
-        if S is None:
-            f = predict(net, X, E[idx], admissible)
-        else:
-            j = torch.as_tensor(gen.integers(E.shape[1], size=len(idx)), device=X.device)
-            f, dfj = _jvp(net, X, E[idx], I[j], admissible)
-            ls = (torch.linalg.norm(whiten(dfj - S[:, idx, j]), dim=0) ** 2 / ss[idx, j]).mean()
-        lv = (torch.linalg.norm(whiten(f - U[:, idx]), dim=0) ** 2 / su[idx]).mean()
-        loss = lv + lam * ls
+        f = predict(net, X, E[idx], admissible)
+        loss = (torch.linalg.norm(whiten(f - U[:, idx]), dim=0) ** 2 / su[idx]).mean()
         opt.zero_grad()
         loss.backward()
         opt.step()
         sched.step()
-        acc += [lv.item(), ls.item()]
+        acc += loss.item()
         if it % log == 0:
-            hist.append(tuple(acc / log))
-            acc[:] = 0
+            hist.append(acc / log)
+            acc = 0.0
     return hist
 
 
