@@ -7,8 +7,9 @@ import torch
 
 
 def _orth(X, Xw, keep):
-    """Xw 的 SVD Xw = P diag(σ) Qᵀ；返回 keep(σ) 选中方向的状态基 X Q σ⁻¹、白化正交基 P 与 σ。"""
-    P, s, Qh = torch.linalg.svd(Xw, full_matrices=False)
+    """Xw 的 SVD Xw = P diag(σ) Qᵀ；返回 keep(σ) 选中方向的状态基 X Q σ⁻¹、白化正交基 P 与 σ。
+    float64 高瘦矩阵的 SVD 在 CPU（LAPACK）上比 GPU 快，故在 CPU 上算后移回。"""
+    P, s, Qh = (t.to(Xw.device) for t in torch.linalg.svd(Xw.cpu(), full_matrices=False))
     sel = keep(s)
     return X @ (Qh[sel].T / s[sel]), P[:, sel], s
 
@@ -36,11 +37,13 @@ class POD(Space):
         self.a = self.Vw.T @ Dw                                                   # 训练快照的 POD 系数 (n_V, Ns)
 
 
-def complement(Phi, whiten, base, delta=1e-8, tau=1e-6):
+def complement(Phi, whiten, base, delta=1e-8, tau=1e-6, r=None):
     """候选方向 Phi 相对空间 base 的互补方向 Z（状态坐标）、Zw（白化坐标）与主角正弦谱 s（全部奇异值，前 n_Z 个为保留方向）。
     候选空间先取正交基（相对奇异值 > delta），去 base 分量后的奇异值 s ∈ [0, 1] 为候选空间与 span base 之间主角的正弦，保留 s > tau。
-    POD 保留到 σ/σ₁ ~ 1e-8 的模态，其精度也只到该量级，tau 取在其上。"""
+    POD 保留到 σ/σ₁ ~ 1e-8 的模态，其精度也只到该量级，tau 取在其上。
+    r：候选空间只取 Phi 的前 r 个奇异方向（M 范数下按奇异值从大到小）再去 base 分量，n_Z ≤ r。"""
     Q, Qw, _ = _orth(Phi, whiten(Phi), lambda s: s / s[0] > delta)
+    Q, Qw = Q[:, :r], Qw[:, :r]
     A, Aw = Q - base.V @ (base.Vw.T @ Qw), base.project(Qw)
     return _orth(A, Aw, lambda s: s > tau)
 

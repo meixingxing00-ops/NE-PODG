@@ -4,17 +4,20 @@
   g = Ψ_Bᵀ r_ψ = Wᵀ R_w(w, T)
   G = Ψ_Bᵀ J_eff Ψ_B = Wᵀ [ (∂R_w/∂w) W + (∂R_w/∂T) S_W ]
 有温度时（cav.thermal）温度为辅助场 T = S(ψ)，S_W = −J_TT⁻¹ (∂R_T/∂w) W；无温度时没有 T 与 S_W 两项。
-∂R_T/∂T = J_TT = S_e diag(A_e w) H_e + κ K_e 的非零元对面通量 A_e w 线性：values = G_T (A_e w) + κ k₀，G_T 预先算好，
-J_TT 的结构固定，cuDSS 符号分析只做一次。温度（1 列）与灵敏度（cols 列）各用一个求解器。
+∂R_T/∂T = J_TT = S_e diag(A_e w) H_e + κ K_e 的非零元对面通量 A_e w 线性：values = G_T (A_e w) + κ k₀，G_T 预先算好。
+J_TT 的结构固定，cuDSS 符号分析只做一次；每次 reduced 只分解一次，温度与 k 列灵敏度共用该分解，右端项列数即基方向数。
+与状态无关的 C Ψ_B、A W、H W、K W、A_e W 每个基只算一次（以 Ψ_B 对象判定是否为同一个基）。
 """
+import nvmath
 import numpy as np
-import nvmath.sparse.advanced as nsa
 import scipy.sparse as sp
 import torch
+from nvmath.bindings import cudss
 
-from solvers.mac.mac import _LOG, _keys
+from solvers.mac.mac import _keys
 
 DEV = torch.device("cuda")
+_I32, _F64 = nvmath.CudaDataType.CUDA_R_32I, nvmath.CudaDataType.CUDA_R_64F
 
 
 def _t(A, idx=torch.int64):
@@ -28,14 +31,46 @@ def _g(a):
     return torch.as_tensor(a, dtype=torch.float64, device=DEV)
 
 
-class Closure:
-    """cav：mac.Cavity；cols：基方向数上限（有温度时为灵敏度右端项列数）。"""
+class _Direct:
+    """GPU 上 CSR 矩阵 J（int32 下标，数值原位更新）的 cuDSS 直接法：符号分析在建立时做一次，
+    factorize 按 J 当前的数值分解，solve 的右端项列数任意。右端项与解为 (k, n) 张量（即 n×k 列主序）。"""
 
-    def __init__(self, cav, cols=256):
+    def __init__(self, J):
+        self.n = n = J.shape[0]
+        self.h, self.cfg = cudss.create(), cudss.config_create()
+        self.dat = cudss.data_create(self.h)
+        cudss.set_stream(self.h, torch.cuda.current_stream().cuda_stream)
+        self.a = cudss.matrix_create_csr(n, n, J.values().numel(), J.crow_indices().data_ptr(), 0, J.col_indices().data_ptr(),
+                                         J.values().data_ptr(), _I32, _I32, _F64, cudss.MatrixType.GENERAL,
+                                         cudss.MatrixViewType.FULL, cudss.IndexBase.ZERO)
+        self.z = torch.zeros(1, n, dtype=torch.float64, device=DEV)
+        self._run(cudss.Phase.ANALYSIS, self.z, self.z)
+
+    def _run(self, phase, X, B):
+        x, b = (cudss.matrix_create_dn(self.n, M.shape[0], self.n, M.data_ptr(), _F64, cudss.Layout.COL_MAJOR) for M in (X, B))
+        cudss.execute(self.h, phase, self.cfg, self.dat, self.a, x, b)
+        cudss.matrix_destroy(x)
+        cudss.matrix_destroy(b)
+
+    def factorize(self):
+        self._run(cudss.Phase.FACTORIZATION, self.z, self.z)
+
+    def solve(self, B):
+        B = B.contiguous()
+        X = torch.empty_like(B)
+        self._run(cudss.Phase.SOLVE, X, B)
+        return X
+
+
+class Closure:
+    """cav：mac.Cavity。"""
+
+    def __init__(self, cav):
         mo = cav.mo
         self.thermal = cav.thermal
         self.C, self.Sm, self.Am, self.Hm, self.Km = (_t(M) for M in (cav.C, mo.S, mo.A, mo.H, mo.K))
         self.bm, self.sqMu = _g(mo.b), _g(np.sqrt(cav.Mu))
+        self._PsiB = None
         if not self.thermal:
             return
         en = cav.en
@@ -55,39 +90,38 @@ class Closure:
         k0 = np.zeros(tpl.nnz)
         k0[np.searchsorted(key, _keys(K))] = K.data
         self.k0 = _g(k0)
-        n = tpl.shape[0]
         self.J = _t(tpl, torch.int32)
-        self.b1, self.bk = torch.zeros(1, n, dtype=torch.float64, device=DEV), torch.zeros(cols, n, dtype=torch.float64, device=DEV)
-        self.s1 = nsa.DirectSolver(self.J, self.b1.T, options={"logger": _LOG})
-        self.sk = nsa.DirectSolver(self.J, self.bk.T, options={"logger": _LOG})
-        self.s1.plan()
-        self.sk.plan()
+        self.ds = _Direct(self.J)
 
     def whiten(self, Y):
         """L Y，L = M_u^{1/2} C，‖Y‖_M = ‖L Y‖₂。Y 为 (n,) 或 (n, k)。"""
         return (self.sqMu if Y.dim() == 1 else self.sqMu[:, None]) * (self.C @ Y)
 
     def _temperature(self, w, kap):
+        """按 w 更新并分解 J_TT，返回温度。"""
         self.J.values().copy_(self.GT @ (self.Ae @ w) + kap * self.k0)
-        self.s1.factorize()
-        self.b1[0] = kap * self.be
-        return self.s1.solve()[:, 0]
+        self.ds.factorize()
+        return self.ds.solve((kap * self.be)[None])[0]
 
     def temperature(self, psi, kap):
         return self._temperature(self.C @ psi, kap)
 
+    def _basis(self, PsiB):
+        if PsiB is not self._PsiB:
+            W = self.C @ PsiB
+            self._PsiB, self.W, self.AW, self.HW, self.KW = PsiB, W, self.Am @ W, self.Hm @ W, self.Km @ W
+            if self.thermal:
+                self.AeW = self.Ae @ W
+
     def reduced(self, psi, PsiB, nu, kap=None):
         """约化残差 g (k,)、约化雅可比 G (k, k) 与温度 T（无温度时为 None）。"""
-        w, W = self.C @ psi, self.C @ PsiB
+        self._basis(PsiB)
+        W, w = self.W, self.C @ psi
         Fw, Hw = self.Am @ w, self.Hm @ w
         Rw = self.Sm @ (Fw * Hw) + nu * (self.Km @ w - self.bm)
-        JW = self.Sm @ (Hw[:, None] * (self.Am @ W) + Fw[:, None] * (self.Hm @ W)) + nu * (self.Km @ W)
+        JW = self.Sm @ (Hw[:, None] * self.AW + Fw[:, None] * self.HW) + nu * self.KW
         if not self.thermal:
             return W.T @ Rw, W.T @ JW, None
         T = self._temperature(w, kap)
-        self.sk.factorize()
-        k = W.shape[1]
-        self.bk.zero_()
-        self.bk[:k] = -(self.Se @ ((self.He @ T)[:, None] * (self.Ae @ W))).T
-        ST = self.sk.solve()[:, :k]
-        return W.T @ (Rw - self.Bt @ T), W.T @ (JW - self.Bt @ ST), T
+        ST = self.ds.solve(-(self.Se @ ((self.He @ T)[:, None] * self.AeW)).T)
+        return W.T @ (Rw - self.Bt @ T), W.T @ (JW - self.Bt @ ST.T), T

@@ -1,6 +1,7 @@
 """方腔自然对流的实例化（实例化设计）：主场为内部角点流函数 ψ（容许坐标，提升为 0），度量为速度 L²，温度为辅助场。
 向 nepodg 提供 whiten、reduced、网络采样点 X 与容许映射 admissible、参数坐标 eta、快照与灵敏度读取。"""
 import csv
+import re
 from pathlib import Path
 
 import numpy as np
@@ -11,8 +12,16 @@ from solvers.mac.mac import Cavity, nodes
 
 ROOT = Path(__file__).resolve().parent
 SENS = ROOT / "data" / "sens"
-MODELS = ROOT / "models"                    # v/n<B>.pt；其他种子 v<种子>/n<B>.pt
+MODELS = ROOT / "models"                    # <网络名>/n<B>.pt
 N, S = 128, 2.0
+SEED, M = 1234, 128
+
+
+def kind(name):
+    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。
+    种子默认 1234，m 默认 128，如 v、v1、vm64、v1m64、r1。"""
+    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
+    return t == "v", int(seed or SEED), int(m or M)
 
 
 def nu_kap(mu):
@@ -30,10 +39,10 @@ def cases():
 
 
 class NC:
-    def __init__(self, cols=256):
+    def __init__(self):
         x = nodes(N, S)
         self.cav = Cavity(x, x, thermal=True)
-        self.op = Closure(self.cav, cols)
+        self.op = Closure(self.cav)
         self.n = self.cav.npsi
         self.lift = torch.zeros(self.n, dtype=torch.float64, device=DEV)
         # 网络采样点为全部角点（[i, j] 顺序），坐标缩放到 [−1, 1]；边界因子 B = 256 x²(1−x)² y²(1−y)²
