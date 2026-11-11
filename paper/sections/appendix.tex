@@ -1,11 +1,44 @@
-\section{Numerical discretization and solution details（数值离散与求解细节）}
-\label{app:details}
+\section{Benchmark problems and high-fidelity solutions（算例与高保真解）}
+\label{app:cases}
 \setcounter{table}{0}
+\setcounter{figure}{0}
 
-\subsection{Discrete equations and steady sensitivities（离散方程与稳态灵敏度）}
-\label{app:discrete}
+\subsection{Natural convection in a differentially heated cavity（方腔自然对流）}
+\label{app:nc}
 
-本节给出方腔算例的离散，第~\ref{sec:base} 节的主场 $\mathbf q=\boldsymbol\psi$ 为内部角点上的流函数，辅助场 $\mathbf z=\mathbf T$ 为单元中心温度。压力与温度位于单元中心，速度分量 $u$、$v$ 分别位于竖直面与水平面，流函数位于单元角点。记 $D$ 为面速度到单元的离散散度，$G$ 为单元压力到面的离散梯度，$C$ 为角点流函数到面速度的离散旋度，$M_u$、$M_p$ 为面与单元控制体积构成的对角矩阵。离散算子满足
+\paragraph{控制方程}
+边长为 $H$ 的二维方腔左壁保持低温，右壁保持高温，上下壁绝热，四壁无滑移，重力沿 $-y$ 方向（图~\ref{fig:cavity}(a)）。流体物性取常数，浮力采用 Boussinesq 近似。以 $H$、自由落体速度 $(g\beta\Delta T H)^{1/2}$ 与两壁温差 $\Delta T$ 为尺度，温度相对两壁平均温度无量纲化，控制方程为
+\begin{equation}
+\nabla\cdot\mathbf u=0,\qquad
+(\mathbf u\cdot\nabla)\mathbf u=-\nabla p+\sqrt{\frac{Pr}{Ra}}\,\nabla^2\mathbf u+T\,\mathbf e_y,\qquad
+\mathbf u\cdot\nabla T=\frac{1}{\sqrt{Ra\,Pr}}\,\nabla^2T,
+\label{eq:governing}
+\end{equation}
+其中 $Ra=g\beta\Delta T H^3/(\nu\alpha)$，$Pr=\nu/\alpha$。边界条件为
+\begin{equation}
+\mathbf u\big|_{\partial\Omega}=\mathbf 0,\qquad
+T\big|_{x=0}=-\tfrac12,\qquad T\big|_{x=1}=\tfrac12,\qquad
+\frac{\partial T}{\partial y}\Big|_{y=0,1}=0 .
+\label{eq:bc}
+\end{equation}
+壁面传热以局部与平均 Nusselt 数表示：
+\begin{equation}
+Nu_C(y)=\left.\frac{\partial T}{\partial x}\right|_{x=0},\qquad
+Nu_H(y)=\left.\frac{\partial T}{\partial x}\right|_{x=1},\qquad
+\overline{Nu}=\int_0^1 Nu_C(y)\,\mathrm dy .
+\label{eq:nusselt}
+\end{equation}
+由稳态能量守恒，热壁的平均 Nusselt 数与冷壁相等。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Fig_01.pdf}
+\caption{方腔自然对流算例。(a) 物理模型与边界条件；(b) 参数域、各快照预算的训练点及内插、外推测试工况。}
+\label{fig:cavity}
+\end{figure}
+
+\paragraph{离散方程与稳态灵敏度}
+第~\ref{sec:base} 节的主场 $\mathbf q=\boldsymbol\psi$ 为内部角点上的流函数，辅助场 $\mathbf z=\mathbf T$ 为单元中心温度。压力与温度位于单元中心，速度分量 $u$、$v$ 分别位于竖直面与水平面，流函数位于单元角点。记 $D$ 为面速度到单元的离散散度，$G$ 为单元压力到面的离散梯度，$C$ 为角点流函数到面速度的离散旋度，$M_u$、$M_p$ 为面与单元控制体积构成的对角矩阵。离散算子满足
 \begin{equation}
 DC=0,\qquad M_uG=-D^{\mathsf T}M_p ,
 \end{equation}
@@ -15,20 +48,18 @@ r_\psi(\boldsymbol\psi,\mathbf T;\mu)=C^{\mathsf T}R_w(C\boldsymbol\psi,\mathbf 
 R_T(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0,
 \label{eq:fom}
 \end{equation}
-其中 $R_w$ 为在面控制体积上积分的动量残差（不含压力项），$R_T$ 为在单元上积分的能量残差；二者即第~\ref{sec:base} 节的 $F$ 与 $H$。主场度量为 $M=C^{\mathsf T}M_uC$，对应速度的离散 $L^2$ 内积。动量对流项取保对称的能量守恒形式~\cite{verstappen2003symmetry}，单元离散无散时对流矩阵严格反对称；黏性项为二阶中心差分，切向无滑移经壁面虚拟值进入；浮力项在 $v$ 面上取相邻单元温度的线性插值。能量方程取守恒通量形式，扩散为两点通量，侧壁取半单元距离与壁温，上下壁通量为零。壁面局部 Nusselt 数由壁温与近壁两个单元中心温度的二次插值求导得到。
+其中 $R_w$ 为在面控制体积上积分的动量残差（不含压力项），$R_T$ 为在单元上积分的能量残差；二者即第~\ref{sec:base} 节的 $F$ 与 $H$。主场度量为 $M=C^{\mathsf T}M_uC$，对应速度的离散 $L^2$ 内积。动量对流项取保对称的能量守恒形式~\cite{verstappen2003symmetry}，单元离散无散时对流矩阵严格反对称；黏性项为二阶中心差分，切向无滑移经壁面虚拟值进入；浮力项在 $v$ 面上取相邻单元温度的线性插值。能量方程取守恒通量形式，扩散为两点通量，侧壁取半单元距离与壁温，上下壁通量为零。壁面局部 Nusselt 数由壁温与近壁两个单元中心温度的二次插值求导得到。容许映射将原始场乘以边界因子 $\mathcal B(x,y)=256\,x^2(1-x)^2y^2(1-y)^2$ 后在内部角点取值，$\mathcal B$ 及其法向导数在四壁上为零。
 
 稳态灵敏度方程~\eqref{eq:sensitivity} 是耦合方程~\eqref{eq:fom} 的灵敏度方程消去温度导数后的形式。计算时直接用耦合雅可比求流函数与温度对 $\nu=\sqrt{Pr/Ra}$、$\kappa=1/\sqrt{Ra\,Pr}$ 的导数，经链式法则换算到 $\eta$ 后取流函数分量；同一训练点的各个右端项共用耦合雅可比的一次分解。
 
-\subsection{High-fidelity solution and verification（高保真求解与验证）}
-\label{app:fom}
-
+\paragraph{高保真求解与验证}
 两个方向各取 128 个单元，节点 $x_i=\tfrac12\bigl[1+\tanh\bigl(s(2i/128-1)\bigr)/\tanh s\bigr]$，$s=2$，向壁面加密。稳态离散方程用 Newton 法求解：雅可比解析组装，线性化方程在 GPU 上以双精度直接法求解；Newton 步长低于 $10^{-8}\max(1,\Vert q\Vert_\infty)$ 时收敛，$q$ 为流函数与温度的全部未知量。各工况沿 $\log_{10}Ra$ 延拓，以前一参数点的解为初值。
 
 表~\ref{tab:benchmark} 给出 $Pr=0.71$ 时平均 Nusselt 数与基准解的对照，本文结果与 Chebyshev 谱方法解~\cite{lequere1985computation,lequere1991accurate}的相对差不超过 0.01\%。$Ra=10^6$ 时 128、256、512 网格的平均 Nusselt 数分别为 8.82534、8.82523、8.82521。在整个参数域上（$Pr=0.1$、1、10，$Ra=10$--$10^6$），与 512 网格相比，平均 Nusselt 数的相对差不超过 0.02\%，流函数最大值与中线速度峰值不超过 0.07\%，壁面局部 Nusselt 数峰值不超过 0.47\%（$Ra=10^6$，$Pr=0.1$）。
 
 \begin{table}[H]
 \centering
-\caption{$Pr=0.71$ 时平均 Nusselt 数与基准解的对照。}
+\caption{方腔自然对流算例 $Pr=0.71$ 时平均 Nusselt 数与基准解的对照。}
 \label{tab:benchmark}
 \begin{tabular}{ccccc}
 \toprule
@@ -42,16 +73,52 @@ $10^6$ & 8.8253 & 8.817 & 8.825  & 8.8252 \\
 \end{tabular}
 \end{table}
 
+\subsection{Couette--Graetz problem（Couette--Graetz 问题）}
+\label{app:graetz}
+
+\paragraph{控制方程}
+二维通道 $\Omega(\mu)=(0,1+L)\times(0,1)$ 中给定 Couette 速度剖面 $u=y$，稳态对流扩散方程为~\cite{quarteroni2011certified}
+\begin{equation}
+-\frac{1}{Pe}\nabla^2T+y\,\frac{\partial T}{\partial x}=0 ,
+\label{eq:graetz}
+\end{equation}
+长度以通道宽度无量纲化，$T$ 以入口温度为参照，$Pe$ 为 P\'eclet 数。入口 $x=0$ 与顶壁 $y=1$ 上 $T=0$；底壁 $0<x<1$ 绝热，$1<x<1+L$ 上施加单位热流 $\frac1{Pe}\partial_nT=1$；出口 $x=1+L$ 的扩散通量为零。方程关于 $T$ 线性，算子非对称，非齐次项只来自受热段的热流。传热量为受热段平均壁温与受热壁局部 Nusselt 数：
+\begin{equation}
+\begin{gathered}
+T_{\mathrm{av}}=\frac1L\int_1^{1+L}T_w(x)\,\mathrm dx,\\
+Nu(x)=\frac{Pe}{T_w(x)-T_b(x)},\qquad
+T_b(x)=2\int_0^1 y\,T\,\mathrm dy ,
+\end{gathered}
+\label{eq:graetz_out}
+\end{equation}
+$T_w$ 为底壁温度，$T_b$ 为混合平均温度。
+
+\paragraph{参考域与离散}
+参考域 $\hat\Omega=(0,2)\times(0,1)$ 经分段线性映射 $x=\hat x$（$0\le\hat x\le1$）、$x=1+L(\hat x-1)$（$1<\hat x\le2$）、$y=\hat y$ 映到 $\Omega(\mu)$。网格在参考域上固定：入口段、受热段与 $y$ 方向分别取 40、160、80 个单元，以 tanh 分布分别向入口与 $\hat x=1$、向 $\hat x=1$、向底壁加密，共 16000 个单元；物理节点随 $L$ 按映射缩放。单元中心有限体积在物理网格上组装：扩散为两点通量；竖直面上的体积通量取 $u=y$ 在面上的精确积分，面温度取上游两个单元中心值的线性外推（二阶线性迎风），插值权重只依赖几何；受热段的边界通量为单位热流乘以物理面长。离散方程为 $A(\mu)\mathbf T=\mathbf f(\mu)$，$A=\tfrac1{Pe}K(L)+C(L)$，$\mathbf f$ 只含受热段的热流项。主场为全部单元温度，提升为零，容许映射为在单元中心取值；度量 $M$ 为参考网格单元面积构成的对角矩阵，即参考域上温度的离散 $L^2$ 内积，与参数无关。
+
+稳态灵敏度由 $A\,\partial_{\eta_j}\mathbf T=\partial_{\eta_j}\mathbf f-(\partial_{\eta_j}A)\mathbf T$ 求得，复用 $A$ 的分解；$K$、$C$、$\mathbf f$ 对 $L$ 的导数由组装公式对物理节点坐标解析求导。
+
+\paragraph{验证}
+以每个方向加密 4 倍的网格（256000 单元）为参照，在 $(L,Pe)=(1,316)$、$(10,316)$、$(1,0.1)$、$(10,0.1)$、$(3.16,10)$ 上，温度场、$T_{\mathrm{av}}$ 与受热壁三个位置局部 Nusselt 数的相对差分别不超过 $4.4\times10^{-4}$、$1.4\times10^{-4}$ 与 $2.4\times10^{-4}$，格式二阶收敛。全部工况的温度非负，全局热量收支误差不超过 $2.4\times10^{-13}$。算子导数与灵敏度与中心差分的相对差分别不超过 $5.8\times10^{-8}$ 与 $4.0\times10^{-8}$。$T_{\mathrm{av}}(L,Pe)$ 曲面与文献~\cite{quarteroni2011certified}的结果定性一致，如 $(L,Pe)=(1,100)$ 处 $T_{\mathrm{av}}=24.9$，文献图中约为 25。
+
+\section{Network training and reduced solution（网络训练与降阶求解）}
+\label{app:method}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
 \subsection{Network training（网络训练）}
 \label{app:training}
 
-训练快照的范数随参数可相差两个数量级。训练前先只拟合幅值分支 $\ell_\theta$，使各训练点的初始预测范数接近快照范数的指定比例，此时各点的相对误差都约为 1；随后用 Adam 训练全部参数，每步随机取一批训练点，在全部网格角点上计算损失~\eqref{eq:loss}，学习率在总步数的 1/3 与 2/3 处各降为 1/10。具体取值见表~\ref{tab:settings}。
+训练快照的范数随参数相差很大。训练前先只拟合幅值分支 $\ell_\theta$，使各训练点的初始预测范数接近快照范数的指定比例，此时各点的相对误差都约为 1；随后用 Adam 训练全部参数，每步取一批训练点，在全部采样点（方腔为网格角点，Couette--Graetz 为单元中心）上计算损失~\eqref{eq:loss}，学习率在总步数的 1/3 与 2/3 处各降为 1/10。具体取值见表~\ref{tab:settings}。
 
 \subsection{Solution of the reduced equations（降阶方程的求解）}
 \label{app:closure}
 
-每次计算降阶残差~\eqref{eq:galerkin} 时，由当前流函数的速度在全网格上求解能量方程得到温度；能量方程雅可比的同一分解同时给出温度沿各基方向速度 $C\Psi_\theta$ 的灵敏度，用于组装 $J_{\mathrm{eff}}\Psi_\theta$。方程组用 Levenberg--Marquardt 法求解，当 $\Vert\mathbf g\Vert\le\epsilon_g\Vert\mathbf g(\mathbf c^{(0)})\Vert$，或步长降到 $\epsilon_c\max(1,\Vert\mathbf c\Vert)$ 以下时收敛。初值取训练快照 POD 系数在 $\eta$ 上的薄板样条插值，$S$ 与 $Z_\theta$ 方向的系数取零。POD--Galerkin、SA-PODG 与 NE-PODG 使用相同的求解器、收敛判据与初值。
+方腔算例每次计算降阶残差~\eqref{eq:galerkin} 时，由当前流函数的速度在全网格上求解能量方程得到温度；能量方程雅可比的同一分解同时给出温度沿各基方向速度 $CX$ 的灵敏度，用于组装 $J_{\mathrm{eff}}X$。方程组用 Levenberg--Marquardt 法求解，当 $\Vert\mathbf g\Vert\le\epsilon_g\Vert\mathbf g(\mathbf c^{(0)})\Vert$，或步长降到 $\epsilon_c\max(1,\Vert\mathbf c\Vert)$ 以下时收敛。初值取训练快照 POD 系数在 $\eta$ 上的薄板样条插值，$S$ 与 $Z_\theta$ 方向的系数取零。三种方法使用相同的求解器、收敛判据与初值。
 
-\section{Supplementary numerical results（补充数值结果）}
+Couette--Graetz 算例的式~\eqref{eq:galerkin} 为约化线性方程组 $(X^{\mathsf T}AX)\,\mathbf c=X^{\mathsf T}(\mathbf f-A\bar{\mathbf q})$，直接求解。
+
+\section{Supplementary results（补充结果）}
 \label{app:results}
 \setcounter{table}{0}
+\setcounter{figure}{0}

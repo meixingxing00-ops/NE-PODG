@@ -1,4 +1,4 @@
-"""网络直接输出 T̂ = Φ w 的误差：预算 N<B> 的训练网络（网络名 kind 见 case.kind，默认 v）在 pool、interp 或 extrap 工况上，
+"""网络直接输出 T̂ = Φ w 的误差：预算 N<B> 的训练网络（网络名 kind 见 case.kind，默认 v）在 pool、interp、extrap 或 train（该预算的训练快照）工况上，
 温度误差 e（参考域 L²）、T_av 误差与局部 Nu 沿受热壁的最大误差。结果 results/n<B>/teacher_<kind>_<role>.csv。
 用法（仓库根目录，PINNGPU）：python -m cases.graetz.scripts.teacher B role [kind]"""
 import csv
@@ -21,7 +21,7 @@ out.parent.mkdir(parents=True, exist_ok=True)
 with open(out, "w", newline="") as fh:
     wr = csv.writer(fh)
     wr.writerow(["id", "L", "Pe", "e", "e_Tav", "e_Nu"])
-    for c in [c for c in cases() if c["role"] == role]:
+    for c in [c for c in cases() if (c[f"n{budget}"] == "1" if role == "train" else c["role"] == role)]:
         T_r, mu = g.load(c["id"])
         e_ = torch.as_tensor(eta(mu), dtype=torch.float32, device=g.X.device)
         with torch.no_grad():
