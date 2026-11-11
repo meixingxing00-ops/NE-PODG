@@ -38,12 +38,26 @@
 \subsection{Contribution and accuracy mechanism of neural enrichment（神经增广的贡献与精度机制）}
 \label{sec:mechanism}
 
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\includegraphics[width=\textwidth]{Fig_06.pdf}
-\caption{快照预算 $N_{12}$ 下的网络。(a) 训练损失，虚线处学习率降为 1/10；(b) 网络直接输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 的速度误差 $e$，横线为中位数；训练快照组只给出网络直接输出，内插与外推组同时比较两者。}
-\label{fig:training}
-\end{figure}
+\caption{快照预算 $N_{12}$ 下网络直接输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 的误差（\%，中位数 / 最大值）。训练快照、内插与外推工况分别为 12、100、27 个；网络直接输出的温度由其速度在全网格上求解能量方程得到。}
+\label{tab:network}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llccc}
+\toprule
+工况 & 方法 & 速度 $e$ & 温度 $e_T$ & 平均 Nu \\
+\midrule
+训练快照 & 网络输出 & 0.23 / 0.81 & 0.0062 / 0.28 & $3.8\times10^{-4}$ / 0.033 \\
+\midrule
+\multirow{2}{*}{内插} & 网络输出 & 14.9 / 49.6 & 2.4 / 37.7 & 1.07 / 19.3 \\
+ & NE-PODG & $1.2\times10^{-4}$ / 0.44 & $1.6\times10^{-6}$ / 0.057 & $2.8\times10^{-8}$ / 0.0052 \\
+\midrule
+\multirow{2}{*}{外推} & 网络输出 & 34.1 / 124 & 27.8 / 52.3 & 1.96 / 11.3 \\
+ & NE-PODG & 0.21 / 2.1 & 0.022 / 0.40 & $1.1\times10^{-3}$ / 0.083 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure}[H]
 \centering
@@ -67,7 +81,7 @@
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{Fig_09.pdf}
+\includegraphics[width=\textwidth]{Fig_08.pdf}
 \caption{(a) 内插与 (b) 外推工况上三种方法速度误差的中位数（实线）与最大值（虚线）随快照预算的变化。}
 \label{fig:budget}
 \end{figure}
