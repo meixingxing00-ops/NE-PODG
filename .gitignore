@@ -28,4 +28,3 @@ paper/*.synctex.gz
 paper/*.fls
 paper/*.fdb_latexmk
 paper/*.xdv
-paper/main.pdf
