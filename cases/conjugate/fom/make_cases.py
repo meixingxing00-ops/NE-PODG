@@ -1,4 +1,4 @@
-"""只生成参数表；不求解、不生成快照。运行：python -m cases.conjugate.fom.make_cases"""
+"""只生成参数表；不求解、不生成快照。参数取 3 位有效数字，eta 由取整后的参数计算。运行：python -m cases.conjugate.fom.make_cases"""
 import csv
 from pathlib import Path
 
@@ -8,6 +8,7 @@ from scipy.stats import qmc
 PE_LOG = np.linspace(1, 3, 5)
 RATIO_LOG = np.linspace(-1, 2, 7)
 ROOT = Path(__file__).resolve().parents[1]
+r3 = lambda v: float(f"{v:.3g}")
 
 
 def parameters():
@@ -26,8 +27,9 @@ def parameters():
         for index, (p, k) in enumerate(points, 1):
             n4 = role == "pool" and p in (1, 3) and k in (-1, 2)
             n9 = role == "pool" and p in (1, 2, 3) and k in (-1, 0.5, 2)
-            rows.append(dict(id=f"{prefix}{index:03d}", role=role, Pe=10**p, ratio=10**k,
-                             eta1=p - 2, eta2=(k - 0.5) / 1.5,
+            Pe, ratio = r3(10**p), r3(10**k)
+            rows.append(dict(id=f"{prefix}{index:03d}", role=role, Pe=Pe, ratio=ratio,
+                             eta1=np.log10(Pe) - 2, eta2=(np.log10(ratio) - 0.5) / 1.5,
                              n4=int(n4), n9=int(n9), lhs_seed=seed if role == "interp" else ""))
     return rows
 
