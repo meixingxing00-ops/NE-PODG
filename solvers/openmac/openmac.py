@@ -35,6 +35,8 @@ class _Factor:
         if self.d is None or cols > self.cols or not np.isin(_keys(A), self.d.key).all():
             P = self._pattern(A) if self.d is None else self._pattern(A) + self._pattern(self.d.A)
             self.cols = max(cols, self.cols)
+            if self.d is not None:
+                self.d.s.free()                     # cuDSS 的显存只在 free() 时释放
             self.d = _Direct(P.tocsr(), self.cols)
         self.d.factor(A)
         return self.solve
@@ -666,6 +668,9 @@ class OpenMAC:
                     primary_reattachment=float(primary[0]) if len(primary) else None)
 
 
+_CONDITION = {}
+
+
 def condition_estimate(A, metric_diagonal=None, backend='gpu'):
     """One-norm condition estimate; optional symmetric diagonal coordinate scaling."""
     s = np.ones(A.shape[0]) if metric_diagonal is None else 1 / np.sqrt(metric_diagonal)
@@ -674,6 +679,8 @@ def condition_estimate(A, metric_diagonal=None, backend='gpu'):
         lu = sla.splu(A, permc_spec='MMD_AT_PLUS_A')
         solve, tsolve = lu.solve, lambda v: lu.solve(v, trans='T')
     else:
-        solve, tsolve = _Factor().factor(A), _Factor().factor(A.T)
+        # 按矩阵规模复用 cuDSS 求解器；每次新建会累积显存
+        solve = _CONDITION.setdefault((A.shape, 0), _Factor()).factor(A)
+        tsolve = _CONDITION.setdefault((A.shape, 1), _Factor()).factor(A.T)
     inverse = sla.LinearOperator(A.shape, matvec=solve, rmatvec=tsolve)
     return float(sla.norm(A, 1) * sla.onenormest(inverse))
