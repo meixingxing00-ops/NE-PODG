@@ -3,7 +3,7 @@
 
 对流传热广泛存在于电子器件散热、换热设备、建筑热环境与能源系统中。其速度场与温度场由一组控制参数决定，参数变化会改变流动结构、边界层分布和壁面换热。设计优化、参数分析和多工况预测都需要在参数空间内反复求解耦合的非线性控制方程，高保真数值方法对每个参数点单独求解，所需计算量随查询次数线性增长。参数化降阶模型以低维表示近似高维离散系统，是这类多查询计算的主要途径~\cite{benner2015survey}。
 
-本征正交分解（Proper Orthogonal Decomposition，POD）从高保真快照中提取主导空间模态~\cite{sirovich1987turbulence,berkooz1993proper}；将控制方程投影到 POD 试探空间，即得到 POD–Galerkin 降阶模型。该方法已用于非定常热混合~\cite{georgaka2020parametric}、参数化 Boussinesq 流动~\cite{knezevic2011reduced}、Rayleigh–Bénard 对流~\cite{cai2019development,chand2024pressure}和液态金属浮力流动~\cite{star2021pod}等流热耦合问题。降阶解始终位于试探空间之内，试探空间对目标解的最佳逼近误差构成降阶精度的下限，无论展开系数由插值、回归还是物理方程确定。在宽参数范围内，流动结构随参数显著变化，有限快照张成的空间难以表示未采样参数处的解，这一下限成为限制精度的主要因素。
+本征正交分解（Proper Orthogonal Decomposition，POD）从高保真快照中提取主导空间模态~\cite{sirovich1987turbulence,berkooz1993proper}；将高保真离散方程投影到 POD 试探空间，即得到 POD–Galerkin 降阶模型；投影直接作用于离散方程，降阶求解因而沿用生成快照的同一离散。该方法已用于非定常热混合~\cite{georgaka2020parametric}、参数化 Boussinesq 流动~\cite{knezevic2011reduced}、Rayleigh–Bénard 对流~\cite{cai2019development,chand2024pressure}和液态金属浮力流动~\cite{star2021pod}等流热耦合问题。降阶解始终位于试探空间之内，试探空间对目标解的最佳逼近误差构成降阶精度的下限，无论展开系数由插值、回归还是物理方程确定。在宽参数范围内，流动结构随参数显著变化，有限快照张成的空间难以表示未采样参数处的解，这一下限成为限制精度的主要因素。
 
 改进试探空间是提高参数化降阶精度的直接途径。Amsallem 等~\cite{amsallem2012nonlinear}按解状态构造局部降阶基。Hay 等~\cite{hay2009local,hay2010reduced}利用 POD 对参数的灵敏度扩展降阶基，提高了偏离采样参数处的表示精度。对稳态问题，训练点处解的参数灵敏度可由离散稳态方程直接求得，复用该点雅可比的分解，不需要额外的高保真工况。由快照与灵敏度共同张成的灵敏度增广空间同时包含训练点处的解及其一阶参数变化，在此空间上做 Galerkin 投影即得到灵敏度增广 POD–Galerkin 方法（SA-PODG）。该空间与查询参数无关；快照稀疏或查询点远离训练点时，解中仍有该空间未能表示的余量。
 

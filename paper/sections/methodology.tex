@@ -34,7 +34,7 @@ Nu_H(y)=\left.\frac{\partial T}{\partial x}\right|_{x=1},\qquad
 \label{fig:cavity}
 \end{figure}
 
-\subsection{Discrete problem and base space（离散问题与基础空间）}
+\subsection{Projection-based reduced-order model and base space（投影降阶与基础空间）}
 \label{sec:base}
 
 高保真离散的未知量分为主场 $\mathbf q\in\mathbb R^n$ 与辅助场 $\mathbf z$，稳态离散方程记为 $F(\mathbf q,\mathbf z;\mu)=\mathbf 0$ 与 $H(\mathbf q,\mathbf z;\mu)=\mathbf 0$。主场取容许坐标，任意 $\mathbf q$ 都满足主场的齐次边界条件与离散约束，降阶只作用于主场；辅助场保留在全阶离散上，给定 $\mathbf q$ 由 $H=\mathbf 0$ 解得 $\mathbf z=\mathcal S_\mu(\mathbf q)$。代回主场方程，得到有效残差及其雅可比：
@@ -45,13 +45,23 @@ J_{\mathrm{eff}}=\frac{\partial F}{\partial\mathbf q}-\frac{\partial F}{\partial
 \end{equation}
 主场的内积 $\langle\mathbf a,\mathbf b\rangle_M=\mathbf a^{\mathsf T}M\mathbf b$ 由对称正定矩阵 $M$ 给出，POD、正交化、网络训练与误差评价都使用这一度量；$P_X=XX^{\mathsf T}M$ 为到 $M$ 正交基 $X$ 所张空间的投影。
 
-训练参数 $\{\mu_i\}_{i=1}^{N_s}$ 上的快照 $\mathbf q_i$（均值 $\bar{\mathbf q}$）在 $M$ 内积下作 POD~\cite{sirovich1987turbulence,berkooz1993proper}，保留相对奇异值大于 $\delta_V$ 的方向，得到 POD 基 $V$。参数经线性缩放得到坐标 $\eta(\mu)$，训练区映到 $[-1,1]^d$。每个训练点上解对 $\eta$ 的稳态灵敏度由离散方程的线性化求得；灵敏度正交化并去除 $V$ 的分量后，保留奇异值大于 $\tau$ 的方向得到 $S$。基础空间为
+投影降阶在仿射试探空间 $\bar{\mathbf q}+\operatorname{span}X$ 中近似主场，降阶解由有效残差在该空间上的 Galerkin 投影确定：
+\begin{equation}
+\mathbf q_r(\mathbf c)=\bar{\mathbf q}+X\mathbf c,\qquad
+\mathbf g(\mathbf c;\mu)=X^{\mathsf T}\,r_{\mathrm{eff}}\big(\mathbf q_r(\mathbf c);\mu\big)=\mathbf 0 .
+\label{eq:galerkin}
+\end{equation}
+求解该方程需要在任意降阶状态上计算高保真离散的有效残差与雅可比，辅助场随之在全阶离散上更新；因此快照、参考解与降阶求解都基于同一套离散。方程组用 Levenberg--Marquardt 法求解（\ref{app:closure}）。
+
+训练参数 $\{\mu_i\}_{i=1}^{N_s}$ 上的快照 $\mathbf q_i$（均值 $\bar{\mathbf q}$）在 $M$ 内积下作 POD~\cite{sirovich1987turbulence,berkooz1993proper}，保留相对奇异值大于 $\delta_V$ 的方向，得到 POD 基 $V$；在式~\eqref{eq:galerkin} 中取 $X=V$ 即 POD--Galerkin 方法。$V$ 只包含训练快照的组合，快照稀疏时，查询参数处的解中有较多成分落在 $\operatorname{span}V$ 之外。
+
+灵敏度增广在快照之外加入解对参数的一阶变化~\cite{hay2009local}。参数经线性缩放得到坐标 $\eta(\mu)$，训练区映到 $[-1,1]^d$。每个训练点上，解对 $\eta$ 的稳态灵敏度由同一离散的雅可比求得；灵敏度正交化并去除 $V$ 的分量后，保留奇异值大于 $\tau$ 的方向得到 $S$。基础空间为
 \begin{equation}
 \mathbf s_{ij}=-J_{\mathrm{eff}}^{-1}\,\frac{\partial r_{\mathrm{eff}}}{\partial\eta_j}\bigg|_{(\mathbf q_i,\mu_i)},\qquad
 W=[V,\ S],\qquad W^{\mathsf T}MW=I .
 \label{eq:sensitivity}
 \end{equation}
-$W$ 包含训练快照及其一阶参数变化，与查询参数无关。在 $\bar{\mathbf q}+\operatorname{span}W$ 上作有效残差的 Galerkin 投影即灵敏度增广 POD--Galerkin 方法（SA-PODG）~\cite{hay2009local}；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
+在式~\eqref{eq:galerkin} 中取 $X=W$ 即灵敏度增广 POD--Galerkin 方法（SA-PODG）。$W$ 包含训练快照及其一阶参数变化，与查询参数无关；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
 
 \subsection{Value-supervised neural candidate fields（场值监督的神经候选场）}
 \label{sec:network}
@@ -88,13 +98,7 @@ w_\theta=e^{\ell_\theta}\,r_\theta ,
 Z_\theta(\eta)=\tilde Z_{[:,\,s_j>\tau]},\qquad W^{\mathsf T}MZ_\theta=0 .
 \label{eq:complement}
 \end{equation}
-$s_j\in[0,1]$ 只取决于 $\operatorname{span}\Phi_\theta(\eta)$ 与 $\operatorname{span}W$，表示候选方向相对 $W$ 的正交程度。增广基 $\Psi_\theta(\eta)=[W,\ Z_\theta(\eta)]$ 是 $M$ 正交的，降阶解由有效残差在增广空间上的 Galerkin 投影确定：
-\begin{equation}
-\mathbf q_r(\mathbf c)=\bar{\mathbf q}+\Psi_\theta(\eta)\,\mathbf c,\qquad
-\mathbf g(\mathbf c;\mu)=\Psi_\theta^{\mathsf T}\,r_{\mathrm{eff}}\big(\mathbf q_r(\mathbf c);\mu\big)=\mathbf 0 .
-\label{eq:galerkin}
-\end{equation}
-该方程组用 Levenberg--Marquardt 法求解，辅助场随主场系数的迭代在全阶离散上同步更新（\ref{app:closure}）。网络只提供试探空间的方向，降阶解由控制方程确定。POD--Galerkin 与 SA-PODG 分别在 $\bar{\mathbf q}+\operatorname{span}V$ 与 $\bar{\mathbf q}+\operatorname{span}W$ 上求解同一方程，三种方法只在试探空间上不同。
+$s_j\in[0,1]$ 只取决于 $\operatorname{span}\Phi_\theta(\eta)$ 与 $\operatorname{span}W$，表示候选方向相对 $W$ 的正交程度。增广基 $\Psi_\theta(\eta)=[W,\ Z_\theta(\eta)]$ 是 $M$ 正交的；NE-PODG 在式~\eqref{eq:galerkin} 中取 $X=\Psi_\theta(\eta)$，即在 $\bar{\mathbf q}+\operatorname{span}\Psi_\theta(\eta)$ 上求解同一 Galerkin 方程。网络只提供试探空间的方向，降阶解由控制方程确定。POD--Galerkin、SA-PODG 与 NE-PODG 的试探空间依次为 $V\subset W\subset\Psi_\theta(\eta)$，其余完全相同。
 
 \begin{figure}[H]
 \centering
@@ -128,7 +132,7 @@ e_{\mathrm{proj},B}=e_{\mathrm{proj},W}\sqrt{1-\Gamma_\theta},\qquad
 控制方程~\eqref{eq:governing} 在 MAC 交错网格~\cite{harlow1965numerical}上离散。主场 $\mathbf q$ 取内部角点上的流函数，速度由离散旋度给出，严格离散无散；温度为辅助场 $\mathbf z$。度量 $M$ 取速度的离散 $L^2$ 内积，$\Vert\mathbf q\Vert_M$ 即速度场的 $L^2$ 范数。容许映射将原始场乘以边界因子 $\mathcal B(x,y)=256\,x^2(1-x)^2y^2(1-y)^2$ 后在内部角点取值，$\mathcal B$ 及其法向导数在四壁上为零。参数坐标由 $\log_{10}Ra$ 与 $\log_{10}Pr$ 线性缩放得到（表~\ref{tab:settings}）。离散方程与灵敏度的计算见\ref{app:discrete}。
 
 \paragraph{高保真解}
-NE-PODG 的 Galerkin 闭合在任意降阶状态上计算生成快照所用离散的有效残差与雅可比，训练点上的稳态灵敏度也由同一离散的雅可比求得。因此，训练快照、灵敏度、参考解与降阶闭合都在同一套自编的离散程序上计算，网格为 $128\times128$ 的向壁加密网格。$Pr=0.71$ 时，平均 Nusselt 数与 Chebyshev 谱方法基准解的相对差不超过 0.01\%；求解设置、基准对照与网格收敛见\ref{app:fom}。
+训练快照、灵敏度、参考解与三种方法的降阶求解都在同一套自编的离散程序上计算，网格为 $128\times128$ 的向壁加密网格。$Pr=0.71$ 时，平均 Nusselt 数与 Chebyshev 谱方法基准解的相对差不超过 0.01\%；求解设置、基准对照与网格收敛见\ref{app:fom}。
 
 \paragraph{训练与测试数据}
 参数域为 $Ra\in[10,10^6]$、$Pr\in[0.1,10]$，训练快照全部取自 $Ra\le3.16\times10^5$ 的训练区。训练池由训练区内 $\log_{10}Ra$、$\log_{10}Pr$ 间隔 0.5 的规则网格组成，共 50 个参数点（10 档 $Ra$ $\times$ 5 档 $Pr$）。快照预算取训练池的四个规则子集：$N_{12}$ 取 $Ra=10$、316、$1.00\times10^4$、$3.16\times10^5$ 与 $Pr=0.1$、1、10；$N_{20}$ 在 $N_{12}$ 上将 $Pr$ 加密到 5 档；$N_{30}$ 在 $N_{12}$ 上将 $Ra$ 加密到 10 档；$N_{50}$ 为整个训练池。四者满足 $N_{12}\subset N_{20}\subset N_{50}$ 与 $N_{12}\subset N_{30}\subset N_{50}$。预算内每个训练点提供一个快照及其对 $\log_{10}Ra$、$\log_{10}Pr$ 的稳态灵敏度。测试工况只用于评价：内插测试为训练区 $(\log_{10}Ra,\log_{10}Pr)\in[1,5.5]\times[-1,1]$ 上的 100 个拉丁超立方取样点，在两个对数坐标上同时与某一训练池点相差小于 0.05 的取样点不用；外推测试取 $Ra=4.22\times10^5$、$5.62\times10^5$、$1.00\times10^6$ 与 $\log_{10}Pr=-1,-0.75,\ldots,1$ 的组合，共 27 个工况。各组参数点见图~\ref{fig:cavity}(b)。
