@@ -1,2 +1,21 @@
-\section{Introduction}
+\section{Introduction（引言）}
 \label{sec:intro}
+
+对流传热广泛存在于电子器件散热、换热设备、建筑热环境与能源系统中。其速度场与温度场由一组控制参数决定，参数变化会改变流动结构、边界层分布和壁面换热。设计优化、参数分析和多工况预测都需要在参数空间内反复求解耦合的非线性控制方程，高保真数值方法对每个参数点单独求解，所需计算量随查询次数线性增长。参数化降阶模型以低维表示近似高维离散系统，是这类多查询计算的主要途径~\cite{benner2015survey}。
+
+本征正交分解（Proper Orthogonal Decomposition，POD）从高保真快照中提取主导空间模态~\cite{sirovich1987turbulence,berkooz1993proper}；将控制方程投影到 POD 试探空间，即得到 POD–Galerkin 降阶模型。该方法已用于非定常热混合~\cite{georgaka2020parametric}、参数化 Boussinesq 流动~\cite{knezevic2011reduced}、Rayleigh–Bénard 对流~\cite{cai2019development,chand2024pressure}和液态金属浮力流动~\cite{star2021pod}等流热耦合问题。降阶解始终位于试探空间之内，试探空间对目标解的最佳逼近误差构成降阶精度的下限，无论展开系数由插值、回归还是物理方程确定。在宽参数范围内，流动结构随参数显著变化，有限快照张成的空间难以表示未采样参数处的解，这一下限成为限制精度的主要因素。
+
+改进试探空间是提高参数化降阶精度的直接途径。Amsallem 等~\cite{amsallem2012nonlinear}按解状态构造局部降阶基。Hay 等~\cite{hay2009local,hay2010reduced}利用 POD 对参数的灵敏度扩展降阶基，提高了偏离采样参数处的表示精度。对稳态问题，训练点处解的参数灵敏度可由离散稳态方程直接求得，复用该点雅可比的分解，不需要额外的高保真工况。由快照与灵敏度共同张成的灵敏度增广空间同时包含训练点处的解及其一阶参数变化，在此空间上做 Galerkin 投影即得到灵敏度增广 POD–Galerkin 方法（SA-PODG）。该空间与查询参数无关；快照稀疏或查询点远离训练点时，解中仍有该空间未能表示的余量。
+
+神经网络为参数相关的流热场表示提供了另一类工具。参数化物理信息神经网络（PINNs）以控制方程残差训练网络，已用于方腔自然对流~\cite{ye2025direct}、多参数瞬态热问题~\cite{gholampour2024parameterized}和高精度自然对流求解~\cite{cui2026comprehensive}；NeuroSEM 将 PINNs 与谱元求解器耦合，由两者分担不同子域或状态变量~\cite{shukla2025neurosem}。在降阶框架中，一类方法用神经网络学习参数到 POD 系数的映射~\cite{hesthaven2018non,weder2025galerkin}，或在系数学习中引入降阶方程残差~\cite{chen2021physics}，重构解仍处于预设的试探空间之内。另一类方法让神经网络参与表示空间的构造：深度自编码器建立非线性解流形~\cite{lee2020model,kadeethum2022non}，神经网络增广的投影降阶方法学习非线性近似流形~\cite{barnett2023neural}，自编码器与 Galerkin 投影结合以修正降阶表示~\cite{lepage2025hybrid}，深度正交分解则由网络构造随参数变化的局部基~\cite{franco2026deep}。可微分 PDE 约束层由网络提供一组函数，再由满足控制方程的优化确定其组合系数~\cite{negiar2023learning}，体现了网络提供表示、物理方程确定解的混合思路。
+
+本文沿这一思路，用神经网络补充 SA-PODG 基础空间之外的方向。网络以训练快照的场值为监督，预测写成一组候选场的线性读出；候选场张成的正是网络经最后一层读出偏置所能到达的输出变化空间。在查询参数处，候选场去除基础空间分量并正交化，构成神经互补空间，与基础空间一起组成增广试探空间；降阶解由有效残差在增广空间上的 Galerkin 投影确定，辅助温度场在闭合中同步求解。网络只提供空间方向，最终状态由控制方程决定。增广空间包含基础空间，其最佳逼近误差不高于 SA-PODG；互补空间对基础空间解余量的捕获率，以及实际误差与最佳逼近误差之比，共同决定增广后的求解误差。
+
+本文将上述方法称为神经增广 POD–Galerkin 方法（Neural-Enriched POD–Galerkin，NE-PODG），并以二维侧壁差分加热方腔~\cite{devahldavis1983natural}在宽 Ra–Pr 参数范围内的稳态自然对流为算例进行验证。主要工作包括：
+\begin{enumerate}
+\item 提出 NE-PODG：场值监督训练的网络在查询参数处为 SA-PODG 提供互补空间，降阶解由增广空间上的 Galerkin 闭合确定；
+\item 建立余量捕获率与闭合放大系数的误差关系，并通过训练与未训练网络的对照，说明场值监督训练带来精度提升的来源；
+\item 在少量快照下，与 POD–Galerkin 和 SA-PODG 比较参数域内插与高 Rayleigh 数外推工况的速度场、温度场与 Nusselt 数预测精度，并分析增广维数与快照预算对精度的影响。
+\end{enumerate}
+
+第~\ref{sec:method}~节给出问题描述、全阶离散、NE-PODG 的构造与误差关系以及数值设置；第~\ref{sec:results}~节报告精度、流场与传热预测、增广机制和增广维数的结果；第~\ref{sec:conclusions}~节总结全文。

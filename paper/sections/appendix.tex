@@ -1,5 +1,30 @@
-\section{Numerical discretization and solution details}
+\section{Numerical discretization and solution details（数值离散与求解细节）}
 \label{app:details}
+\setcounter{table}{0}
 
-\section{Supplementary numerical results}
+\subsection{High-fidelity solution and verification（高保真求解与验证）}
+\label{app:fom}
+
+两个方向各取 128 个单元，节点 $x_i=\tfrac12\bigl[1+\tanh\bigl(s(2i/128-1)\bigr)/\tanh s\bigr]$，$s=2$，向壁面加密。稳态离散方程用 Newton 法求解：雅可比解析组装，线性化方程在 GPU 上以双精度直接法求解；Newton 步长低于 $10^{-8}\max(1,\Vert q\Vert_\infty)$ 时收敛，$q$ 为流函数与温度的全部未知量。各工况沿 $\log_{10}Ra$ 延拓，以前一参数点的解为初值。
+
+表~\ref{tab:benchmark} 给出 $Pr=0.71$ 时平均 Nusselt 数与基准解的对照，本文结果与 Chebyshev 谱方法解~\cite{lequere1985computation,lequere1991accurate}的相对差不超过 0.01\%。$Ra=10^6$ 时 128、256、512 网格的平均 Nusselt 数分别为 8.82534、8.82523、8.82521。在整个参数域上（$Pr=0.1$、1、10，$Ra=10$--$10^6$），与 512 网格相比，平均 Nusselt 数的相对差不超过 0.02\%，流函数最大值与中线速度峰值不超过 0.07\%，壁面局部 Nusselt 数峰值不超过 0.47\%（$Ra=10^6$，$Pr=0.1$）。
+
+\begin{table}[H]
+\centering
+\caption{$Pr=0.71$ 时平均 Nusselt 数与基准解的对照。}
+\label{tab:benchmark}
+\begin{tabular}{ccccc}
+\toprule
+$Ra$ & 本文 & 文献~\cite{devahldavis1983natural} & 文献~\cite{lequere1985computation} & 文献~\cite{lequere1991accurate} \\
+\midrule
+$10^3$ & 1.1178 & 1.117 & 1.1178 & -- \\
+$10^4$ & 2.2448 & 2.238 & 2.245  & -- \\
+$10^5$ & 4.5219 & 4.509 & 4.522  & -- \\
+$10^6$ & 8.8253 & 8.817 & 8.825  & 8.8252 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Supplementary numerical results（补充数值结果）}
 \label{app:results}
+\setcounter{table}{0}
