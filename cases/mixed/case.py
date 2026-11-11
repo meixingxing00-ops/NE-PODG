@@ -1,6 +1,6 @@
 """顶盖驱动混合对流的实例化（实例化设计 §6–7）：主场为内部角点流函数增量 y = ψ − ψ_L，ψ_L 为恒速顶盖、无热场、无动量输运、
 ν = 1 的离散 Stokes 解，与参数无关；度量为速度 L²，温度为辅助场。参数 μ = (Re, Ri)，ν = 1/Re，κ = 1/(Re Pr)，浮力系数 Ri。
-误差按完整速度归一：nepodg 的误差尺度为 ‖y* − lift‖_M，取 lift = −ψ_L 即 ‖ψ*‖_M。"""
+误差按方法设计 §7 以容许增量归一：‖y*‖_M（lift = 0）。"""
 import csv
 import re
 from pathlib import Path
@@ -59,7 +59,7 @@ class Mixed:
         self.op = Closure(self.cav)
         self.n = self.cav.npsi
         self.psi_L = torch.as_tensor(stokes_lift(), device=DEV)
-        self.lift = -self.psi_L
+        self.lift = torch.zeros(self.n, dtype=torch.float64, device=DEV)
         x = self.cav.x
         X, Y = np.meshgrid(x, x, indexing="ij")
         self.X = torch.as_tensor(np.stack([2 * X.ravel() - 1, 2 * Y.ravel() - 1], 1), dtype=torch.float32, device=DEV)
