@@ -27,16 +27,18 @@ def parameters():
         for index, (p, k) in enumerate(points, 1):
             n4 = role == "pool" and p in (1, 3) and k in (-1, 2)
             n9 = role == "pool" and p in (1, 2, 3) and k in (-1, 0.5, 2)
+            n15 = role == "pool" and k in (-1, 0.5, 2)
+            n21 = role == "pool" and p in (1, 2, 3)
             Pe, ratio = r3(10**p), r3(10**k)
             rows.append(dict(id=f"{prefix}{index:03d}", role=role, Pe=Pe, ratio=ratio,
                              eta1=np.log10(Pe) - 2, eta2=(np.log10(ratio) - 0.5) / 1.5,
-                             n4=int(n4), n9=int(n9), lhs_seed=seed if role == "interp" else ""))
+                             n4=int(n4), n9=int(n9), n15=int(n15), n21=int(n21), n35=int(role == "pool"), lhs_seed=seed if role == "interp" else ""))
     return rows
 
 
 def run():
     rows = parameters()
-    assert sum(r["n4"] for r in rows) == 4 and sum(r["n9"] for r in rows) == 9
+    assert [sum(r[f"n{b}"] for r in rows) for b in (4, 9, 15, 21, 35)] == [4, 9, 15, 21, 35]
     path = ROOT / "cases.csv"
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=rows[0])
