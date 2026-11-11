@@ -38,6 +38,13 @@
 \subsection{Contribution and accuracy mechanism of neural enrichment（神经增广的贡献与精度机制）}
 \label{sec:mechanism}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Fig_06.pdf}
+\caption{快照预算 $N_{12}$ 下的网络。(a) 训练损失，虚线处学习率降为 1/10；(b) 网络直接输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 在训练快照、内插与外推工况上的速度误差 $e$，点为中位数，竖线为最小值到最大值。}
+\label{fig:training}
+\end{figure}
+
 \begin{table}[H]
 \centering
 \caption{快照预算 $N_{12}$ 下网络直接输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 的误差（\%，中位数 / 最大值）。训练快照、内插与外推工况分别为 12、100、27 个；网络直接输出的温度由其速度在全网格上求解能量方程得到。}
@@ -81,7 +88,7 @@
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{Fig_08.pdf}
+\includegraphics[width=\textwidth]{Fig_09.pdf}
 \caption{(a) 内插与 (b) 外推工况上三种方法速度误差的中位数（实线）与最大值（虚线）随快照预算的变化。}
 \label{fig:budget}
 \end{figure}
