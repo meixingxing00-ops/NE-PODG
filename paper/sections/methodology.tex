@@ -36,40 +36,27 @@ Nu(y)=\left.\frac{\partial T}{\partial x}\right|_{\mathrm{wall}},\qquad
 \subsection{Discrete problem and base space（离散问题与基础空间）}
 \label{sec:base}
 
-控制方程~\eqref{eq:governing} 在 MAC 交错网格~\cite{harlow1965numerical}上离散：压力与温度位于单元中心，速度分量位于单元面。速度由角点流函数给出，$\mathbf w=C\boldsymbol\psi$，其中 $C$ 为离散旋度，$\boldsymbol\psi\in\mathbb R^n$ 为内部角点上的流函数，边界角点取零。这样得到的速度场严格离散无散并满足不穿透条件；以 $C\boldsymbol\psi$ 方向检验动量方程时压力项严格为零，高保真方程化为
-\begin{equation}
-r_\psi(\boldsymbol\psi,\mathbf T;\mu)=C^{\mathsf T}M_u\,R_u(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0,\qquad
-R_T(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0,
-\label{eq:fom}
-\end{equation}
-其中 $R_u$ 为去掉压力项的面上动量残差，$R_T$ 为单元能量残差，$M_u$ 为面控制体积构成的对角矩阵。离散细节见附录~A。
+控制方程~\eqref{eq:governing} 在 MAC 交错网格~\cite{harlow1965numerical}上离散，速度由角点流函数给出：$\mathbf w=C\boldsymbol\psi$，其中 $C$ 为离散旋度，$\boldsymbol\psi\in\mathbb R^n$ 为内部角点上的流函数。这样得到的速度场严格离散无散；以 $C\boldsymbol\psi$ 方向检验动量方程时压力项严格为零，动量方程化为流函数坐标上的残差 $r_\psi(\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0$，能量方程为单元残差 $R_T(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0$（附录~\ref{app:discrete}）。
 
-流函数 $\boldsymbol\psi$ 是降阶的主场，温度 $\mathbf T$ 作为辅助场保留在全网格上。给定 $\boldsymbol\psi$，能量方程对 $\mathbf T$ 是线性的，由 $R_T=\mathbf 0$ 解得 $\mathbf T=\mathcal S_\mu(\boldsymbol\psi)$。代回动量残差，得到只依赖主场的有效残差及其雅可比：
+流函数 $\boldsymbol\psi$ 是降阶的主场，温度 $\mathbf T$ 作为辅助场保留在全网格上：给定 $\boldsymbol\psi$，由 $R_T=\mathbf 0$ 解得 $\mathbf T=\mathcal S_\mu(\boldsymbol\psi)$。代回动量残差，得到只依赖主场的有效残差及其雅可比：
 \begin{equation}
 r_{\mathrm{eff}}(\boldsymbol\psi;\mu)=r_\psi\big(\boldsymbol\psi,\mathcal S_\mu(\boldsymbol\psi);\mu\big),\qquad
 J_{\mathrm{eff}}=\frac{\partial r_\psi}{\partial\boldsymbol\psi}-\frac{\partial r_\psi}{\partial\mathbf T}\Big(\frac{\partial R_T}{\partial\mathbf T}\Big)^{-1}\frac{\partial R_T}{\partial\boldsymbol\psi}.
 \label{eq:reff}
 \end{equation}
-$r_{\mathrm{eff}}$ 的每个分量是离散弱残差在一个流函数坐标方向上的值，即对偶量。主场的内积取速度的离散 $L^2$ 内积，
+主场的内积取速度的离散 $L^2$ 内积，
 \begin{equation}
 \langle\mathbf a,\mathbf b\rangle_M=\mathbf a^{\mathsf T}M\mathbf b,\qquad M=C^{\mathsf T}M_uC,
 \label{eq:metric}
 \end{equation}
-$\Vert\boldsymbol\psi\Vert_M$ 即对应速度场的 $L^2$ 范数。POD、正交化、网络训练与误差评价都使用这一度量；对列向量 $M$ 正交的矩阵 $X$，$P_X=XX^{\mathsf T}M$ 为到 $\operatorname{span}X$ 的 $M$ 正交投影。
+$M_u$ 为面控制体积构成的对角矩阵，$\Vert\boldsymbol\psi\Vert_M$ 即对应速度场的 $L^2$ 范数。POD、正交化、网络训练与误差评价都使用这一度量；对列向量 $M$ 正交的矩阵 $X$，$P_X=XX^{\mathsf T}M$ 为到 $\operatorname{span}X$ 的 $M$ 正交投影。
 
-训练参数 $\{\mu_i\}_{i=1}^{N_s}$ 上的高保真解给出快照 $\boldsymbol\psi_i$。记快照均值为 $\bar{\boldsymbol\psi}$，对 $M^{1/2}[\boldsymbol\psi_1-\bar{\boldsymbol\psi},\ldots,\boldsymbol\psi_{N_s}-\bar{\boldsymbol\psi}]$ 作奇异值分解，保留相对奇异值 $\sigma_j/\sigma_1>\delta_V$ 的全部左奇异向量，得到 $M$ 正交的 POD 基 $V$~\cite{sirovich1987turbulence,berkooz1993proper}。$\delta_V$ 只剔除数值上退化的方向，$V$ 张成全部中心化快照。
-
-参数坐标 $\eta(\mu)\in\mathbb R^2$ 由 $\log_{10}Ra$ 与 $\log_{10}Pr$ 线性缩放得到，训练区映到 $[-1,1]^2$。每个训练点上，解对 $\eta_j$ 的导数满足离散稳态方程的线性化，
-\begin{equation}
-J_{\mathrm{eff}}(\boldsymbol\psi_i;\mu_i)\,\mathbf s_{ij}=-\frac{\partial r_{\mathrm{eff}}}{\partial\eta_j}(\boldsymbol\psi_i;\mu_i),\qquad j=1,2,
-\label{eq:sensitivity}
-\end{equation}
-两个右端项共用该点雅可比的一次分解。$\mathbf s_{ij}=\partial\boldsymbol\psi_i/\partial\eta_j$ 是离散解对参数的精确导数，与快照属同一离散。全部灵敏度先 $M$ 正交化、再去除 $V$ 的分量，保留奇异值大于 $\tau$ 的方向得到 $S$。基础空间为
+训练参数 $\{\mu_i\}_{i=1}^{N_s}$ 上的高保真解给出快照 $\boldsymbol\psi_i$，其均值记为 $\bar{\boldsymbol\psi}$。对中心化快照在 $M$ 内积下作 POD~\cite{sirovich1987turbulence,berkooz1993proper}，保留相对奇异值大于 $\delta_V$ 的全部方向，得到 POD 基 $V$。参数坐标 $\eta(\mu)\in\mathbb R^2$ 由 $\log_{10}Ra$ 与 $\log_{10}Pr$ 线性缩放得到，训练区映到 $[-1,1]^2$。每个训练点上，解对 $\eta$ 的灵敏度 $\mathbf s_{ij}=\partial\boldsymbol\psi_i/\partial\eta_j$ 由离散稳态方程的线性化求得，复用该点雅可比的分解（附录~\ref{app:discrete}）。灵敏度正交化并去除 $V$ 的分量后，保留奇异值大于 $\tau$ 的方向得到 $S$。基础空间为
 \begin{equation}
 W=[V,\ S],\qquad W^{\mathsf T}MW=I .
 \label{eq:base}
 \end{equation}
-$W$ 包含训练快照及其一阶参数变化，与查询参数无关。在 $\bar{\boldsymbol\psi}+\operatorname{span}W$ 上作有效残差的 Galerkin 投影即灵敏度增广 POD–Galerkin 方法（SA-PODG）~\cite{hay2009local}；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
+$W$ 包含训练快照及其一阶参数变化，与查询参数无关。在 $\bar{\boldsymbol\psi}+\operatorname{span}W$ 上作有效残差的 Galerkin 投影即灵敏度增广 POD--Galerkin 方法（SA-PODG）~\cite{hay2009local}；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
 
 \subsection{Value-supervised neural candidate fields（场值监督的神经候选场）}
 \label{sec:network}
@@ -96,7 +83,7 @@ w_\theta(\eta)=e^{\ell_\theta(\eta)}\,r_\theta(\eta),
 \mathcal L(\theta)=\frac1{N_s}\sum_{i=1}^{N_s}\frac{\Vert\hat{\boldsymbol\psi}_\theta(\eta_i)-\boldsymbol\psi_i\Vert_M^2}{\Vert\boldsymbol\psi_i\Vert_M^2}.
 \label{eq:loss}
 \end{equation}
-训练快照的范数随参数可相差两个数量级，相对误差使各训练点权重相当。训练前先只拟合幅值分支，使各训练点的初始预测范数为快照范数的 0.1 倍，此时各点的相对误差都约为 1；随后训练全部参数。灵敏度不参与训练。
+训练快照的范数随参数可相差两个数量级，相对误差使各训练点权重相当；训练过程见附录~\ref{app:training}。灵敏度不参与训练。
 
 读出向量的最后一层为仿射层，$r_\theta(\eta)=A\,h_\theta(\eta)+\mathbf b$。固定其余参数，网络预测对读出偏置的导数为
 \begin{equation}
@@ -129,7 +116,7 @@ Z_\theta(\eta)=\tilde Z_{[:,\,s_j>\tau]},\qquad Z_\theta^{\mathsf T}MZ_\theta=I,
 \frac{\partial\mathbf g}{\partial\mathbf c}=B_\theta^{\mathsf T}J_{\mathrm{eff}}B_\theta .
 \label{eq:galerkin}
 \end{equation}
-$r_{\mathrm{eff}}$ 已是对偶量，投影不再乘 $M$。每次计算 $\mathbf g$ 时，由当前主场的速度在全网格上求解能量方程得到温度，并用同一分解求温度沿各基方向的灵敏度，组装 $J_{\mathrm{eff}}B_\theta$；主场系数与温度在闭合中同步确定。方程组~\eqref{eq:galerkin} 用 Levenberg--Marquardt 法求解，初值取训练快照 POD 系数在 $\eta$ 上的薄板样条插值，$S$ 与 $Z_\theta$ 方向的系数取零。收敛后输出主场 $\boldsymbol\psi_r$、温度 $\mathbf T=\mathcal S_\mu(\boldsymbol\psi_r)$ 及由式~\eqref{eq:nusselt} 计算的 Nusselt 数。
+$r_{\mathrm{eff}}$ 是对偶量，投影不再乘 $M$。每次计算残差时，温度由当前主场的速度在全网格上求解，主场系数与温度在闭合中同步确定；求解器与初值见附录~\ref{app:closure}。收敛后输出主场 $\boldsymbol\psi_r$、温度 $\mathbf T=\mathcal S_\mu(\boldsymbol\psi_r)$ 及由式~\eqref{eq:nusselt} 计算的 Nusselt 数。
 
 网络只提供试探空间的方向，降阶解由控制方程在增广空间上确定。POD--Galerkin 与 SA-PODG 分别在 $\bar{\boldsymbol\psi}+\operatorname{span}V$ 与 $\bar{\boldsymbol\psi}+\operatorname{span}W$ 上求解同一方程~\eqref{eq:galerkin}，三种方法只在试探空间上不同。
 

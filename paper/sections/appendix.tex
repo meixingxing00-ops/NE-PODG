@@ -2,6 +2,28 @@
 \label{app:details}
 \setcounter{table}{0}
 
+\subsection{Discrete equations and steady sensitivities（离散方程与稳态灵敏度）}
+\label{app:discrete}
+
+压力与温度位于单元中心，速度分量 $u$、$v$ 分别位于竖直面与水平面，流函数位于单元角点。记 $D$ 为面速度到单元的离散散度，$G$ 为单元压力到面的离散梯度，$C$ 为角点流函数到面速度的离散旋度，$M_u$、$M_p$ 为面与单元控制体积构成的对角矩阵。离散算子满足
+\begin{equation}
+DC=0,\qquad M_uG=-D^{\mathsf T}M_p ,
+\end{equation}
+第一式对加密网格同样成立，第二式由壁面法向速度为零得到。由两式，任一 $C\boldsymbol\psi$ 作检验函数时压力项严格为零，高保真方程为
+\begin{equation}
+r_\psi(\boldsymbol\psi,\mathbf T;\mu)=C^{\mathsf T}M_u\,R_u(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0,\qquad
+R_T(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0,
+\label{eq:fom}
+\end{equation}
+其中 $R_u$ 为去掉压力项的面上动量残差，$R_T$ 为单元能量残差。动量对流项取保对称的能量守恒形式~\cite{verstappen2003symmetry}，单元离散无散时对流矩阵严格反对称；黏性项为二阶中心差分，切向无滑移经壁面虚拟值进入；浮力项在 $v$ 面上取相邻单元温度的线性插值。能量方程取守恒通量形式，扩散为两点通量，侧壁取半单元距离与壁温，上下壁通量为零。壁面局部 Nusselt 数由壁温与近壁两个单元中心温度的二次插值求导得到。
+
+在训练点 $(\boldsymbol\psi_i,\mu_i)$ 上，解对参数坐标 $\eta_j$ 的导数满足离散稳态方程的线性化，
+\begin{equation}
+J_{\mathrm{eff}}(\boldsymbol\psi_i;\mu_i)\,\mathbf s_{ij}=-\frac{\partial r_{\mathrm{eff}}}{\partial\eta_j}(\boldsymbol\psi_i;\mu_i),\qquad j=1,2 .
+\label{eq:sensitivity}
+\end{equation}
+右端项经 $\nu=\sqrt{Pr/Ra}$、$\kappa=1/\sqrt{Ra\,Pr}$ 对 $\eta$ 的链式法则得到；两个右端项共用该点雅可比的一次分解。$\mathbf s_{ij}$ 是离散解对参数的精确导数，与快照属同一离散。
+
 \subsection{High-fidelity solution and verification（高保真求解与验证）}
 \label{app:fom}
 
@@ -24,6 +46,16 @@ $10^6$ & 8.8253 & 8.817 & 8.825  & 8.8252 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Network training（网络训练）}
+\label{app:training}
+
+训练快照的范数随参数可相差两个数量级。训练前先只拟合幅值分支 $\ell_\theta$，使各训练点的初始预测满足 $\Vert\hat{\boldsymbol\psi}_\theta(\eta_i)\Vert_M=0.1\Vert\boldsymbol\psi_i\Vert_M$，此时各点的相对误差都约为 1；随后用 Adam 训练全部参数，每步随机取一批训练点，在全部网格角点上计算损失~\eqref{eq:loss}，学习率在总步数的 1/3 与 2/3 处各降为 1/10。具体取值见表~\ref{tab:settings}。
+
+\subsection{Solution of the reduced equations（降阶方程的求解）}
+\label{app:closure}
+
+每次计算降阶残差~\eqref{eq:galerkin} 时，由当前主场的速度在全网格上求解能量方程得到温度；能量方程雅可比的同一分解同时给出温度沿各基方向速度 $CB_\theta$ 的灵敏度，用于组装 $J_{\mathrm{eff}}B_\theta$。方程组用 Levenberg--Marquardt 法求解，当 $\Vert\mathbf g\Vert\le\epsilon_g\Vert\mathbf g(\mathbf c^{(0)})\Vert$，或步长降到 $\epsilon_c\max(1,\Vert\mathbf c\Vert)$ 以下时收敛。初值取训练快照 POD 系数在 $\eta$ 上的薄板样条插值，$S$ 与 $Z_\theta$ 方向的系数取零。POD--Galerkin、SA-PODG 与 NE-PODG 使用相同的求解器、收敛判据与初值。
 
 \section{Supplementary numerical results（补充数值结果）}
 \label{app:results}
