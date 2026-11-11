@@ -10,10 +10,39 @@ import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as sla
 
+from solvers.mac.mac import _Direct, _keys
+
 
 def _matrix(rows, cols, values, shape):
     return sp.csr_matrix((np.concatenate(values),
                           (np.concatenate(rows), np.concatenate(cols))), shape=shape)
+
+
+class _Factor:
+    """cuDSS factorization (solvers.mac._Direct). Re-plans on the union pattern when a matrix leaves the
+    analysed nonzero structure (e.g. LUDS stencil switches) or needs more right-hand-side columns."""
+
+    def __init__(self):
+        self.d, self.cols = None, 0
+
+    @staticmethod
+    def _pattern(A):
+        return sp.csr_matrix((np.ones(A.nnz), A.indices.copy(), A.indptr.copy()), shape=A.shape)
+
+    def factor(self, A, cols=1):
+        A = sp.csr_matrix(A)
+        A.sort_indices()
+        if self.d is None or cols > self.cols or not np.isin(_keys(A), self.d.key).all():
+            P = self._pattern(A) if self.d is None else self._pattern(A) + self._pattern(self.d.A)
+            self.cols = max(cols, self.cols)
+            self.d = _Direct(P.tocsr(), self.cols)
+        self.d.factor(A)
+        return self.solve
+
+    def solve(self, B):
+        B = np.asarray(B, dtype=float)
+        X = self.d.solve(B)
+        return X[:, 0] if B.ndim == 1 else X
 
 
 def _put(store, r, c, v):
@@ -168,14 +197,14 @@ class OpenMAC:
 
     def __init__(self, grid, geometry, coefficients, psi_bc, mu_reference,
                  velocity=None, thermal=None, traction=None, force=None,
-                 source=None, scheme='luds'):
+                 source=None, scheme='luds', backend='gpu'):
         self.grid, self.geometry, self.coefficients = grid, geometry, coefficients
         self.psi_bc, self.thermal_bc = psi_bc, thermal
         self.velocity_bc = velocity or (lambda x, y, tag, mu: (0., 0.))
         self.traction = traction or (lambda x, y, mu: (0., 0.))
         self.force = force or (lambda x, y, mu: (0., 0.))
         self.source = source or (lambda x, y, mu: 0.)
-        self.scheme = scheme
+        self.scheme, self.backend, self._gpu = scheme, backend, {}
         self._mu, self._op = None, None
         ref = self._mesh(grid.x, grid.y)
         self.Chat = ref.C @ grid.E
@@ -186,6 +215,12 @@ class OpenMAC:
         self._lift_boundary = laplace[grid.inside]
         self._lift_lu = sla.splu(laplace[grid.inside][:, grid.inside].tocsc()) if len(grid.inside) else None
         self.ell = self.lift(mu_reference)
+
+    def _lu(self, name, A, cols=1):
+        """Solve function of a factorization of A: cuDSS (one planned solver per name) or SciPy SuperLU."""
+        if self.backend == 'cpu':
+            return sla.splu(sp.csc_matrix(A), permc_spec='MMD_AT_PLUS_A').solve
+        return self._gpu.setdefault(name, _Factor()).factor(A, cols)
 
     def _mesh(self, x, y):
         g = self.grid
@@ -424,23 +459,24 @@ class OpenMAC:
         With parameters=True return (T, SyV or None, Smu), sharing one factorization.
         """
         en = self._temperature(state, mu)
-        lu = sla.splu(en.A)
-        T = lu.solve(en.rhs)
+        cols = max(1, 0 if directions is None else directions.shape[1], len(mu) if parameters else 0)
+        lu = self._lu('temperature', en.A, cols)
+        T = lu(en.rhs)
         derivative = None
         if directions is not None:
             dQ = self.grid.K @ self.grid.E @ directions
             rhs = -(self.grid.Df @ ((en.H @ T + en.h0)[:, None] * dQ))
-            derivative = lu.solve(rhs)
+            derivative = lu(rhs)
         if parameters:
             partial = self.parameter_derivatives(state, T, mu)[1]
-            return T, derivative, lu.solve(-partial)
+            return T, derivative, lu(-partial)
         return T if directions is None else (T, derivative)
 
     def sensitivity(self, state, T, mu):
         jyy, _, jty, att = self.jacobian(state, T, mu)
         rp, tp = self.parameter_derivatives(state, T, mu)
-        sy = sla.splu(jyy.tocsc()).solve(-rp)
-        st = None if T is None else sla.splu(att).solve(-tp - jty @ sy)
+        sy = self._lu('flow', jyy, rp.shape[1])(-rp)
+        st = None if T is None else self._lu('temperature', att, rp.shape[1])(-tp - jty @ sy)
         op = self.operators(mu)
         sw = op.Cv @ sy
         for j in range(len(mu)):
@@ -454,7 +490,7 @@ class OpenMAC:
         if state is None:
             zero = np.zeros(self.grid.ny_state)
             J = self.flow_jacobian(zero, mu, convection=0.)
-            state = sla.splu(J.tocsc(), permc_spec='MMD_AT_PLUS_A').solve(-self.flow_residual(zero, mu, convection=0.))
+            state = self._lu('flow', J)(-self.flow_residual(zero, mu, convection=0.))
         else:
             state = state.copy()
         norm = lambda r: float(np.sqrt(max(0., r @ self._Mlu.solve(r))))
@@ -463,8 +499,7 @@ class OpenMAC:
         for it in range(maxit):
             r = self.flow_residual(state, mu)
             J = self.flow_jacobian(state, mu)
-            lu = sla.splu(J.tocsc(), permc_spec='MMD_AT_PLUS_A')
-            delta = lu.solve(-r)
+            delta = self._lu('flow', J)(-r)
             backward = max(backward, float(np.linalg.norm(J @ delta + r, np.inf)
                            / max(sla.norm(J, np.inf)*np.linalg.norm(delta, np.inf)
                                  + np.linalg.norm(r, np.inf), np.finfo(float).tiny)))
@@ -631,11 +666,14 @@ class OpenMAC:
                     primary_reattachment=float(primary[0]) if len(primary) else None)
 
 
-def condition_estimate(A, metric_diagonal=None):
+def condition_estimate(A, metric_diagonal=None, backend='gpu'):
     """One-norm condition estimate; optional symmetric diagonal coordinate scaling."""
     s = np.ones(A.shape[0]) if metric_diagonal is None else 1 / np.sqrt(metric_diagonal)
     A = (sp.diags(s) @ A @ sp.diags(s)).tocsc()
-    lu = sla.splu(A, permc_spec='MMD_AT_PLUS_A')
-    inverse = sla.LinearOperator(A.shape, matvec=lu.solve,
-                                 rmatvec=lambda v: lu.solve(v, trans='T'))
+    if backend == 'cpu':
+        lu = sla.splu(A, permc_spec='MMD_AT_PLUS_A')
+        solve, tsolve = lu.solve, lambda v: lu.solve(v, trans='T')
+    else:
+        solve, tsolve = _Factor().factor(A), _Factor().factor(A.T)
+    inverse = sla.LinearOperator(A.shape, matvec=solve, rmatvec=tsolve)
     return float(sla.norm(A, 1) * sla.onenormest(inverse))

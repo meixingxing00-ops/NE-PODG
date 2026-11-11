@@ -1,37 +1,37 @@
 {
-  "date": "2026-11-11T17:10:10.675782+08:00",
+  "date": "2026-11-11T19:23:00.704048+08:00",
   "interpreter": "D:\\Anaconda\\envs\\PINNGPU\\python.exe",
   "result": {
     "state_jacobian": [
       {
         "step": 0.0001,
         "switches": 19,
-        "flow": 4.632724952886362e-12,
-        "temperature": 2.5313226553849096e-05
+        "flow": 5.226419902996135e-12,
+        "temperature": 2.5313226437313632e-05
       },
       {
         "step": 1e-05,
         "switches": 2,
-        "flow": 4.139907891443963e-11,
-        "temperature": 1.6577663401073342e-06
+        "flow": 4.667457699523818e-11,
+        "temperature": 1.6577658638939854e-06
       },
       {
         "step": 1e-06,
         "switches": 0,
-        "flow": 5.667210367112454e-10,
-        "temperature": 7.573758679934347e-10
+        "flow": 5.690379181600203e-10,
+        "temperature": 9.37216463882406e-10
       },
       {
         "step": 1e-07,
         "switches": 0,
-        "flow": 4.392199839298759e-09,
-        "temperature": 1.0446092603946424e-08
+        "flow": 4.8336707704915656e-09,
+        "temperature": 1.2469460962808226e-08
       }
     ],
     "passive_zero_block": 0.0,
-    "neumann_temperature_error": 1.1566906021453316e-15,
+    "neumann_temperature_error": 8.633379830956203e-16,
     "neumann_wall_gradient_error": 0.0,
-    "neumann_wall_temperature_error": 8.881784197001252e-16,
+    "neumann_wall_temperature_error": 1.6653345369377348e-15,
     "neumann_balances": {
       "kinetic_flux": 0.0,
       "convection_work": 0.0,
@@ -40,12 +40,12 @@
       "viscous_dissipation": 0.34576912679102456,
       "viscous_defect": -6.742376324730877e-16,
       "dual_volume_flux_defect": 1.734723475976807e-18,
-      "heat_advection": 7.363901155521546e-16,
-      "heat_diffusion": 6.110027083394879e-17,
+      "heat_advection": 6.42715047849407e-16,
+      "heat_diffusion": 6.310197087449202e-17,
       "heat_source": 0.0,
-      "heat_defect": 7.974903863861035e-16,
-      "temperature_min": 0.04166666666666671,
-      "temperature_max": 0.9583333333333341
+      "heat_defect": 7.05817018723899e-16,
+      "temperature_min": 0.04166666666666675,
+      "temperature_max": 0.9583333333333334
     }
   }
 }

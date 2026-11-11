@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-11T17:10:10.222652+08:00",
+  "date": "2026-11-11T19:23:03.560001+08:00",
   "interpreter": "D:\\Anaconda\\envs\\PINNGPU\\python.exe",
   "result": {
     "history": [
@@ -11,10 +11,10 @@
         "fraction": 0.0,
         "converged": true,
         "iterations": 5,
-        "residual": 2.1416324673684368e-14,
-        "residual_l2": 8.665273462081756e-14,
-        "correction": 8.0357816467883665e-16,
-        "linear_backward_error": 1.526104525535834e-17
+        "residual": 1.0751016845633349e-14,
+        "residual_l2": 3.289323243608006e-14,
+        "correction": 7.446986526167418e-16,
+        "linear_backward_error": 1.4270325201717572e-17
       },
       {
         "mu": [
@@ -24,10 +24,10 @@
         "fraction": 0.5,
         "converged": true,
         "iterations": 5,
-        "residual": 1.2477041515399638e-14,
-        "residual_l2": 5.02395094839001e-14,
-        "correction": 1.044168130294523e-15,
-        "linear_backward_error": 2.6266481126467028e-17
+        "residual": 1.272419797061347e-14,
+        "residual_l2": 4.987837521566529e-14,
+        "correction": 9.659467879719944e-16,
+        "linear_backward_error": 2.1157440175094488e-17
       },
       {
         "mu": [
@@ -37,21 +37,21 @@
         "fraction": 1.0,
         "converged": true,
         "iterations": 5,
-        "residual": 7.760124238576827e-15,
-        "residual_l2": 3.1066496828893034e-14,
-        "correction": 1.02100390416236e-15,
-        "linear_backward_error": 1.828506003060751e-17
+        "residual": 1.072011042464667e-14,
+        "residual_l2": 4.579544537428196e-14,
+        "correction": 1.1152974331698232e-15,
+        "linear_backward_error": 1.5326013586655553e-17
       }
     ],
     "direct_status": {
       "converged": true,
       "iterations": 6,
-      "residual": 2.0039033542153328e-14,
-      "residual_l2": 9.54305316059248e-14,
-      "correction": 1.2631421389210614e-15,
-      "linear_backward_error": 5.471122284562553e-17
+      "residual": 1.1188169885602054e-14,
+      "residual_l2": 4.487049480138591e-14,
+      "correction": 1.3036679457206569e-15,
+      "linear_backward_error": 1.51060376662565e-17
     },
-    "path_difference": 2.0082122425635606e-16,
+    "path_difference": 1.9352538183191346e-16,
     "lower_roots": [
       2.270397490054407
     ],

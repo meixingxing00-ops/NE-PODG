@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-11T17:17:08.362517+08:00",
+  "date": "2026-11-11T19:22:58.523160+08:00",
   "interpreter": "D:\\Anaconda\\envs\\PINNGPU\\python.exe",
   "result": {
     "cds": {
@@ -101,27 +101,27 @@
         {
           "step": 0.0001,
           "switches": 0,
-          "error": 1.5274013719084573e-08
+          "error": 1.5273631094995132e-08
         },
         {
           "step": 1e-05,
           "switches": 0,
-          "error": 1.610754863694801e-10
+          "error": 1.6789123858441495e-10
         },
         {
           "step": 1e-06,
           "switches": 0,
-          "error": 8.206156062866618e-10
+          "error": 4.706130242924374e-10
         }
       ],
       "auxiliary_parameter": [
         {
           "parameter": "Re",
-          "error": 9.468210605243099e-11
+          "error": 8.26242825786861e-11
         },
         {
           "parameter": "ER",
-          "error": 5.417368849945068e-10
+          "error": 5.302039981409655e-10
         }
       ]
     },
@@ -224,27 +224,27 @@
         {
           "step": 0.0001,
           "switches": 0,
-          "error": 2.069111216216901e-08
+          "error": 2.06890233618297e-08
         },
         {
           "step": 1e-05,
           "switches": 0,
-          "error": 2.2320030548977248e-10
+          "error": 2.3268033154939383e-10
         },
         {
           "step": 1e-06,
           "switches": 0,
-          "error": 9.73391815944945e-10
+          "error": 8.129863721320223e-10
         }
       ],
       "auxiliary_parameter": [
         {
           "parameter": "Re",
-          "error": 8.844145275009523e-11
+          "error": 1.2239360001885715e-10
         },
         {
           "parameter": "ER",
-          "error": 5.657178355407188e-10
+          "error": 5.556254878946557e-10
         }
       ]
     },
@@ -252,130 +252,130 @@
       "status": {
         "converged": true,
         "iterations": 6,
-        "residual": 2.611988840926206e-13,
-        "residual_l2": 1.3151750762790515e-12,
-        "correction": 2.317368288539731e-15,
-        "linear_backward_error": 7.102854864081254e-17
+        "residual": 2.432318405700368e-13,
+        "residual_l2": 1.2592657712938778e-12,
+        "correction": 2.3513158634115466e-15,
+        "linear_backward_error": 8.602342566090629e-17
       },
       "differences": [
         {
           "parameter": "Re",
           "relative_step": 0.001,
           "switches": 0,
-          "flow": 3.915891849391246e-07,
-          "temperature": 8.130785972775038e-07,
-          "physical_velocity": 3.860452086260794e-07,
-          "max_residual": 2.674466447244235e-13
+          "flow": 3.9158996412281936e-07,
+          "temperature": 8.130783686776901e-07,
+          "physical_velocity": 3.8604597990534155e-07,
+          "max_residual": 2.858871958874077e-13
         },
         {
           "parameter": "ER",
           "relative_step": 0.001,
           "switches": 0,
-          "flow": 3.5392812866195472e-06,
-          "temperature": 4.092114793311359e-06,
-          "physical_velocity": 5.908472950330836e-06,
-          "max_residual": 1.6065686957807498e-12
+          "flow": 3.539281295816455e-06,
+          "temperature": 4.0921147971150995e-06,
+          "physical_velocity": 5.908472379497932e-06,
+          "max_residual": 1.599290359601434e-12
         },
         {
           "parameter": "Re",
           "relative_step": 0.0003,
           "switches": 0,
-          "flow": 3.524288038427501e-08,
-          "temperature": 7.317623911702927e-08,
-          "physical_velocity": 3.4743964222402865e-08,
-          "max_residual": 2.869030287802861e-13
+          "flow": 3.5242656147421806e-08,
+          "temperature": 7.317797167823178e-08,
+          "physical_velocity": 3.4743695098625627e-08,
+          "max_residual": 3.074540912129069e-13
         },
         {
           "parameter": "ER",
           "relative_step": 0.0003,
           "switches": 0,
-          "flow": 3.1853658010824427e-07,
-          "temperature": 3.6829185039344263e-07,
-          "physical_velocity": 5.31763545549598e-07,
-          "max_residual": 3.084478987018101e-13
+          "flow": 3.1853649274073685e-07,
+          "temperature": 3.682912546071951e-07,
+          "physical_velocity": 5.317628807066734e-07,
+          "max_residual": 2.704398074503241e-13
         },
         {
           "parameter": "Re",
           "relative_step": 0.0001,
           "switches": 0,
-          "flow": 3.9169995695645464e-09,
-          "temperature": 8.128563003976642e-09,
-          "physical_velocity": 3.861660843742053e-09,
-          "max_residual": 3.012999603119011e-13
+          "flow": 3.915795987285004e-09,
+          "temperature": 8.128803615643638e-09,
+          "physical_velocity": 3.861802317547068e-09,
+          "max_residual": 2.968383492148613e-13
         },
         {
           "parameter": "ER",
           "relative_step": 0.0001,
           "switches": 0,
-          "flow": 3.539254412411085e-08,
-          "temperature": 4.091859856040738e-08,
-          "physical_velocity": 5.9084709853928906e-08,
-          "max_residual": 2.984697474703788e-13
+          "flow": 3.539224082006308e-08,
+          "temperature": 4.0920491127906574e-08,
+          "physical_velocity": 5.908337299960345e-08,
+          "max_residual": 2.74756275191465e-13
         },
         {
           "parameter": "Re",
           "relative_step": 3e-05,
           "switches": 0,
-          "flow": 3.8652709250590083e-10,
-          "temperature": 7.182782335009571e-10,
-          "physical_velocity": 3.954845862156934e-10,
-          "max_residual": 2.7921561480856384e-13
+          "flow": 3.9305955867786417e-10,
+          "temperature": 7.355394191375446e-10,
+          "physical_velocity": 3.9809511921791963e-10,
+          "max_residual": 2.534890921672322e-13
         },
         {
           "parameter": "ER",
           "relative_step": 3e-05,
           "switches": 0,
-          "flow": 3.1832482686453314e-09,
-          "temperature": 3.6885752102511453e-09,
-          "physical_velocity": 5.314504047325771e-09,
-          "max_residual": 2.9348770793636957e-13
+          "flow": 3.1840056881433047e-09,
+          "temperature": 3.679748831324463e-09,
+          "physical_velocity": 5.31429262261681e-09,
+          "max_residual": 3.1566477370534866e-13
         },
         {
           "parameter": "Re",
           "relative_step": 1e-05,
           "switches": 0,
-          "flow": 4.592143926785374e-10,
-          "temperature": 1.3811079527208362e-10,
-          "physical_velocity": 5.546872122590662e-10,
-          "max_residual": 3.132915807253368e-13
+          "flow": 4.572044294141985e-10,
+          "temperature": 1.7740655458537486e-10,
+          "physical_velocity": 5.385287801848222e-10,
+          "max_residual": 2.8284763805241024e-13
         },
         {
           "parameter": "ER",
           "relative_step": 1e-05,
           "switches": 0,
-          "flow": 3.587125304208103e-10,
-          "temperature": 4.1425555911452714e-10,
-          "physical_velocity": 6.043019495179544e-10,
-          "max_residual": 2.5442152394581593e-13
+          "flow": 3.617239766500311e-10,
+          "temperature": 4.2250025644196956e-10,
+          "physical_velocity": 6.034464457716166e-10,
+          "max_residual": 2.512087874052263e-13
         }
       ],
       "logarithmic_coordinates": [
         {
           "parameter": "log10_Re",
-          "error": 2.80236923047471e-10
+          "error": 2.7584976763155396e-10
         },
         {
           "parameter": "log10_ER",
-          "error": 1.8476741459453281e-09
+          "error": 1.8481767305982431e-09
         }
       ],
-      "pressure_recovery": 1.7983029637068687e-14,
-      "condition_J": 806170.9893258146,
-      "condition_AT": 21620.642729084935,
+      "pressure_recovery": 1.8173239034511725e-14,
+      "condition_J": 806170.989326137,
+      "condition_AT": 21620.64272908498,
       "balances": {
-        "kinetic_flux": -0.5129814457864228,
-        "convection_work": -0.5129814247908232,
+        "kinetic_flux": -0.5129814457864229,
+        "convection_work": -0.5129814247908233,
         "boundary_convection_correction": 2.099559966913928e-08,
         "convection_defect": -7.69064292378481e-17,
-        "viscous_dissipation": 1.0499087203367519,
+        "viscous_dissipation": 1.0499087203367516,
         "viscous_defect": -6.223731992059272e-16,
         "dual_volume_flux_defect": 5.551115123125783e-17,
-        "heat_advection": 0.3281271700211261,
-        "heat_diffusion": -0.3281271700211242,
+        "heat_advection": 0.32812717002112574,
+        "heat_diffusion": -0.3281271700211252,
         "heat_source": 0.0,
-        "heat_defect": 1.954218011294452e-15,
-        "temperature_min": 1.6482171437435596e-18,
-        "temperature_max": 0.9948910033684589
+        "heat_defect": 5.468091030764268e-16,
+        "temperature_min": 1.6482171437442054e-18,
+        "temperature_max": 0.9948910033684585
       }
     }
   }
