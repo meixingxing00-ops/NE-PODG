@@ -24,7 +24,7 @@
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{Fig_04.pdf}
-\caption{快照预算 $N_{12}$ 下外推工况 $Ra=10^6$、$Pr=0.562$ 的高保真速度大小（附流线）与温度（附等温线），以及 POD--Galerkin、SA-PODG 与 NE-PODG 的速度误差 $|\mathbf U-\mathbf U_{\mathrm{ref}}|/\max|\mathbf U_{\mathrm{ref}}|$ 与温度误差 $(T-T_{\mathrm{ref}})/\Delta T$，超出色标范围的取端色。各图左上角为该方法的速度误差 $e$ 与温度误差 $e_T$。}
+\caption{快照预算 $N_{12}$ 下外推工况 $Ra=10^6$、$Pr=0.562$ 的高保真速度大小（附流线）与温度（附等温线），以及 SA-PODG 与 NE-PODG 的速度误差 $|\mathbf U-\mathbf U_{\mathrm{ref}}|/\max|\mathbf U_{\mathrm{ref}}|$ 与温度误差 $(T-T_{\mathrm{ref}})/\Delta T$，超出色标范围的取端色。各图左上角为该方法的速度误差 $e$ 与温度误差 $e_T$。}
 \label{fig:contours}
 \end{figure}
 
@@ -40,8 +40,15 @@
 
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][5cm][c]{0.9\textwidth}{\centering 网络预测与增广机制图（待绘制，$N_{12}$）\\[4pt](a) 训练损失与网络直接预测的测试误差。\\[2pt]训练与未训练网络：(b) 求解误差 $e$；(c) 余量捕获率 $\Gamma$ 的分布；(d) $\chi_B/\chi_W$ 的统计。}}
-\caption{网络训练损失与直接预测误差；训练与未训练网络的求解误差、余量捕获率与闭合放大系数之比。}
+\includegraphics[width=\textwidth]{Fig_06.pdf}
+\caption{快照预算 $N_{12}$ 下的网络。(a) 训练损失，虚线处学习率降为 1/10；(b) 网络直接预测与 NE-PODG 的速度误差 $e$，按训练快照、内插与外推工况分组，横线为中位数。}
+\label{fig:training}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][5cm][c]{0.9\textwidth}{\centering 增广机制图（待绘制，$N_{12}$）\\[4pt]训练与未训练网络：(a) 求解误差 $e$；(b) 余量捕获率 $\Gamma$ 的分布；(c) $\chi_B/\chi_W$ 的统计。}}
+\caption{训练与未训练网络的求解误差、余量捕获率与闭合放大系数之比。}
 \label{fig:mechanism}
 \end{figure}
 
@@ -60,7 +67,7 @@
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{Fig_08.pdf}
+\includegraphics[width=\textwidth]{Fig_09.pdf}
 \caption{(a) 内插与 (b) 外推工况上三种方法速度误差的中位数（实线）与最大值（虚线）随快照预算的变化。}
 \label{fig:budget}
 \end{figure}
@@ -69,5 +76,5 @@
 \centering
 \caption{四档快照预算下三种方法的误差汇总。}
 \label{tab:budget}
-\fbox{\parbox[c][3.5cm][c]{0.9\textwidth}{\centering 误差汇总（待填）：$N_{12}$、$N_{20}$、$N_{30}$、$N_{50}$ $\times$ 内插/外推，三种方法的速度场、温度场与平均 Nu 误差中位数；$N_{12}$、$N_{50}$ 三个训练种子的范围。}}
+\fbox{\parbox[c][3.5cm][c]{0.9\textwidth}{\centering 误差汇总（待填）：$N_{12}$、$N_{20}$、$N_{30}$、$N_{50}$ $\times$ 内插/外推，三种方法的温度场与平均 Nu 误差中位数（速度误差见图~\ref{fig:budget}）；$N_{12}$、$N_{50}$ 三个训练种子的范围。}}
 \end{table}

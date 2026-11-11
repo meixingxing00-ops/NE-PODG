@@ -1,4 +1,4 @@
-"""论文 Fig. 4：N12、Ra = 10⁶、Pr = 0.562（E022）的高保真速度大小（流线）与温度（等温线），以及 POD–Galerkin、SA-PODG、
+"""论文 Fig. 4：N12、Ra = 10⁶、Pr = 0.562（E022）的高保真速度大小（流线）与温度（等温线），以及 SA-PODG、
 NE-PODG 的速度误差 |U − U_ref|/max|U_ref| 与温度误差 (T − T_ref)/ΔT（百分数，线性色标，同行共用）。
 数据 cases/nc/results/n12/profiles_E022.npz（cases/nc/scripts/profiles.py），整体误差取 cases/nc/results/n12/<方法>_extrap.csv。
 用法（仓库根目录）：python paper/figures/script/fig4_fields.py [输出路径，默认 paper/figures/Fig_04.pdf；.png 用于预览]"""
@@ -21,14 +21,14 @@ res = root / "cases" / "nc" / "results" / "n12"
 d = np.load(res / "profiles_E022.npz")
 out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_04.pdf"
 x = d["nodes"]
-methods = [("pod", "POD–Galerkin"), ("sapodg", "SA-PODG"), ("VS_v", "NE-PODG")]
+methods = [("sapodg", "SA-PODG"), ("VS_v", "NE-PODG")]
 summ = {m: pd.read_csv(res / f"{m}_extrap.csv").set_index("id").loc["E022"] for m, _ in methods}
 
 mm = 1 / 25.4
-fig = plt.figure(figsize=(190 * mm, 82 * mm))
-w, h = 34 / 190, 34 / 82
-cols = [0.05, 0.335, 0.524, 0.713]
-rows = [0.515, 0.03]
+fig = plt.figure(figsize=(190 * mm, 94 * mm))
+w, h = 40 / 190, 40 / 94
+cols = [0.075, 0.43, 0.66]
+rows = [0.515, 0.035]
 cbw = 0.010
 
 
@@ -75,7 +75,7 @@ for r, (q, ref, norm, cmap, lab, iso, levels, enorm, ecmap, ef, elab, ek, eticks
         sym = r"$e$" if ek == "e" else r"$e_T$"
         ax.text(0.04, 0.95, f"{sym} = {100 * val:.2g}%", transform=ax.transAxes, ha="left", va="top", fontsize=7,
                 bbox=dict(fc="white", ec="none", alpha=0.8, pad=1.2))
-    colorbar(sc, cols[3] + w + 0.008, y0, elab, eticks)
+    colorbar(sc, cols[2] + w + 0.008, y0, elab, eticks)
 
 out.parent.mkdir(parents=True, exist_ok=True)
 fig.savefig(out, dpi=400)
