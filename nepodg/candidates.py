@@ -4,7 +4,7 @@
 算例的容许映射 admissible 把采样点上的原始场（列）线性映到容许坐标，候选方向 Φ(η) = admissible(χ(X; η))。
 网络预测为线性读出 û(η) = Φ(η) w(η)，拟合增量快照 u_i。损失为逐工况相对误差平方（M 范数，经 whiten）：
   L = mean_i ‖L(û(η_i) − u_i)‖² / ‖L u_i‖²
-训练前先只拟合幅值分支 ℓ，使每个训练工况的初始 ‖L û(η_i)‖ = 0.1‖L u_i‖。每步随机取 batch 个训练工况，在全部采样点上计算。
+训练前先只拟合幅值分支 ℓ，使每个训练工况的初始 ‖L û(η_i)‖ = 0.1‖L u_i‖（初始读出在 η = 0 处为零，该处工况不参与）。每步随机取 batch 个训练工况，在全部采样点上计算。
 """
 import numpy as np
 import torch
@@ -60,10 +60,12 @@ def train(net, X, etas, U, admissible, whiten, steps, lr, batch, seed=0, log=100
     su = torch.linalg.norm(whiten(U), dim=0) ** 2
     with torch.no_grad():
         g = torch.stack([admissible((net.fields(X, e) @ net.r(e)).double()) for e in E], 1)
-        tgt = torch.log(INIT_RATIO * su.sqrt() / torch.linalg.norm(whiten(g), dim=0)).float()
+        ng = torch.linalg.norm(whiten(g), dim=0)
+        k = ng > 0                              # 初始读出在 η = 0 处为零，该处预测恒为零，不参与预拟合
+        tgt = torch.log(INIT_RATIO * su[k].sqrt() / ng[k]).float()
     opt = torch.optim.Adam(net.amp.parameters(), PREFIT_LR)
     for _ in range(PREFIT_STEPS):
-        loss = ((net.amp(E)[:, 0] - tgt) ** 2).mean()
+        loss = ((net.amp(E[k])[:, 0] - tgt) ** 2).mean()
         opt.zero_grad()
         loss.backward()
         opt.step()
