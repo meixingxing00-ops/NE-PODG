@@ -1,5 +1,6 @@
 """论文 Fig. 6：N12 网络 (a) 训练损失；(b) 网络直接预测与 NE-PODG 的速度误差 e，按训练快照、内插、外推分组（横线为中位数）。
-数据 cases/nc/models/v/n12_loss.csv、cases/nc/results/n12/teacher_v_{train,interp,extrap}.csv、VS_v_{interp,extrap}.csv。
+数据 paper/figures/data/n12_loss.csv（N12 网络 v 的训练损失，每 300 步平均）、cases/nc/results/n12/teacher_v_{train,interp,extrap}.csv、
+VS_v_{interp,extrap}.csv。
 用法（仓库根目录）：python paper/figures/script/fig6_training.py [输出路径，默认 paper/figures/Fig_06.pdf；.png 用于预览]"""
 import sys
 from pathlib import Path
@@ -19,7 +20,7 @@ root = Path(__file__).resolve().parents[3]
 nc = root / "cases" / "nc"
 res = nc / "results" / "n12"
 out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_06.pdf"
-loss = pd.read_csv(nc / "models" / "v" / "n12_loss.csv")
+loss = pd.read_csv(root / "paper" / "figures" / "data" / "n12_loss.csv")
 cnet, cne = cm(0.18), cm(0.9)
 
 mm = 1 / 25.4
@@ -29,7 +30,7 @@ fig, axs = plt.subplots(1, 2, figsize=(190 * mm, 66 * mm), gridspec_kw=dict(left
 ax = axs[0]
 for s in (1e4, 2e4):
     ax.axvline(s, color="0.7", lw=0.6, ls=(0, (3, 2)), zorder=0)
-ax.plot(loss.step, loss.value, color=cnet, lw=1.0)
+ax.plot(loss["step"], loss["loss"], color=cnet, lw=1.0)
 ax.set(yscale="log", xlim=(0, 3e4))
 ax.set_xticks([0, 1e4, 2e4, 3e4], ["0", r"$1\times10^4$", r"$2\times10^4$", r"$3\times10^4$"])
 ax.tick_params(which="both", top=True, right=True)
