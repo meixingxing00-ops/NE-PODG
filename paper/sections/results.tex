@@ -31,7 +31,7 @@
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{Fig_05.pdf}
-\caption{快照预算 $N_{12}$ 下外推工况 $Ra=10^6$、$Pr=0.562$ 的 (a) $x=0.5$ 处水平速度 $u$ 沿 $y$ 的分布、(b) $y=0.5$ 处竖直速度 $v$ 沿 $x$ 的分布与 (c) 热壁局部 Nusselt 数。网络预测为网络输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 及由其速度求得的温度；小图为方框区域的放大。}
+\caption{快照预算 $N_{12}$ 下外推工况 $Ra=10^6$、$Pr=0.562$ 的 (a) $x=0.5$ 处水平速度 $u$ 沿 $y$ 的分布、(b) $y=0.5$ 处竖直速度 $v$ 沿 $x$ 的分布与 (c) 热壁局部 Nusselt 数。网络预测为网络输出 $\hat{\mathbf q}_\theta=\Phi_\theta w_\theta$ 及由其速度求得的温度；小图为方框区域的放大。}
 \label{fig:fields}
 \end{figure}
 
@@ -41,13 +41,13 @@
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{Fig_06.pdf}
-\caption{快照预算 $N_{12}$ 下的网络。(a) 训练损失，虚线处学习率降为 1/10；(b) 网络直接输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 在训练快照、内插与外推工况上的速度误差 $e$，点为中位数，竖线为最小值到最大值。}
+\caption{快照预算 $N_{12}$ 下的网络。(a) 训练损失，虚线处学习率降为 1/10；(b) 网络直接输出 $\hat{\mathbf q}_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 在训练快照、内插与外推工况上的速度误差 $e$，点为中位数，竖线为最小值到最大值。}
 \label{fig:training}
 \end{figure}
 
 \begin{table}[H]
 \centering
-\caption{快照预算 $N_{12}$ 下网络直接输出 $\hat\psi_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 的误差（\%，中位数 / 最大值）。训练快照、内插与外推工况分别为 12、100、27 个；网络直接输出的温度由其速度在全网格上求解能量方程得到。}
+\caption{快照预算 $N_{12}$ 下网络直接输出 $\hat{\mathbf q}_\theta=\Phi_\theta w_\theta$ 与 NE-PODG 的误差（\%，中位数 / 最大值）。训练快照、内插与外推工况分别为 12、100、27 个；网络直接输出的温度由其速度在全网格上求解能量方程得到。}
 \label{tab:network}
 \small
 \setlength{\tabcolsep}{3pt}

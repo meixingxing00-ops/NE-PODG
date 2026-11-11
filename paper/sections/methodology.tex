@@ -37,89 +37,64 @@ Nu_H(y)=\left.\frac{\partial T}{\partial x}\right|_{x=1},\qquad
 \subsection{Discrete problem and base space（离散问题与基础空间）}
 \label{sec:base}
 
-控制方程~\eqref{eq:governing} 在 MAC 交错网格~\cite{harlow1965numerical}上离散，速度由角点流函数给出：$\mathbf w=C\boldsymbol\psi$，其中 $C$ 为离散旋度，$\boldsymbol\psi\in\mathbb R^n$ 为内部角点上的流函数。这样得到的速度场严格离散无散；以 $C\boldsymbol\psi$ 方向检验动量方程时压力项严格为零，动量方程化为流函数坐标上的残差 $r_\psi(\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0$，能量方程为单元残差 $R_T(C\boldsymbol\psi,\mathbf T;\mu)=\mathbf 0$（\ref{app:discrete}）。
-
-流函数 $\boldsymbol\psi$ 是降阶的主场，温度 $\mathbf T$ 作为辅助场保留在全网格上：给定 $\boldsymbol\psi$，由 $R_T=\mathbf 0$ 解得 $\mathbf T=\mathcal S_\mu(\boldsymbol\psi)$。代回动量残差，得到只依赖主场的有效残差及其雅可比：
+高保真离散的未知量分为主场 $\mathbf q\in\mathbb R^n$ 与辅助场 $\mathbf z$，稳态离散方程记为 $F(\mathbf q,\mathbf z;\mu)=\mathbf 0$ 与 $H(\mathbf q,\mathbf z;\mu)=\mathbf 0$。主场取容许坐标，任意 $\mathbf q$ 都满足主场的齐次边界条件与离散约束，降阶只作用于主场；辅助场保留在全阶离散上，给定 $\mathbf q$ 由 $H=\mathbf 0$ 解得 $\mathbf z=\mathcal S_\mu(\mathbf q)$。代回主场方程，得到有效残差及其雅可比：
 \begin{equation}
-r_{\mathrm{eff}}(\boldsymbol\psi;\mu)=r_\psi\big(\boldsymbol\psi,\mathcal S_\mu(\boldsymbol\psi);\mu\big),\qquad
-J_{\mathrm{eff}}=\frac{\partial r_\psi}{\partial\boldsymbol\psi}-\frac{\partial r_\psi}{\partial\mathbf T}\Big(\frac{\partial R_T}{\partial\mathbf T}\Big)^{-1}\frac{\partial R_T}{\partial\boldsymbol\psi}.
+r_{\mathrm{eff}}(\mathbf q;\mu)=F\big(\mathbf q,\mathcal S_\mu(\mathbf q);\mu\big),\qquad
+J_{\mathrm{eff}}=\frac{\partial F}{\partial\mathbf q}-\frac{\partial F}{\partial\mathbf z}\Big(\frac{\partial H}{\partial\mathbf z}\Big)^{-1}\frac{\partial H}{\partial\mathbf q}.
 \label{eq:reff}
 \end{equation}
-主场的内积取速度的离散 $L^2$ 内积，
-\begin{equation}
-\langle\mathbf a,\mathbf b\rangle_M=\mathbf a^{\mathsf T}M\mathbf b,\qquad M=C^{\mathsf T}M_uC,
-\label{eq:metric}
-\end{equation}
-$M_u$ 为面控制体积构成的对角矩阵，$\Vert\boldsymbol\psi\Vert_M$ 即对应速度场的 $L^2$ 范数。POD、正交化、网络训练与误差评价都使用这一度量；对列向量 $M$ 正交的矩阵 $X$，$P_X=XX^{\mathsf T}M$ 为到 $\operatorname{span}X$ 的 $M$ 正交投影。
+主场的内积 $\langle\mathbf a,\mathbf b\rangle_M=\mathbf a^{\mathsf T}M\mathbf b$ 由对称正定矩阵 $M$ 给出，POD、正交化、网络训练与误差评价都使用这一度量；$P_X=XX^{\mathsf T}M$ 为到 $M$ 正交基 $X$ 所张空间的投影。
 
-训练参数 $\{\mu_i\}_{i=1}^{N_s}$ 上的高保真解给出快照 $\boldsymbol\psi_i$，其均值记为 $\bar{\boldsymbol\psi}$。对中心化快照在 $M$ 内积下作 POD~\cite{sirovich1987turbulence,berkooz1993proper}，保留相对奇异值大于 $\delta_V$ 的全部方向，得到 POD 基 $V$。参数坐标 $\eta(\mu)\in\mathbb R^2$ 由 $\log_{10}Ra$ 与 $\log_{10}Pr$ 线性缩放得到，训练区映到 $[-1,1]^2$。每个训练点上，解对 $\eta$ 的灵敏度 $\mathbf s_{ij}=\partial\boldsymbol\psi_i/\partial\eta_j$ 由离散稳态方程的线性化求得，复用该点雅可比的分解（\ref{app:discrete}）。灵敏度正交化并去除 $V$ 的分量后，保留奇异值大于 $\tau$ 的方向得到 $S$。基础空间为
+训练参数 $\{\mu_i\}_{i=1}^{N_s}$ 上的快照 $\mathbf q_i$（均值 $\bar{\mathbf q}$）在 $M$ 内积下作 POD~\cite{sirovich1987turbulence,berkooz1993proper}，保留相对奇异值大于 $\delta_V$ 的方向，得到 POD 基 $V$。参数经线性缩放得到坐标 $\eta(\mu)$，训练区映到 $[-1,1]^d$。每个训练点上解对 $\eta$ 的稳态灵敏度由离散方程的线性化求得；灵敏度正交化并去除 $V$ 的分量后，保留奇异值大于 $\tau$ 的方向得到 $S$。基础空间为
 \begin{equation}
+\mathbf s_{ij}=-J_{\mathrm{eff}}^{-1}\,\frac{\partial r_{\mathrm{eff}}}{\partial\eta_j}\bigg|_{(\mathbf q_i,\mu_i)},\qquad
 W=[V,\ S],\qquad W^{\mathsf T}MW=I .
-\label{eq:base}
+\label{eq:sensitivity}
 \end{equation}
-$W$ 包含训练快照及其一阶参数变化，与查询参数无关。在 $\bar{\boldsymbol\psi}+\operatorname{span}W$ 上作有效残差的 Galerkin 投影即灵敏度增广 POD--Galerkin 方法（SA-PODG）~\cite{hay2009local}；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
+$W$ 包含训练快照及其一阶参数变化，与查询参数无关。在 $\bar{\mathbf q}+\operatorname{span}W$ 上作有效残差的 Galerkin 投影即灵敏度增广 POD--Galerkin 方法（SA-PODG）~\cite{hay2009local}；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
 
 \subsection{Value-supervised neural candidate fields（场值监督的神经候选场）}
 \label{sec:network}
 
-网络以空间坐标与参数坐标 $(\mathbf x,\eta)$ 为输入。主干输出 $m$ 个原始场 $\chi_{\theta,k}(\mathbf x;\eta)$，读出分支输出系数 $w_\theta(\eta)\in\mathbb R^m$，$\theta$ 为全部网络参数。原始场乘以边界因子后在内部角点取值，得到候选场
+网络以空间坐标与参数坐标 $(\mathbf x,\eta)$ 为输入，主干输出 $m$ 个原始场 $\chi_{\theta,k}(\mathbf x;\eta)$，读出分支输出系数 $w_\theta(\eta)\in\mathbb R^m$。原始场经容许映射 $\mathcal A_h$ 进入主场的容许坐标，得到候选场与网络预测：
 \begin{equation}
 \begin{gathered}
-\boldsymbol\phi_{\theta,k}(\eta)=\big[\mathcal B\,\chi_{\theta,k}(\cdot\,;\eta)\big]_{\text{内部角点}},\qquad
-\mathcal B(x,y)=256\,x^2(1-x)^2y^2(1-y)^2,\\
-\Phi_\theta(\eta)=[\boldsymbol\phi_{\theta,1},\ldots,\boldsymbol\phi_{\theta,m}]\in\mathbb R^{n\times m}.
+\Phi_\theta(\eta)=\big[\mathcal A_h\chi_{\theta,1},\ \ldots,\ \mathcal A_h\chi_{\theta,m}\big]\in\mathbb R^{n\times m},\\
+\hat{\mathbf q}_\theta(\eta)=\Phi_\theta(\eta)\,w_\theta(\eta),\qquad
+w_\theta=e^{\ell_\theta}\,r_\theta ,
 \end{gathered}
 \label{eq:candidates}
 \end{equation}
-$\mathcal B$ 及其法向导数在四壁上为零，候选场与快照位于同一组流函数坐标中，对应的速度 $C\Phi_\theta$ 严格离散无散。网络的预测是候选场的线性读出：
+其中 $\ell_\theta$ 为标量幅值分支，$r_\theta$ 为读出向量。网络只用训练快照的场值监督：
 \begin{equation}
-\hat{\boldsymbol\psi}_\theta(\eta)=\Phi_\theta(\eta)\,w_\theta(\eta),\qquad
-w_\theta(\eta)=e^{\ell_\theta(\eta)}\,r_\theta(\eta),
-\label{eq:readout}
-\end{equation}
-其中 $r_\theta$ 为读出向量，$\ell_\theta$ 为标量幅值分支。$\Phi_\theta$ 与 $w_\theta$ 对 $\eta$ 都是非线性的，预测只对 $w_\theta$ 线性。
-
-网络只用训练快照的场值监督，损失为相对误差的平方平均：
-\begin{equation}
-\mathcal L(\theta)=\frac1{N_s}\sum_{i=1}^{N_s}\frac{\Vert\hat{\boldsymbol\psi}_\theta(\eta_i)-\boldsymbol\psi_i\Vert_M^2}{\Vert\boldsymbol\psi_i\Vert_M^2}.
+\mathcal L(\theta)=\frac1{N_s}\sum_{i=1}^{N_s}\frac{\Vert\hat{\mathbf q}_\theta(\eta_i)-\mathbf q_i\Vert_M^2}{\Vert\mathbf q_i\Vert_M^2},
 \label{eq:loss}
 \end{equation}
-训练快照的范数随参数可相差两个数量级，相对误差使各训练点权重相当；训练过程见\ref{app:training}。灵敏度不参与训练。
+相对误差使范数相差可达两个数量级的各训练点权重相当；训练过程见\ref{app:training}，灵敏度不参与训练。
 
-读出向量的最后一层为仿射层，$r_\theta(\eta)=A\,h_\theta(\eta)+\mathbf b$。固定其余参数，网络预测对读出偏置的导数为
+候选场与训练的联系由读出层给出。$r_\theta$ 的最后一层为仿射层 $r_\theta=K\,h_\theta+\mathbf b$，固定其余参数时
 \begin{equation}
-\frac{\partial\hat{\boldsymbol\psi}_\theta(\eta)}{\partial\mathbf b}=e^{\ell_\theta(\eta)}\,\Phi_\theta(\eta).
+\frac{\partial\hat{\mathbf q}_\theta(\eta)}{\partial\mathbf b}=e^{\ell_\theta(\eta)}\,\Phi_\theta(\eta).
 \label{eq:bias}
 \end{equation}
-由于 $e^{\ell_\theta}>0$，$\operatorname{span}\Phi_\theta(\eta)$ 正是网络在 $\eta$ 处经读出偏置可到达的输出变化空间，网络预测 $\hat{\boldsymbol\psi}_\theta(\eta)$ 本身也在其中。NE-PODG 用这一空间提供增广方向，不直接以 $\hat{\boldsymbol\psi}_\theta$ 作为解。
+由于 $e^{\ell_\theta}>0$，$\operatorname{span}\Phi_\theta(\eta)$ 就是网络在 $\eta$ 处经读出偏置可到达的输出变化空间，网络预测 $\hat{\mathbf q}_\theta(\eta)$ 本身也在其中。NE-PODG 用这一空间提供增广方向，不直接以 $\hat{\mathbf q}_\theta$ 作为解。
 
 \subsection{Complementary space construction and Galerkin closure（互补空间构造与 Galerkin 闭合）}
 \label{sec:closure}
 
-给定查询参数 $\mu$ 及其坐标 $\eta$，NE-PODG 由候选场构造与基础空间互补的方向，再在增广空间上求解（图~\ref{fig:framework}）。先求候选空间的 $M$ 正交基 $Q_E=\operatorname{orth}_M\Phi_\theta(\eta)$，以相对奇异值阈值 $\delta_E$ 判定数值秩；再去除基础空间分量，并在 $M$ 度量下作奇异值分解：
+给定查询参数 $\mu$（坐标 $\eta$），先求候选空间的 $M$ 正交基 $Q_E=\operatorname{orth}_M\Phi_\theta(\eta)$，以相对奇异值阈值 $\delta_E$ 判定数值秩；再去除 $W$ 的分量，在 $M$ 度量下作奇异值分解，保留 $s_j>\tau$ 的方向，得到神经互补空间（图~\ref{fig:framework}）：
 \begin{equation}
-(I-P_W)\,Q_E=\tilde Z\,\operatorname{diag}(s_1,\ldots,s_k)\,Y^{\mathsf T},\qquad \tilde Z^{\mathsf T}M\tilde Z=I .
-\label{eq:deproject}
-\end{equation}
-$s_j\in[0,1]$ 只取决于 $\operatorname{span}\Phi_\theta(\eta)$ 与 $\operatorname{span}W$ 两个子空间，表示候选方向相对 $W$ 的正交程度：其中 $\min(k,n_V+n_S)$ 个是两子空间之间主角的正弦，$k$ 超出 $W$ 维数的部分为 $s_j=1$。保留 $s_j>\tau$ 的列，得到神经互补空间
-\begin{equation}
-Z_\theta(\eta)=\tilde Z_{[:,\,s_j>\tau]},\qquad Z_\theta^{\mathsf T}MZ_\theta=I,\qquad W^{\mathsf T}MZ_\theta=0,
+(I-P_W)\,Q_E=\tilde Z\,\operatorname{diag}(s_j)\,Y^{\mathsf T},\qquad
+Z_\theta(\eta)=\tilde Z_{[:,\,s_j>\tau]},\qquad W^{\mathsf T}MZ_\theta=0 .
 \label{eq:complement}
 \end{equation}
-其维数 $n_Z(\eta)\le m$ 在每个查询点确定。增广基 $\Psi_\theta(\eta)=[W,\ Z_\theta(\eta)]$ 是 $M$ 正交的，降阶主场写为
+$s_j\in[0,1]$ 只取决于 $\operatorname{span}\Phi_\theta(\eta)$ 与 $\operatorname{span}W$，表示候选方向相对 $W$ 的正交程度。增广基 $\Psi_\theta(\eta)=[W,\ Z_\theta(\eta)]$ 是 $M$ 正交的，降阶解由有效残差在增广空间上的 Galerkin 投影确定：
 \begin{equation}
-\boldsymbol\psi_r(\mathbf c)=\bar{\boldsymbol\psi}+\Psi_\theta(\eta)\,\mathbf c,\qquad \mathbf c\in\mathbb R^{n_V+n_S+n_Z}.
-\label{eq:rom_state}
-\end{equation}
-降阶方程为有效残差在增广空间上的 Galerkin 投影：
-\begin{equation}
-\mathbf g(\mathbf c;\mu)=\Psi_\theta^{\mathsf T}\,r_{\mathrm{eff}}\big(\boldsymbol\psi_r(\mathbf c);\mu\big)=\mathbf 0,\qquad
-\frac{\partial\mathbf g}{\partial\mathbf c}=\Psi_\theta^{\mathsf T}J_{\mathrm{eff}}\Psi_\theta .
+\mathbf q_r(\mathbf c)=\bar{\mathbf q}+\Psi_\theta(\eta)\,\mathbf c,\qquad
+\mathbf g(\mathbf c;\mu)=\Psi_\theta^{\mathsf T}\,r_{\mathrm{eff}}\big(\mathbf q_r(\mathbf c);\mu\big)=\mathbf 0 .
 \label{eq:galerkin}
 \end{equation}
-$r_{\mathrm{eff}}$ 是对偶量，投影不再乘 $M$。每次求降阶残差与雅可比时，由当前主场在全网格上求解温度方程，并更新温度对各基方向的响应，温度随主场系数的迭代同步更新；求解器与初值见\ref{app:closure}。收敛后输出主场 $\boldsymbol\psi_r$、温度 $\mathbf T=\mathcal S_\mu(\boldsymbol\psi_r)$ 及由式~\eqref{eq:nusselt} 计算的 Nusselt 数。
-
-网络只提供试探空间的方向，降阶解由控制方程在增广空间上确定。POD--Galerkin 与 SA-PODG 分别在 $\bar{\boldsymbol\psi}+\operatorname{span}V$ 与 $\bar{\boldsymbol\psi}+\operatorname{span}W$ 上求解同一方程~\eqref{eq:galerkin}，三种方法只在试探空间上不同。
+该方程组用 Levenberg--Marquardt 法求解，辅助场随主场系数的迭代在全阶离散上同步更新（\ref{app:closure}）。网络只提供试探空间的方向，降阶解由控制方程确定。POD--Galerkin 与 SA-PODG 分别在 $\bar{\mathbf q}+\operatorname{span}V$ 与 $\bar{\mathbf q}+\operatorname{span}W$ 上求解同一方程，三种方法只在试探空间上不同。
 
 \begin{figure}[H]
 \centering
@@ -131,20 +106,14 @@ $r_{\mathrm{eff}}$ 是对偶量，投影不再乘 $M$。每次求降阶残差与
 \subsection{Approximation and error characterization（逼近与误差刻画）}
 \label{sec:errors}
 
-记高保真解为 $\boldsymbol\psi^\star$。对试探空间 $X\in\{V,W,\Psi_\theta\}$，降阶解 $\boldsymbol\psi_X$ 的速度误差与该空间的最佳逼近误差为（增广空间 $\operatorname{span}\Psi_\theta$ 上的量记下标 $B$）
+记高保真解为 $\mathbf q^\star$。对试探空间 $X\in\{V,W,\Psi_\theta\}$（增广空间上的量记下标 $B$），降阶解 $\mathbf q_X$ 的误差、最佳逼近误差与闭合放大系数为
 \begin{equation}
-e_X=\frac{\Vert\boldsymbol\psi_X-\boldsymbol\psi^\star\Vert_M}{\Vert\boldsymbol\psi^\star\Vert_M},\qquad
-e_{\mathrm{proj},X}=\min_{\boldsymbol\psi\in\bar{\boldsymbol\psi}+\operatorname{span}X}\frac{\Vert\boldsymbol\psi-\boldsymbol\psi^\star\Vert_M}{\Vert\boldsymbol\psi^\star\Vert_M}.
+e_X=\frac{\Vert\mathbf q_X-\mathbf q^\star\Vert_M}{\Vert\mathbf q^\star\Vert_M},\quad
+e_{\mathrm{proj},X}=\min_{\mathbf q\in\bar{\mathbf q}+\operatorname{span}X}\frac{\Vert\mathbf q-\mathbf q^\star\Vert_M}{\Vert\mathbf q^\star\Vert_M},\quad
+\chi_X=\frac{e_X}{e_{\mathrm{proj},X}}\ge1 .
 \label{eq:errors}
 \end{equation}
-$\boldsymbol\psi_X$ 位于同一仿射空间，误差可正交分解为 $e_X^2=e_{\mathrm{proj},X}^2+e_{\mathrm{real},X}^2$，其中 $e_{\mathrm{real},X}$ 为降阶解与最佳逼近之间的距离。闭合放大系数 $\chi_X=e_X/e_{\mathrm{proj},X}\ge1$ 衡量 Galerkin 闭合偏离最佳逼近的程度。
-
-由 $\operatorname{span}W\subseteq\operatorname{span}\Psi_\theta$，增广空间的最佳逼近误差满足 $e_{\mathrm{proj},B}\le e_{\mathrm{proj},W}$。记基础空间未表示的解余量为 $\mathbf r_W=(I-P_W)(\boldsymbol\psi^\star-\bar{\boldsymbol\psi})$，定义神经互补空间对它的捕获率
-\begin{equation}
-\Gamma_\theta=\frac{\Vert P_{Z_\theta}\mathbf r_W\Vert_M^2}{\Vert\mathbf r_W\Vert_M^2}\in[0,1].
-\label{eq:capture}
-\end{equation}
-$W$ 与 $Z_\theta$ 在 $M$ 下正交，$P_{\Psi_\theta}=P_W+P_{Z_\theta}$，于是
+$\chi_X$ 衡量 Galerkin 闭合偏离最佳逼近的程度。记基础空间未表示的解余量为 $\mathbf r_W=(I-P_W)(\mathbf q^\star-\bar{\mathbf q})$，神经互补空间对它的捕获率为 $\Gamma_\theta=\Vert P_{Z_\theta}\mathbf r_W\Vert_M^2/\Vert\mathbf r_W\Vert_M^2\in[0,1]$。由于 $W$ 与 $Z_\theta$ 在 $M$ 下正交，$P_{\Psi_\theta}=P_W+P_{Z_\theta}$，于是
 \begin{equation}
 e_{\mathrm{proj},B}=e_{\mathrm{proj},W}\sqrt{1-\Gamma_\theta},\qquad
 \frac{e_B}{e_W}=\frac{\chi_B}{\chi_W}\sqrt{1-\Gamma_\theta}.
@@ -155,14 +124,17 @@ e_{\mathrm{proj},B}=e_{\mathrm{proj},W}\sqrt{1-\Gamma_\theta},\qquad
 \subsection{Numerical implementation and verification（数值实现与验证）}
 \label{sec:setup}
 
+\paragraph{方腔算例的实例化}
+控制方程~\eqref{eq:governing} 在 MAC 交错网格~\cite{harlow1965numerical}上离散。主场 $\mathbf q$ 取内部角点上的流函数，速度由离散旋度给出，严格离散无散；温度为辅助场 $\mathbf z$。度量 $M$ 取速度的离散 $L^2$ 内积，$\Vert\mathbf q\Vert_M$ 即速度场的 $L^2$ 范数。容许映射将原始场乘以边界因子 $\mathcal B(x,y)=256\,x^2(1-x)^2y^2(1-y)^2$ 后在内部角点取值，$\mathcal B$ 及其法向导数在四壁上为零。参数坐标由 $\log_{10}Ra$ 与 $\log_{10}Pr$ 线性缩放得到（表~\ref{tab:settings}）。离散方程与灵敏度的计算见\ref{app:discrete}。
+
 \paragraph{高保真解}
-训练快照、灵敏度与参考解都在 $128\times128$ 的向壁加密 MAC 网格上求得，降阶闭合也在这一离散上进行。$Pr=0.71$ 时平均 Nusselt 数与 Chebyshev 谱方法基准解的相对差不超过 0.01\%；求解设置、基准对照与网格收敛见\ref{app:fom}。
+NE-PODG 的 Galerkin 闭合在任意降阶状态上计算生成快照所用离散的有效残差与雅可比，训练点上的稳态灵敏度也由同一离散的雅可比求得。因此，训练快照、灵敏度、参考解与降阶闭合都在同一套自编的离散程序上计算，网格为 $128\times128$ 的向壁加密网格。$Pr=0.71$ 时，平均 Nusselt 数与 Chebyshev 谱方法基准解的相对差不超过 0.01\%；求解设置、基准对照与网格收敛见\ref{app:fom}。
 
 \paragraph{训练与测试数据}
 参数域为 $Ra\in[10,10^6]$、$Pr\in[0.1,10]$，训练快照全部取自 $Ra\le3.16\times10^5$ 的训练区。训练池由训练区内 $\log_{10}Ra$、$\log_{10}Pr$ 间隔 0.5 的规则网格组成，共 50 个参数点（10 档 $Ra$ $\times$ 5 档 $Pr$）。快照预算取训练池的四个规则子集：$N_{12}$ 取 $Ra=10$、316、$1.00\times10^4$、$3.16\times10^5$ 与 $Pr=0.1$、1、10；$N_{20}$ 在 $N_{12}$ 上将 $Pr$ 加密到 5 档；$N_{30}$ 在 $N_{12}$ 上将 $Ra$ 加密到 10 档；$N_{50}$ 为整个训练池。四者满足 $N_{12}\subset N_{20}\subset N_{50}$ 与 $N_{12}\subset N_{30}\subset N_{50}$。预算内每个训练点提供一个快照及其对 $\log_{10}Ra$、$\log_{10}Pr$ 的稳态灵敏度。测试工况只用于评价：内插测试为训练区 $(\log_{10}Ra,\log_{10}Pr)\in[1,5.5]\times[-1,1]$ 上的 100 个拉丁超立方取样点，在两个对数坐标上同时与某一训练池点相差小于 0.05 的取样点不用；外推测试取 $Ra=4.22\times10^5$、$5.62\times10^5$、$1.00\times10^6$ 与 $\log_{10}Pr=-1,-0.75,\ldots,1$ 的组合，共 27 个工况。各组参数点见图~\ref{fig:cavity}(b)。
 
 \paragraph{误差度量}
-速度误差取第~\ref{sec:errors} 节定义的 $M$ 范数相对误差 $e$。温度误差为 $e_T=\Vert T_r-T^\star\Vert_{L^2}/\Vert T^\star\Vert_{L^2}$，平均 Nusselt 数误差为 $\lvert\overline{Nu}_r/\overline{Nu}^\star-1\rvert$（$\overline{Nu}$ 取冷壁平均值，式~\eqref{eq:nusselt}），上标 $\star$ 表示同一离散上的高保真解。内插与外推工况分别统计各误差的中位数与最大值。
+速度误差取第~\ref{sec:errors} 节定义的主场误差 $e$；$M$ 为速度的 $L^2$ 度量，$e$ 即速度场的相对 $L^2$ 误差。温度误差为 $e_T=\Vert T_r-T^\star\Vert_{L^2}/\Vert T^\star\Vert_{L^2}$，平均 Nusselt 数误差为 $\lvert\overline{Nu}_r/\overline{Nu}^\star-1\rvert$（$\overline{Nu}$ 取冷壁平均值，式~\eqref{eq:nusselt}），上标 $\star$ 表示同一离散上的高保真解。内插与外推工况分别统计各误差的中位数与最大值。
 
 \paragraph{计算设置}
 网络、训练、空间构造与闭合的设置列于表~\ref{tab:settings}。POD--Galerkin、SA-PODG 与 NE-PODG 使用同一组训练快照、同一闭合求解器与同一初值，SA-PODG 与 NE-PODG 另使用相同的稳态灵敏度；三者的差别只在试探空间。主要结果使用一个训练种子；$N_{12}$ 与 $N_{50}$ 另用两个种子训练，用于评价结果对网络初始化的依赖。
