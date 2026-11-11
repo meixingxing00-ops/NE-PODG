@@ -14,7 +14,7 @@ from cases.conjugate.fom.config import mesh, outputs
 CASES = [(10, 0.1), (10, 100), (1000, 0.1), (1000, 100), (100, 10**0.5),
          (10, 10**-1.5), (1000, 10**2.5), (10**3.5, 0.1), (10**3.5, 100)]
 LEVELS = (0.5, 1, 2, 4)
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1] / "results" / "fom"
 
 
 def select_grid(rows):

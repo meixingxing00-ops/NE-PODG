@@ -11,7 +11,7 @@ import scipy.sparse.linalg as spla
 from cases.conjugate.fom.config import mesh, outputs
 from cases.conjugate.fom.make_cases import parameters
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1] / "results" / "fom"
 
 
 def run():
