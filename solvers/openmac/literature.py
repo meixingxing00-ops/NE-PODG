@@ -20,14 +20,14 @@ def run(args):
     for re in args.Re:
         mu = np.array([re, args.ER])
         previous = state
-        state, T, status = m.solve(mu, state=state, tol=1.e-10, verbose=True)
+        state, T, status = m.solve(mu, state=state, tol=args.tol, verbose=True)
         continuation = []
         if not status['converged'] and previous is not None:
             state, T, continuation = m.continue_to([rows[-1]['Re'], args.ER], mu,
-                state=previous, tol=1.e-10, verbose=True)
+                state=previous, tol=args.tol, verbose=True)
             status = {**continuation[-1], 'converged': bool(
                 continuation[-1]['converged'] and continuation[-1]['fraction']==1.)}
-        row = dict(Re=re, ER=args.ER, n=args.n, n_y=m.grid.ny_state, n_T=m.grid.np,
+        row = dict(Re=re, ER=args.ER, n=args.n, tol=args.tol, n_y=m.grid.ny_state, n_T=m.grid.np,
                    Lin=args.Lin, Lout=args.Lout+args.extension, base_Lout=args.Lout,
                    extension=args.extension, Pr=args.Pr, status=status, continuation=continuation)
         if not status['converged']:
@@ -97,4 +97,5 @@ if __name__ == '__main__':
     p.add_argument('--ER', type=float, default=101/52)
     p.add_argument('--Re', type=float, nargs='+', default=[50.,100.,150.,300.])
     p.add_argument('--Pr', type=float, default=.71)
+    p.add_argument('--tol', type=float, default=1.e-10)   # 大网格的残差舍入下限约 2e-10
     run(p.parse_args())
