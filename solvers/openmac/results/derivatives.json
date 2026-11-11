@@ -1,0 +1,382 @@
+{
+  "date": "2026-11-11T17:17:08.362517+08:00",
+  "interpreter": "D:\\Anaconda\\envs\\PINNGPU\\python.exe",
+  "result": {
+    "cds": {
+      "state_jacobian": [
+        {
+          "step": 0.001,
+          "switches": 3,
+          "flow": 4.2323530043968233e-13,
+          "temperature": 5.018372544928153e-13
+        },
+        {
+          "step": 0.0001,
+          "switches": 0,
+          "flow": 3.513840764231456e-12,
+          "temperature": 5.28333561283662e-12
+        },
+        {
+          "step": 1e-05,
+          "switches": 0,
+          "flow": 4.766862115186055e-11,
+          "temperature": 4.8339034006666355e-11
+        },
+        {
+          "step": 1e-06,
+          "switches": 0,
+          "flow": 2.9114829785281113e-10,
+          "temperature": 4.767660924214255e-10
+        },
+        {
+          "step": 1e-07,
+          "switches": 0,
+          "flow": 3.988748701245603e-09,
+          "temperature": 5.315000734021749e-09
+        }
+      ],
+      "parameter_partials": [
+        {
+          "parameter": "Re",
+          "relative_step": 0.001,
+          "flow": 1.000000970318931e-06,
+          "temperature": 1.0000009340693628e-06
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.001,
+          "flow": 5.4325795140952104e-05,
+          "temperature": 1.6182968298351333e-05
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 0.0001,
+          "flow": 1.000032703676462e-08,
+          "temperature": 1.000055754472362e-08
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.0001,
+          "flow": 5.432379080677749e-07,
+          "temperature": 1.6182588632229764e-07
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-05,
+          "flow": 1.1070108296374444e-10,
+          "temperature": 1.0507773908875481e-10
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-05,
+          "flow": 5.410616701662499e-09,
+          "temperature": 1.6039524630365565e-09
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-06,
+          "flow": 5.0990918322647766e-11,
+          "temperature": 7.363766854576215e-11
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-06,
+          "flow": 6.057237041353658e-10,
+          "temperature": 1.0028271674371316e-09
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-07,
+          "flow": 1.2097964976846698e-09,
+          "temperature": 6.094758652939202e-10
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-07,
+          "flow": 1.3406039590194243e-09,
+          "temperature": 8.920887904344678e-10
+        }
+      ],
+      "auxiliary_direction": [
+        {
+          "step": 0.0001,
+          "switches": 0,
+          "error": 1.5274013719084573e-08
+        },
+        {
+          "step": 1e-05,
+          "switches": 0,
+          "error": 1.610754863694801e-10
+        },
+        {
+          "step": 1e-06,
+          "switches": 0,
+          "error": 8.206156062866618e-10
+        }
+      ],
+      "auxiliary_parameter": [
+        {
+          "parameter": "Re",
+          "error": 9.468210605243099e-11
+        },
+        {
+          "parameter": "ER",
+          "error": 5.417368849945068e-10
+        }
+      ]
+    },
+    "luds": {
+      "state_jacobian": [
+        {
+          "step": 0.001,
+          "switches": 1,
+          "flow": 3.7239127178992113e-13,
+          "temperature": 0.030803937581370632
+        },
+        {
+          "step": 0.0001,
+          "switches": 0,
+          "flow": 2.7073447470014783e-12,
+          "temperature": 4.044136598783029e-12
+        },
+        {
+          "step": 1e-05,
+          "switches": 0,
+          "flow": 2.968422436993447e-11,
+          "temperature": 3.984751526977457e-11
+        },
+        {
+          "step": 1e-06,
+          "switches": 0,
+          "flow": 3.8699919272168423e-10,
+          "temperature": 4.0417778404936977e-10
+        },
+        {
+          "step": 1e-07,
+          "switches": 0,
+          "flow": 4.5012550689689615e-09,
+          "temperature": 4.5099967418357846e-09
+        }
+      ],
+      "parameter_partials": [
+        {
+          "parameter": "Re",
+          "relative_step": 0.001,
+          "flow": 1.0000009814326356e-06,
+          "temperature": 1.0000008906170394e-06
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.001,
+          "flow": 5.453290381867015e-05,
+          "temperature": 1.5942434561487026e-05
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 0.0001,
+          "flow": 1.0000159950419897e-08,
+          "temperature": 1.000066620145493e-08
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.0001,
+          "flow": 5.453090704523736e-07,
+          "temperature": 1.5942042333961374e-07
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-05,
+          "flow": 1.0952819124928263e-10,
+          "temperature": 1.0673813072572053e-10
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-05,
+          "flow": 5.432233067500878e-09,
+          "temperature": 1.5799779406235154e-09
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-06,
+          "flow": 8.539956559627446e-11,
+          "temperature": 1.3257062366430298e-10
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-06,
+          "flow": 5.832382832150234e-10,
+          "temperature": 1.0220312756485779e-09
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-07,
+          "flow": 1.799946252268429e-09,
+          "temperature": 1.41381947860767e-09
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-07,
+          "flow": 1.2799467176152457e-09,
+          "temperature": 9.547414146101582e-10
+        }
+      ],
+      "auxiliary_direction": [
+        {
+          "step": 0.0001,
+          "switches": 0,
+          "error": 2.069111216216901e-08
+        },
+        {
+          "step": 1e-05,
+          "switches": 0,
+          "error": 2.2320030548977248e-10
+        },
+        {
+          "step": 1e-06,
+          "switches": 0,
+          "error": 9.73391815944945e-10
+        }
+      ],
+      "auxiliary_parameter": [
+        {
+          "parameter": "Re",
+          "error": 8.844145275009523e-11
+        },
+        {
+          "parameter": "ER",
+          "error": 5.657178355407188e-10
+        }
+      ]
+    },
+    "steady": {
+      "status": {
+        "converged": true,
+        "iterations": 6,
+        "residual": 2.611988840926206e-13,
+        "residual_l2": 1.3151750762790515e-12,
+        "correction": 2.317368288539731e-15,
+        "linear_backward_error": 7.102854864081254e-17
+      },
+      "differences": [
+        {
+          "parameter": "Re",
+          "relative_step": 0.001,
+          "switches": 0,
+          "flow": 3.915891849391246e-07,
+          "temperature": 8.130785972775038e-07,
+          "physical_velocity": 3.860452086260794e-07,
+          "max_residual": 2.674466447244235e-13
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.001,
+          "switches": 0,
+          "flow": 3.5392812866195472e-06,
+          "temperature": 4.092114793311359e-06,
+          "physical_velocity": 5.908472950330836e-06,
+          "max_residual": 1.6065686957807498e-12
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 0.0003,
+          "switches": 0,
+          "flow": 3.524288038427501e-08,
+          "temperature": 7.317623911702927e-08,
+          "physical_velocity": 3.4743964222402865e-08,
+          "max_residual": 2.869030287802861e-13
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.0003,
+          "switches": 0,
+          "flow": 3.1853658010824427e-07,
+          "temperature": 3.6829185039344263e-07,
+          "physical_velocity": 5.31763545549598e-07,
+          "max_residual": 3.084478987018101e-13
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 0.0001,
+          "switches": 0,
+          "flow": 3.9169995695645464e-09,
+          "temperature": 8.128563003976642e-09,
+          "physical_velocity": 3.861660843742053e-09,
+          "max_residual": 3.012999603119011e-13
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 0.0001,
+          "switches": 0,
+          "flow": 3.539254412411085e-08,
+          "temperature": 4.091859856040738e-08,
+          "physical_velocity": 5.9084709853928906e-08,
+          "max_residual": 2.984697474703788e-13
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 3e-05,
+          "switches": 0,
+          "flow": 3.8652709250590083e-10,
+          "temperature": 7.182782335009571e-10,
+          "physical_velocity": 3.954845862156934e-10,
+          "max_residual": 2.7921561480856384e-13
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 3e-05,
+          "switches": 0,
+          "flow": 3.1832482686453314e-09,
+          "temperature": 3.6885752102511453e-09,
+          "physical_velocity": 5.314504047325771e-09,
+          "max_residual": 2.9348770793636957e-13
+        },
+        {
+          "parameter": "Re",
+          "relative_step": 1e-05,
+          "switches": 0,
+          "flow": 4.592143926785374e-10,
+          "temperature": 1.3811079527208362e-10,
+          "physical_velocity": 5.546872122590662e-10,
+          "max_residual": 3.132915807253368e-13
+        },
+        {
+          "parameter": "ER",
+          "relative_step": 1e-05,
+          "switches": 0,
+          "flow": 3.587125304208103e-10,
+          "temperature": 4.1425555911452714e-10,
+          "physical_velocity": 6.043019495179544e-10,
+          "max_residual": 2.5442152394581593e-13
+        }
+      ],
+      "logarithmic_coordinates": [
+        {
+          "parameter": "log10_Re",
+          "error": 2.80236923047471e-10
+        },
+        {
+          "parameter": "log10_ER",
+          "error": 1.8476741459453281e-09
+        }
+      ],
+      "pressure_recovery": 1.7983029637068687e-14,
+      "condition_J": 806170.9893258146,
+      "condition_AT": 21620.642729084935,
+      "balances": {
+        "kinetic_flux": -0.5129814457864228,
+        "convection_work": -0.5129814247908232,
+        "boundary_convection_correction": 2.099559966913928e-08,
+        "convection_defect": -7.69064292378481e-17,
+        "viscous_dissipation": 1.0499087203367519,
+        "viscous_defect": -6.223731992059272e-16,
+        "dual_volume_flux_defect": 5.551115123125783e-17,
+        "heat_advection": 0.3281271700211261,
+        "heat_diffusion": -0.3281271700211242,
+        "heat_source": 0.0,
+        "heat_defect": 1.954218011294452e-15,
+        "temperature_min": 1.6482171437435596e-18,
+        "temperature_max": 0.9948910033684589
+      }
+    }
+  }
+}

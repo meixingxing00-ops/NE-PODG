@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-11T17:10:10.222652+08:00",
+  "interpreter": "D:\\Anaconda\\envs\\PINNGPU\\python.exe",
+  "result": {
+    "history": [
+      {
+        "mu": [
+          40.0,
+          1.5
+        ],
+        "fraction": 0.0,
+        "converged": true,
+        "iterations": 5,
+        "residual": 2.1416324673684368e-14,
+        "residual_l2": 8.665273462081756e-14,
+        "correction": 8.0357816467883665e-16,
+        "linear_backward_error": 1.526104525535834e-17
+      },
+      {
+        "mu": [
+          56.568542494923776,
+          1.75
+        ],
+        "fraction": 0.5,
+        "converged": true,
+        "iterations": 5,
+        "residual": 1.2477041515399638e-14,
+        "residual_l2": 5.02395094839001e-14,
+        "correction": 1.044168130294523e-15,
+        "linear_backward_error": 2.6266481126467028e-17
+      },
+      {
+        "mu": [
+          79.99999999999997,
+          2.0
+        ],
+        "fraction": 1.0,
+        "converged": true,
+        "iterations": 5,
+        "residual": 7.760124238576827e-15,
+        "residual_l2": 3.1066496828893034e-14,
+        "correction": 1.02100390416236e-15,
+        "linear_backward_error": 1.828506003060751e-17
+      }
+    ],
+    "direct_status": {
+      "converged": true,
+      "iterations": 6,
+      "residual": 2.0039033542153328e-14,
+      "residual_l2": 9.54305316059248e-14,
+      "correction": 1.2631421389210614e-15,
+      "linear_backward_error": 5.471122284562553e-17
+    },
+    "path_difference": 2.0082122425635606e-16,
+    "lower_roots": [
+      2.270397490054407
+    ],
+    "primary_reattachment": 2.270397490054407,
+    "upper_separation": [],
+    "upper_reattachment": []
+  }
+}

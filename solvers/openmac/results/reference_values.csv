@@ -1,0 +1,8 @@
+source,location,Re_source,Re_openmac,ER,quantity,value,length_scale,extraction,uncertainty,doi
+Armaly1983,p490_Fig14,100,100,1.9423076923076923,lower_reattachment,3.0,S,manual_graph_read,about_0.1_and_Re_about_5,10.1017/S0022112083002839
+Armaly1983,p490_Fig14,150,150,1.9423076923076923,lower_reattachment,4.0,S,manual_graph_read,about_0.1_and_Re_about_5,10.1017/S0022112083002839
+Armaly1983,p490_Fig14,300,300,1.9423076923076923,lower_reattachment,6.6,S,manual_graph_read,about_0.1_and_Re_about_5,10.1017/S0022112083002839
+Kondoh1993,p580_and_p582_text,100,400,1.5,lower_reattachment,6.3,S,original_cached_text,rounded_in_source,10.1016/0017-9310(93)80033-Q
+Gartling1990,p960_TableII_meshE,800,800,2,lower_reattachment,12.20,S,original_cached_table_times_two,source_rounding_0.01_in_H,10.1002/fld.1650110704
+Gartling1990,p960_TableIII_meshE,800,800,2,upper_separation,9.70,S,original_cached_table_times_two,source_rounding_0.01_in_H,10.1002/fld.1650110704
+Gartling1990,p960_TableIII_meshE,800,800,2,upper_reattachment,20.96,S,original_cached_table_times_two,source_rounding_0.01_in_H,10.1002/fld.1650110704
