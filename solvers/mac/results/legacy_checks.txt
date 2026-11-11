@@ -1,0 +1,207 @@
+--- ops: 38d1e0f ---
+s = 0.0
+  |D_vol C|_max           0.0
+  |G − 差分梯度|_max       2.1316282072803006e-14
+  |Cᵀ M_u G|_max           1.3322676295501878e-15
+  |N_w + N_wᵀ|/|N_w|       7.363333068842398e-16
+  |N_T + N_Tᵀ|/|N_T|       4.316872985229236e-16
+  |K_w − K_wᵀ|_max         0.0
+  雅可比 r_ψ 相对误差     1.2335094731383427e-10
+  雅可比 R_T 相对误差     9.013403022081809e-11
+  辅助场 R_T(ψ, S(ψ)) 相对  7.777496064453905e-14
+  灵敏度相对误差           1.7984072120256573e-08
+s = 2.0
+  |D_vol C|_max           1.1102230246251565e-16
+  |G − 差分梯度|_max       5.684341886080802e-14
+  |Cᵀ M_u G|_max           1.3322676295501878e-15
+  |N_w + N_wᵀ|/|N_w|       5.220428222464417e-16
+  |N_T + N_Tᵀ|/|N_T|       3.263092812635793e-16
+  |K_w − K_wᵀ|_max         0.0
+  雅可比 r_ψ 相对误差     1.6748805572683138e-10
+  雅可比 R_T 相对误差     1.110083314655402e-10
+  辅助场 R_T(ψ, S(ψ)) 相对  1.2584089096926449e-14
+  灵敏度相对误差           2.4084666781942843e-09
+
+--- ops: current ---
+s = 0.0
+  |D_vol C|_max           0.0
+  |G − 差分梯度|_max       2.1316282072803006e-14
+  |Cᵀ M_u G|_max           1.3322676295501878e-15
+  |N_w + N_wᵀ|/|N_w|       7.363333068842398e-16
+  |N_T + N_Tᵀ|/|N_T|       4.316872985229236e-16
+  |K_w − K_wᵀ|_max         0.0
+  雅可比 r_ψ 相对误差     1.2335094731383427e-10
+  雅可比 R_T 相对误差     9.013403022081809e-11
+  辅助场 R_T(ψ, S(ψ)) 相对  5.746931589426713e-14
+  灵敏度相对误差           2.0748019550466947e-08
+s = 2.0
+  |D_vol C|_max           1.1102230246251565e-16
+  |G − 差分梯度|_max       5.684341886080802e-14
+  |Cᵀ M_u G|_max           1.3322676295501878e-15
+  |N_w + N_wᵀ|/|N_w|       5.220428222464417e-16
+  |N_T + N_Tᵀ|/|N_T|       3.263092812635793e-16
+  |K_w − K_wᵀ|_max         0.0
+  雅可比 r_ψ 相对误差     1.6748805572683138e-10
+  雅可比 R_T 相对误差     1.110083314655402e-10
+  辅助场 R_T(ψ, S(ψ)) 相对  1.2452386025659002e-14
+  灵敏度相对误差           2.9269808972634512e-09
+
+--- lid: 38d1e0f ---
+N=128 s=1.5 Re=100  iters 6 conv True  0.2s  psi -0.103476 (+0.052%)  umin -0.213783  vmax +0.179433  vmin -0.253816
+N=128 s=1.5 Re=400  iters 6 conv True  0.1s  psi -0.113877 (-0.028%)  umin -0.327934  vmax +0.303287  vmin -0.454008
+N=128 s=1.5 Re=1000  iters 7 conv True  0.2s  psi -0.118665 (-0.228%)  umin -0.387135 (-0.369%)  vmax +0.375677 (-0.336%)  vmin -0.526348 (-0.138%)
+
+--- lid: current ---
+N=128 s=1.5 Re=100  iters 6 conv True  0.2s  psi -0.103476 (+0.052%)  umin -0.213783  vmax +0.179433  vmin -0.253816
+N=128 s=1.5 Re=400  iters 6 conv True  0.1s  psi -0.113877 (-0.028%)  umin -0.327934  vmax +0.303287  vmin -0.454008
+N=128 s=1.5 Re=1000  iters 7 conv True  0.1s  psi -0.118665 (-0.228%)  umin -0.387135 (-0.369%)  vmax +0.375677 (-0.336%)  vmin -0.526348 (-0.138%)
+
+--- nc: 38d1e0f ---
+N=128 s=2.5 Pr=0.71 log10Ra=3.0  iters 5 conv True  0.4s  Nu_C 1.11776 (-0.004%)  Nu_H 1.11776  flux 1.11776  |S(ψ) − T| 2.7e-14
+N=128 s=2.5 Pr=0.71 log10Ra=3.5  iters 5 conv True  0.2s  Nu_C 1.53103  Nu_H 1.53103  flux 1.53103  |S(ψ) − T| 3.8e-14
+N=128 s=2.5 Pr=0.71 log10Ra=4.0  iters 4 conv True  0.1s  Nu_C 2.24470 (-0.005%)  Nu_H 2.24470  flux 2.24470  |S(ψ) − T| 2.4e-14
+N=128 s=2.5 Pr=0.71 log10Ra=4.5  iters 5 conv True  0.2s  Nu_C 3.19215  Nu_H 3.19215  flux 3.19215  |S(ψ) − T| 5.4e-14
+N=128 s=2.5 Pr=0.71 log10Ra=5.0  iters 5 conv True  0.2s  Nu_C 4.52145 (-0.003%)  Nu_H 4.52145  flux 4.52145  |S(ψ) − T| 2.3e-14
+N=128 s=2.5 Pr=0.71 log10Ra=5.5  iters 5 conv True  0.2s  Nu_C 6.35786  Nu_H 6.35786  flux 6.35786  |S(ψ) − T| 3.1e-14
+N=128 s=2.5 Pr=0.71 log10Ra=6.0  iters 5 conv True  0.2s  Nu_C 8.82312 (-0.024%)  Nu_H 8.82312  flux 8.82312  |S(ψ) − T| 1.9e-14
+
+--- nc: current ---
+N=128 s=2.5 Pr=0.71 log10Ra=3.0  iters 5 conv True  0.3s  Nu_C 1.11776 (-0.004%)  Nu_H 1.11776  flux 1.11776  |S(ψ) − T| 2.5e-14
+N=128 s=2.5 Pr=0.71 log10Ra=3.5  iters 5 conv True  0.2s  Nu_C 1.53103  Nu_H 1.53103  flux 1.53103  |S(ψ) − T| 2.7e-14
+N=128 s=2.5 Pr=0.71 log10Ra=4.0  iters 4 conv True  0.1s  Nu_C 2.24470 (-0.005%)  Nu_H 2.24470  flux 2.24470  |S(ψ) − T| 2.4e-14
+N=128 s=2.5 Pr=0.71 log10Ra=4.5  iters 5 conv True  0.2s  Nu_C 3.19215  Nu_H 3.19215  flux 3.19215  |S(ψ) − T| 3.7e-14
+N=128 s=2.5 Pr=0.71 log10Ra=5.0  iters 5 conv True  0.2s  Nu_C 4.52145 (-0.003%)  Nu_H 4.52145  flux 4.52145  |S(ψ) − T| 2.7e-14
+N=128 s=2.5 Pr=0.71 log10Ra=5.5  iters 5 conv True  0.2s  Nu_C 6.35786  Nu_H 6.35786  flux 6.35786  |S(ψ) − T| 3.6e-14
+N=128 s=2.5 Pr=0.71 log10Ra=6.0  iters 5 conv True  0.2s  Nu_C 8.82312 (-0.024%)  Nu_H 8.82312  flux 8.82312  |S(ψ) − T| 2.2e-14
+
+--- sens: 38d1e0f ---
+Ra 1000 Pr 0.71  d/dlog10 Ra  ψ 相对差 6.6e-09  T 相对差 6.5e-09
+Ra 1000 Pr 0.71  d/dlog10 Pr  ψ 相对差 2.2e-09  T 相对差 1.9e-08
+Ra 100000 Pr 0.1  d/dlog10 Ra  ψ 相对差 5.2e-09  T 相对差 2.5e-09
+Ra 100000 Pr 0.1  d/dlog10 Pr  ψ 相对差 4.9e-09  T 相对差 4.1e-09
+Ra 316000 Pr 10  d/dlog10 Ra  ψ 相对差 4.8e-09  T 相对差 2.3e-09
+Ra 316000 Pr 10  d/dlog10 Pr  ψ 相对差 2.2e-09  T 相对差 9.9e-09
+顶盖 Re 1000  d/dlog10 Re  ψ 相对差 2.5e-08
+
+--- sens: current ---
+Ra 1000 Pr 0.71  d/dlog10 Ra  ψ 相对差 6.6e-09  T 相对差 6.5e-09
+Ra 1000 Pr 0.71  d/dlog10 Pr  ψ 相对差 2.2e-09  T 相对差 1.9e-08
+Ra 100000 Pr 0.1  d/dlog10 Ra  ψ 相对差 5.2e-09  T 相对差 2.5e-09
+Ra 100000 Pr 0.1  d/dlog10 Pr  ψ 相对差 4.9e-09  T 相对差 4.1e-09
+Ra 316000 Pr 10  d/dlog10 Ra  ψ 相对差 4.8e-09  T 相对差 2.3e-09
+Ra 316000 Pr 10  d/dlog10 Pr  ψ 相对差 2.2e-09  T 相对差 9.9e-09
+顶盖 Re 1000  d/dlog10 Re  ψ 相对差 2.5e-08
+
+--- comsol: 38d1e0f ---
+Ra 10        Pr 0.1  MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 0.1  MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 0.1  MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 0.1  MAC 1.01417  COMSOL 1.01433  -0.016%  conv True
+Ra 1000      Pr 0.1  MAC 1.11591  COMSOL 1.11640  -0.044%  conv True
+Ra 3160      Pr 0.1  MAC 1.50415  COMSOL 1.50529  -0.075%  conv True
+Ra 10000     Pr 0.1  MAC 2.12550  COMSOL 2.12723  -0.081%  conv True
+Ra 31600     Pr 0.1  MAC 2.88736  COMSOL 2.88930  -0.067%  conv True
+Ra 100000    Pr 0.1  MAC 3.92466  COMSOL 3.92649  -0.047%  conv True
+Ra 316000    Pr 0.1  MAC 5.35810  COMSOL 5.35928  -0.022%  conv True
+Ra 1e+06     Pr 0.1  MAC 7.31844  COMSOL 7.31607  +0.032%  conv True
+Ra 10        Pr 0.3  MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 0.3  MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 0.3  MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 0.3  MAC 1.01420  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 0.3  MAC 1.11753  COMSOL 1.11802  -0.043%  conv True
+Ra 3160      Pr 0.3  MAC 1.52388  COMSOL 1.52494  -0.070%  conv True
+Ra 10000     Pr 0.3  MAC 2.19790  COMSOL 2.19947  -0.071%  conv True
+Ra 31600     Pr 0.3  MAC 3.05701  COMSOL 3.05883  -0.059%  conv True
+Ra 100000    Pr 0.3  MAC 4.25534  COMSOL 4.25748  -0.050%  conv True
+Ra 316000    Pr 0.3  MAC 5.91364  COMSOL 5.91573  -0.035%  conv True
+Ra 1e+06     Pr 0.3  MAC 8.15296  COMSOL 8.15194  +0.013%  conv True
+Ra 10        Pr 1    MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 1    MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 1    MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 1    MAC 1.01421  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 1    MAC 1.11778  COMSOL 1.11826  -0.043%  conv True
+Ra 3160      Pr 1    MAC 1.53162  COMSOL 1.53269  -0.070%  conv True
+Ra 10000     Pr 1    MAC 2.25656  COMSOL 2.25821  -0.073%  conv True
+Ra 31600     Pr 1    MAC 3.23263  COMSOL 3.23484  -0.068%  conv True
+Ra 100000    Pr 1    MAC 4.59921  COMSOL 4.60258  -0.073%  conv True
+Ra 316000    Pr 1    MAC 6.46804  COMSOL 6.47245  -0.068%  conv True
+Ra 1e+06     Pr 1    MAC 8.97251  COMSOL 8.97475  -0.025%  conv True
+Ra 10        Pr 3    MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 3    MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 3    MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 3    MAC 1.01421  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 3    MAC 1.11778  COMSOL 1.11827  -0.043%  conv True
+Ra 3160      Pr 3    MAC 1.53239  COMSOL 1.53347  -0.070%  conv True
+Ra 10000     Pr 3    MAC 2.27169  COMSOL 2.27344  -0.077%  conv True
+Ra 31600     Pr 3    MAC 3.29328  COMSOL 3.29589  -0.079%  conv True
+Ra 100000    Pr 3    MAC 4.70632  COMSOL 4.71032  -0.085%  conv True
+Ra 316000    Pr 3    MAC 6.61464  COMSOL 6.61958  -0.075%  conv True
+Ra 1e+06     Pr 3    MAC 9.18773  COMSOL 9.19092  -0.035%  conv True
+Ra 10        Pr 10   MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 10   MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 10   MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 10   MAC 1.01421  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 10   MAC 1.11778  COMSOL 1.11826  -0.043%  conv True
+Ra 3160      Pr 10   MAC 1.53238  COMSOL 1.53346  -0.071%  conv True
+Ra 10000     Pr 10   MAC 2.27417  COMSOL 2.27595  -0.078%  conv True
+Ra 31600     Pr 10   MAC 3.30442  COMSOL 3.30713  -0.082%  conv True
+Ra 100000    Pr 10   MAC 4.72270  COMSOL 4.72682  -0.087%  conv True
+Ra 316000    Pr 10   MAC 6.63795  COMSOL 6.64311  -0.078%  conv True
+Ra 1e+06     Pr 10   MAC 9.22370  COMSOL 9.22718  -0.038%  conv True
+
+--- comsol: current ---
+Ra 10        Pr 0.1  MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 0.1  MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 0.1  MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 0.1  MAC 1.01417  COMSOL 1.01433  -0.016%  conv True
+Ra 1000      Pr 0.1  MAC 1.11591  COMSOL 1.11640  -0.044%  conv True
+Ra 3160      Pr 0.1  MAC 1.50415  COMSOL 1.50529  -0.075%  conv True
+Ra 10000     Pr 0.1  MAC 2.12550  COMSOL 2.12723  -0.081%  conv True
+Ra 31600     Pr 0.1  MAC 2.88736  COMSOL 2.88930  -0.067%  conv True
+Ra 100000    Pr 0.1  MAC 3.92466  COMSOL 3.92649  -0.047%  conv True
+Ra 316000    Pr 0.1  MAC 5.35810  COMSOL 5.35928  -0.022%  conv True
+Ra 1e+06     Pr 0.1  MAC 7.31844  COMSOL 7.31607  +0.032%  conv True
+Ra 10        Pr 0.3  MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 0.3  MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 0.3  MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 0.3  MAC 1.01420  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 0.3  MAC 1.11753  COMSOL 1.11802  -0.043%  conv True
+Ra 3160      Pr 0.3  MAC 1.52388  COMSOL 1.52494  -0.070%  conv True
+Ra 10000     Pr 0.3  MAC 2.19790  COMSOL 2.19947  -0.071%  conv True
+Ra 31600     Pr 0.3  MAC 3.05701  COMSOL 3.05883  -0.059%  conv True
+Ra 100000    Pr 0.3  MAC 4.25534  COMSOL 4.25748  -0.050%  conv True
+Ra 316000    Pr 0.3  MAC 5.91364  COMSOL 5.91573  -0.035%  conv True
+Ra 1e+06     Pr 0.3  MAC 8.15296  COMSOL 8.15194  +0.013%  conv True
+Ra 10        Pr 1    MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 1    MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 1    MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 1    MAC 1.01421  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 1    MAC 1.11778  COMSOL 1.11826  -0.043%  conv True
+Ra 3160      Pr 1    MAC 1.53162  COMSOL 1.53269  -0.070%  conv True
+Ra 10000     Pr 1    MAC 2.25656  COMSOL 2.25821  -0.073%  conv True
+Ra 31600     Pr 1    MAC 3.23263  COMSOL 3.23484  -0.068%  conv True
+Ra 100000    Pr 1    MAC 4.59921  COMSOL 4.60258  -0.073%  conv True
+Ra 316000    Pr 1    MAC 6.46804  COMSOL 6.47245  -0.068%  conv True
+Ra 1e+06     Pr 1    MAC 8.97251  COMSOL 8.97475  -0.025%  conv True
+Ra 10        Pr 3    MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 3    MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 3    MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 3    MAC 1.01421  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 3    MAC 1.11778  COMSOL 1.11827  -0.043%  conv True
+Ra 3160      Pr 3    MAC 1.53239  COMSOL 1.53347  -0.070%  conv True
+Ra 10000     Pr 3    MAC 2.27169  COMSOL 2.27344  -0.077%  conv True
+Ra 31600     Pr 3    MAC 3.29328  COMSOL 3.29589  -0.079%  conv True
+Ra 100000    Pr 3    MAC 4.70632  COMSOL 4.71032  -0.085%  conv True
+Ra 316000    Pr 3    MAC 6.61464  COMSOL 6.61958  -0.075%  conv True
+Ra 1e+06     Pr 3    MAC 9.18773  COMSOL 9.19092  -0.035%  conv True
+Ra 10        Pr 10   MAC 1.00001  COMSOL 1.00002  -0.001%  conv True
+Ra 31.6      Pr 10   MAC 1.00015  COMSOL 1.00016  -0.002%  conv True
+Ra 100       Pr 10   MAC 1.00146  COMSOL 1.00151  -0.005%  conv True
+Ra 316       Pr 10   MAC 1.01421  COMSOL 1.01437  -0.016%  conv True
+Ra 1000      Pr 10   MAC 1.11778  COMSOL 1.11826  -0.043%  conv True
+Ra 3160      Pr 10   MAC 1.53238  COMSOL 1.53346  -0.071%  conv True
+Ra 10000     Pr 10   MAC 2.27417  COMSOL 2.27595  -0.078%  conv True
+Ra 31600     Pr 10   MAC 3.30442  COMSOL 3.30713  -0.082%  conv True
+Ra 100000    Pr 10   MAC 4.72270  COMSOL 4.72682  -0.087%  conv True
+Ra 316000    Pr 10   MAC 6.63795  COMSOL 6.64311  -0.078%  conv True
+Ra 1e+06     Pr 10   MAC 9.22370  COMSOL 9.22718  -0.038%  conv True

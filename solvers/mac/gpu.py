@@ -68,8 +68,10 @@ class Closure:
     def __init__(self, cav):
         mo = cav.mo
         self.thermal = cav.thermal
+        self.inertia = cav.inertia
         self.C, self.Sm, self.Am, self.Hm, self.Km = (_t(M) for M in (cav.C, mo.S, mo.A, mo.H, mo.K))
         self.bm, self.sqMu = _g(mo.b), _g(np.sqrt(cav.Mu))
+        self.Mu = _g(cav.Mu)
         self._PsiB = None
         if not self.thermal:
             return
@@ -113,15 +115,18 @@ class Closure:
             if self.thermal:
                 self.AeW = self.Ae @ W
 
-    def reduced(self, psi, PsiB, nu, kap=None):
+    def reduced(self, psi, PsiB, nu, kap=None, *, buoyancy=1.0, drag=0.0):
         """约化残差 g (k,)、约化雅可比 G (k, k) 与温度 T（无温度时为 None）。"""
         self._basis(PsiB)
         W, w = self.W, self.C @ psi
         Fw, Hw = self.Am @ w, self.Hm @ w
-        Rw = self.Sm @ (Fw * Hw) + nu * (self.Km @ w - self.bm)
-        JW = self.Sm @ (Hw[:, None] * self.AW + Fw[:, None] * self.HW) + nu * self.KW
+        Rw = self.inertia * (self.Sm @ (Fw * Hw)) + nu * (self.Km @ w - self.bm)
+        JW = self.inertia * (self.Sm @ (Hw[:, None] * self.AW + Fw[:, None] * self.HW)) + nu * self.KW
+        if drag != 0:
+            Rw = Rw + drag * self.Mu * w
+            JW = JW + drag * self.Mu[:, None] * W
         if not self.thermal:
             return W.T @ Rw, W.T @ JW, None
         T = self._temperature(w, kap)
         ST = self.ds.solve(-(self.Se @ ((self.He @ T)[:, None] * self.AeW)).T)
-        return W.T @ (Rw - self.Bt @ T), W.T @ (JW - self.Bt @ ST.T), T
+        return W.T @ (Rw - buoyancy * (self.Bt @ T)), W.T @ (JW - buoyancy * (self.Bt @ ST.T)), T

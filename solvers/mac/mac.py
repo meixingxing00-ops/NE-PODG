@@ -108,9 +108,15 @@ class _Faces:
 
 
 class Cavity:
-    """lid(x)：顶盖切向速度（None 为静止壁）；thermal：左壁 T = −1/2、右壁 +1/2、上下绝热，浮力 +T e_y。"""
+    """lid(x)：顶盖切向速度；thermal_axis：定温壁法向（0 为 x，1 为 y），低坐标壁 −1/2，高坐标壁 +1/2。
+    inertia：固定的动量输运系数；能量输运保持不变。浮力沿 +y，系数由各次调用的 buoyancy 给出。"""
 
-    def __init__(self, x, y, lid=None, thermal=False):
+    def __init__(self, x, y, lid=None, thermal=False, *, inertia=1.0, thermal_axis=0):
+        if thermal_axis not in (0, 1):
+            raise ValueError("thermal_axis must be 0 or 1")
+        if not np.isfinite(inertia) or inertia < 0:
+            raise ValueError("inertia must be finite and nonnegative")
+        self.inertia, self.thermal_axis = inertia, thermal_axis
         nx, ny = len(x) - 1, len(y) - 1
         dx, dy = np.diff(x), np.diff(y)
         xc, yc = 0.5 * (x[1:] + x[:-1]), 0.5 * (y[1:] + y[:-1])
@@ -175,13 +181,22 @@ class Cavity:
 
         if thermal:
             en = _Faces(nx * ny, nw)
-            k, j = np.meshgrid(np.arange(nx + 1), np.arange(ny), indexing="ij")           # x 向面，位于 x_k
-            L = np.where(k >= 1, tid[np.maximum(k - 1, 0), j], -1)
-            R = np.where(k <= nx - 1, tid[np.minimum(k, nx - 1), j], -1)
-            d = np.where(k == 0, xc[0], np.where(k == nx, 1 - xc[-1], np.concatenate([[1.0], hx, [1.0]])[k]))
-            en.add(L, R, [(uid[k, j], dy[j])], dy[j] / d, np.where(k == 0, -0.5, 0.5))
-            i, k = np.meshgrid(np.arange(nx), np.arange(1, ny), indexing="ij")            # y 向内部面，位于 y_k
-            en.add(tid[i, k - 1], tid[i, k], [(vid[i, k], dx[i])], dx[i] / hy[k - 1])
+            if thermal_axis == 0:
+                k, j = np.meshgrid(np.arange(nx + 1), np.arange(ny), indexing="ij")
+                L = np.where(k >= 1, tid[np.maximum(k - 1, 0), j], -1)
+                R = np.where(k <= nx - 1, tid[np.minimum(k, nx - 1), j], -1)
+                d = np.where(k == 0, xc[0], np.where(k == nx, 1 - xc[-1], np.concatenate([[1.0], hx, [1.0]])[k]))
+                en.add(L, R, [(uid[k, j], dy[j])], dy[j] / d, np.where(k == 0, -0.5, 0.5))
+                i, k = np.meshgrid(np.arange(nx), np.arange(1, ny), indexing="ij")
+                en.add(tid[i, k - 1], tid[i, k], [(vid[i, k], dx[i])], dx[i] / hy[k - 1])
+            else:
+                k, j = np.meshgrid(np.arange(1, nx), np.arange(ny), indexing="ij")
+                en.add(tid[k - 1, j], tid[k, j], [(uid[k, j], dy[j])], dy[j] / hx[k - 1])
+                i, k = np.meshgrid(np.arange(nx), np.arange(ny + 1), indexing="ij")
+                L = np.where(k >= 1, tid[i, np.maximum(k - 1, 0)], -1)
+                R = np.where(k <= ny - 1, tid[i, np.minimum(k, ny - 1)], -1)
+                d = np.where(k == 0, yc[0], np.where(k == ny, 1 - yc[-1], np.concatenate([[1.0], hy, [1.0]])[k]))
+                en.add(L, R, [(vid[i, k], dx[i])], dx[i] / d, np.where(k == 0, -0.5, 0.5))
             self.en = en.build(nx * ny)
             # 浮力：v 控制体积分 T_face，T_face 为相邻两单元中心值的线性插值
             i, j = np.meshgrid(np.arange(nx), np.arange(1, ny), indexing="ij")
@@ -197,32 +212,36 @@ class Cavity:
         self._ds = self._ts = None
 
     # ---------------- 残差与雅可比 ----------------
-    def res_w(self, w, T, nu):
+    def res_w(self, w, T, nu, *, buoyancy=1.0, drag=0.0):
         """面上积分动量残差（不含压力）。"""
-        R = self.mo.conv(w, w) + nu * (self.mo.K @ w - self.mo.b)
-        return R - self.Bt @ T if self.thermal else R
+        R = self.inertia * self.mo.conv(w, w) + nu * (self.mo.K @ w - self.mo.b)
+        if drag != 0:
+            R = R + drag * self.Mu * w
+        return R - buoyancy * (self.Bt @ T) if self.thermal else R
 
     def res_T(self, w, T, kap):
         return self.en.conv(w, T) + kap * (self.en.K @ T - self.en.b)
 
-    def residual(self, psi, T, nu, kap=None):
+    def residual(self, psi, T, nu, kap=None, *, buoyancy=1.0, drag=0.0):
         """(r_ψ, R_T)；无温度时 R_T 为 None。"""
         w = self.C @ psi
-        return self.C.T @ self.res_w(w, T, nu), (self.res_T(w, T, kap) if self.thermal else None)
+        return self.C.T @ self.res_w(w, T, nu, buoyancy=buoyancy, drag=drag), (self.res_T(w, T, kap) if self.thermal else None)
 
-    def jacobian(self, psi, T, nu, kap=None):
+    def jacobian(self, psi, T, nu, kap=None, *, buoyancy=1.0, drag=0.0):
         """块 (J_ψψ, J_ψT, J_Tψ, J_TT)，无温度时后三块为 None。"""
         w = self.C @ psi
         Jw, Jp = self.mo.dconv(w, w)
-        Jpp = (self.C.T @ (Jw + Jp) @ self.C + nu * self.CKC).tocsr()
+        Jpp = (self.inertia * (self.C.T @ (Jw + Jp) @ self.C) + nu * self.CKC).tocsr()
+        if drag != 0:
+            Jpp = (Jpp + drag * self.Mpsi).tocsr()
         if not self.thermal:
             return Jpp, None, None, None
         Ew, ET = self.en.dconv(w, T)
-        return Jpp, self.CBt, (Ew @ self.C).tocsr(), (ET + kap * self.en.K).tocsr()
+        return Jpp, buoyancy * self.CBt, (Ew @ self.C).tocsr(), (ET + kap * self.en.K).tocsr()
 
-    def jac_full(self, psi, T, nu, kap=None):
+    def jac_full(self, psi, T, nu, kap=None, *, buoyancy=1.0, drag=0.0):
         """完整雅可比（CSR），未知量顺序 [ψ, T]。"""
-        Jpp, JpT, JTp, JTT = self.jacobian(psi, T, nu, kap)
+        Jpp, JpT, JTp, JTT = self.jacobian(psi, T, nu, kap, buoyancy=buoyancy, drag=drag)
         return (Jpp if not self.thermal else sp.bmat([[Jpp, JpT], [JTp, JTT]])).tocsr()
 
     def _lin(self, J, b):
@@ -249,33 +268,53 @@ class Cavity:
             return T
         return T, self._ts.solve(-((en.S @ sp.diags(en.H @ T) @ en.A) @ dw))
 
-    def sensitivity(self, psi, T, nu, kap=None):
-        """稳态解对 ν、κ 的导数：J ∂q/∂ν = −∂R/∂ν，J ∂q/∂κ = −∂R/∂κ，q = [ψ, T]，J 为解处的完整雅可比（分解一次）。
-        ν、κ 只出现在扩散项：∂r_ψ/∂ν = Cᵀ(K_w w − b_w)，∂R_T/∂κ = K_T T − b_T。返回 (∂q/∂ν, ∂q/∂κ)；无温度时只返回 ∂ψ/∂ν。"""
-        rnu = self.C.T @ (self.mo.K @ (self.C @ psi) - self.mo.b)
-        if not self.thermal:
-            return self._lin(self.jac_full(psi, None, nu), -rnu)
-        z = np.zeros(self.nT)
-        dnu = self._lin(self.jac_full(psi, T, nu, kap), -np.concatenate([rnu, z]))
-        dkap = self._ds.solve(-np.concatenate([np.zeros(self.npsi), self.en.K @ T - self.en.b]))[:, 0]
-        return dnu, dkap
+    def parameter_derivatives(self, psi, T, *, parameters=None):
+        """固定状态的完整积分残差参数导数，按名称返回字典；无热场不接受 kap。"""
+        if parameters is None:
+            parameters = ("nu", "kap", "buoyancy", "drag") if self.thermal else ("nu", "buoyancy", "drag")
+        out = {}
+        for name in parameters:
+            if name == "nu":
+                p = self.C.T @ (self.mo.K @ (self.C @ psi) - self.mo.b)
+            elif name == "drag":
+                p = self.C.T @ (self.Mu * (self.C @ psi))
+            elif name == "buoyancy":
+                p = self.CBt @ T if self.thermal else np.zeros(self.npsi)
+            elif name == "kap" and self.thermal:
+                out[name] = np.concatenate([np.zeros(self.npsi), self.en.K @ T - self.en.b])
+                continue
+            else:
+                raise ValueError(f"unsupported parameter: {name}")
+            out[name] = np.concatenate([p, np.zeros(self.nT)]) if self.thermal else p
+        return out
+
+    def sensitivity(self, psi, T, nu, kap=None, *, buoyancy=1.0, drag=0.0, parameters=None):
+        """J q_θ = −R_θ，一次分解。parameters 给出时按名称返回字典；缺省保持原 ν、κ 返回形式。"""
+        names = (("nu", "kap") if self.thermal else ("nu",)) if parameters is None else tuple(parameters)
+        rhs = self.parameter_derivatives(psi, T, parameters=names)
+        out = {}
+        for name, r in rhs.items():
+            out[name] = (self._lin(self.jac_full(psi, T, nu, kap, buoyancy=buoyancy, drag=drag), -r)
+                         if not out else self._ds.solve(-r)[:, 0])
+        return out if parameters is not None else (tuple(out.values()) if self.thermal else out["nu"])
 
     # ---------------- 高保真求解 ----------------
-    def solve(self, nu, kap=None, psi=None, T=None, tol=1e-8, maxit=30):
+    def solve(self, nu, kap=None, psi=None, T=None, tol=1e-8, maxit=30, *, buoyancy=1.0, drag=0.0):
         """Newton（回溯线搜索）求 r_ψ = 0（与 R_T = 0）。返回 ψ、T 与状态。"""
         psi = np.zeros(self.npsi) if psi is None else psi.copy()
         if self.thermal and T is None:
-            T = np.repeat(self.xc - 0.5, len(self.yc))
+            T = (np.repeat(self.xc - 0.5, len(self.yc)) if self.thermal_axis == 0
+                 else np.tile(self.yc - 0.5, len(self.xc)))
         n = self.npsi
 
         def F(q):
-            rp, rT = self.residual(q[:n], q[n:] if self.thermal else None, nu, kap)
+            rp, rT = self.residual(q[:n], q[n:] if self.thermal else None, nu, kap, buoyancy=buoyancy, drag=drag)
             return rp if rT is None else np.concatenate([rp, rT])
 
         q = psi if not self.thermal else np.concatenate([psi, T])
         f = F(q)
         for it in range(1, maxit + 1):
-            dq = self._lin(self.jac_full(q[:n], q[n:] if self.thermal else None, nu, kap), -f)
+            dq = self._lin(self.jac_full(q[:n], q[n:] if self.thermal else None, nu, kap, buoyancy=buoyancy, drag=drag), -f)
             done = np.abs(dq).max() <= tol * max(1.0, np.abs(q).max())
             t, f0 = 1.0, np.linalg.norm(f)
             while not done:
@@ -306,9 +345,12 @@ class Cavity:
         return u, v
 
     def nusselt(self, T):
-        """冷、热壁局部 Nu = ∂T/∂x（壁值与近壁两单元中心的二次插值）及沿 y 的平均。"""
+        """低、高坐标定温壁的局部 Nu（沿 thermal_axis 的温度导数）与平均 Nu。"""
         T = T.reshape(len(self.dx), len(self.dy))
+        xc, dy = self.xc, self.dy
+        if self.thermal_axis == 1:
+            T, xc, dy = T.T, self.yc, self.dx
         g = lambda tw, t0, t1, a, b: ((t0 - tw) * b ** 2 - (t1 - tw) * a ** 2) / (a * b * (b - a))
-        nc = g(-0.5, T[0], T[1], self.xc[0], self.xc[1])
-        nh = -g(0.5, T[-1], T[-2], 1 - self.xc[-1], 1 - self.xc[-2])
-        return nc, nh, float(self.dy @ nc), float(self.dy @ nh)
+        nc = g(-0.5, T[0], T[1], xc[0], xc[1])
+        nh = -g(0.5, T[-1], T[-2], 1 - xc[-1], 1 - xc[-2])
+        return nc, nh, float(dy @ nc), float(dy @ nh)

@@ -1,0 +1,68 @@
+{
+  "reference": "38d1e0f",
+  "random_state_comparison": [
+    {
+      "thermal": false,
+      "s": 0.0,
+      "residual": 0.0,
+      "jacobian": 0.0,
+      "same_state_sensitivity": 1.4754704658032753e-14,
+      "steady_state": 8.79628397026773e-17,
+      "steady_sensitivity": 1.8834212651310535e-14,
+      "gpu_residual": 0.0,
+      "gpu_jacobian": 0.0,
+      "metric": 0.0
+    },
+    {
+      "thermal": false,
+      "s": 2.0,
+      "residual": 0.0,
+      "jacobian": 0.0,
+      "same_state_sensitivity": 5.979735227309368e-15,
+      "steady_state": 2.3054924925005307e-16,
+      "steady_sensitivity": 6.8671234794306834e-15,
+      "gpu_residual": 0.0,
+      "gpu_jacobian": 0.0,
+      "metric": 0.0
+    },
+    {
+      "thermal": true,
+      "s": 0.0,
+      "residual": 0.0,
+      "jacobian": 0.0,
+      "same_state_sensitivity": 1.4177407973687791e-14,
+      "temperature": 3.449293990123015e-16,
+      "aux_direction": 2.894939907972536e-15,
+      "steady_state": 8.838020498904485e-17,
+      "steady_sensitivity": 3.065612252797264e-15,
+      "gpu_residual": 0.0,
+      "gpu_jacobian": 0.0,
+      "gpu_temperature": 6.060340822493999e-16,
+      "metric": 0.0
+    },
+    {
+      "thermal": true,
+      "s": 2.0,
+      "residual": 0.0,
+      "jacobian": 0.0,
+      "same_state_sensitivity": 9.27932649593852e-16,
+      "temperature": 3.487649405387242e-16,
+      "aux_direction": 3.823741110666738e-15,
+      "steady_state": 1.645352152445454e-16,
+      "steady_sensitivity": 4.532159609327749e-15,
+      "gpu_residual": 0.0,
+      "gpu_jacobian": 0.0,
+      "gpu_temperature": 2.79273004016936e-16,
+      "metric": 0.0
+    }
+  ],
+  "original_checks": {
+    "ops": 2.7639474302103736e-09,
+    "lid": 0.0,
+    "nc": 1.6999999999999997e-14,
+    "sens": 0.0,
+    "comsol": 0.0
+  },
+  "comsol_data": "E:/Cavity-PINN-Research/paper-podnn/data",
+  "comsol_note": "run"
+}
