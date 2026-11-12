@@ -1,6 +1,6 @@
 """论文跨算例统计：六个算例默认预算下 POD-G、SA-PODG、NE-PODG 的配对结果（方法设计 §7）。
 口径：末次相对残差 res ≤ 1e-6 为解出（线性闭合均解出）；SA/NE 增益、Γ、χ_B/χ_W 与逐工况分解只用两者都解出的工况，Γ、χ 与分解另要求
-SA-PODG 的 e_proj > 1e-9（此下 e_proj 不可靠）。逐工况分解 ln(e_W/e_B) = −½ln(1−Γ) − ln(χ_B/χ_W)，记最佳逼近项绝对值大于闭合项的工况数。
+两者的 e_proj 都大于 1e-9（此下 e_proj 不可靠）。逐工况分解 ln(e_W/e_B) = −½ln(1−Γ) − ln(χ_B/χ_W)，记最佳逼近项绝对值大于闭合项的工况数。
 输出 paper/figures/data/：paired.csv（逐工况主场误差，nc 另含未训练网络 VS_r1）、summary.csv（每个算例与测试集一行）、
 outputs.csv（各输出量误差的中位数 / 最大值）。用法（仓库根目录）：python paper/figures/script/stats.py"""
 from pathlib import Path
@@ -33,7 +33,7 @@ for case, b in DEFAULT.items():
         paired.append(p)
         ok = p.solved_sa & p.solved_ne
         q = p[ok]
-        u = q[q.ep_sa > EPS]
+        u = q[(q.ep_sa > EPS) & (q.ep_ne > EPS)]
         gam = 1 - (u.ep_ne / u.ep_sa) ** 2
         chi = (u.e_ne / u.ep_ne) / (u.e_sa / u.ep_sa)
         dom = (np.abs(-0.5 * np.log(1 - gam)) > np.abs(np.log(chi))).sum()

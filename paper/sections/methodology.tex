@@ -153,7 +153,7 @@ $n_V$ / $n_S$ / $n_Z$ & 11 / 18 / 128 & 3 / 8 / 128 & 3 / 8 / 128 & 3 / 8 / 128 
 除第~\ref{sec:budget} 节外，结果取各算例的默认快照预算。
 
 \paragraph{误差度量}
-主场误差取第~\ref{sec:errors} 节的 $e$，按容许增量 $\Vert\mathbf q^\star\Vert_M$ 归一：流函数主场为速度增量的相对 $L^2$ 误差，温度主场为温度增量的相对 $L^2$ 误差。传热量取表~\ref{tab:cases} 所列输出的相对误差，平均量与积分量 $\varphi$ 取 $\lvert\varphi_r/\varphi^\star-1\rvert$，局部 Nusselt 数取沿壁面或指定位置的最大相对误差；方腔自然对流算例另报告温度误差 $e_T=\Vert T_r-T^\star\Vert_{L^2}/\Vert T^\star\Vert_{L^2}$。上标 $\star$ 表示同一离散上的高保真解。内插与外推工况分别统计各误差的中位数与最大值。非线性闭合以 Levenberg--Marquardt 求解，终止时相对残差 $\Vert g\Vert/\Vert g(\mathbf c^{(0)})\Vert$ 大于 $10^{-6}$ 的工况视为该空间内无 Galerkin 解，在图中单独标出，不计入误差统计与两种方法的配对比较。
+主场误差取第~\ref{sec:errors} 节的 $e$，按容许增量 $\Vert\mathbf q^\star\Vert_M$ 归一：流函数主场为速度增量的相对 $L^2$ 误差，温度主场为温度增量的相对 $L^2$ 误差。传热量取表~\ref{tab:cases} 所列输出的相对误差，平均量与积分量 $\varphi$ 取 $\lvert\varphi_r/\varphi^\star-1\rvert$，局部 Nusselt 数取沿壁面或指定位置的最大相对误差；方腔自然对流算例另报告温度误差 $e_T=\Vert T_r-T^\star\Vert_{L^2}/\Vert T^\star\Vert_{L^2}$。上标 $\star$ 表示同一离散上的高保真解。内插与外推工况分别统计各误差的中位数与最大值。非线性闭合以 Levenberg--Marquardt 求解，终止时相对残差 $\Vert g\Vert/\Vert g(\mathbf c^{(0)})\Vert$ 大于 $10^{-6}$ 的工况记为未获得满足残差收敛判据的解，在图中单独标出，不计入误差统计与两种方法的配对比较。
 
 \paragraph{计算设置}
 网络、训练、空间构造与闭合的设置列于表~\ref{tab:settings}。POD--Galerkin、SA-PODG 与 NE-PODG 使用同一组训练快照、同一闭合求解器与同一初值，SA-PODG 与 NE-PODG 另使用相同的稳态灵敏度；三者的差别只在试探空间。主要结果使用一个训练种子；方腔算例的 $N_{12}$ 与 $N_{50}$ 另用两个种子训练，用于评价结果对网络初始化的依赖。

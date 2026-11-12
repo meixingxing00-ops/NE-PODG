@@ -1,5 +1,5 @@
 """论文 Fig. 3：六个算例默认预算下的跨算例精度。(a) 内插、外推测试中 POD-G、SA-PODG、NE-PODG 主场误差 e 的分布：细线为最小到最大值，
-粗段为四分位区间，点为中位数（实心内插、空心外推），× 为该空间内 Galerkin 方程无解的工况；(b) 两者都解出的工况上 e_SA/e_NE 的逐工况分布，
+粗段为四分位区间，点为中位数（实心内插、空心外推），× 为闭合未满足残差收敛判据的工况；(b) 两者都解出的工况上 e_SA/e_NE 的逐工况分布，
 横线为中位数。数据 paper/figures/data/paired.csv（stats.py）。
 用法（仓库根目录）：python paper/figures/script/fig3_cross.py [输出路径，默认 paper/figures/Fig_03.pdf；.png 用于预览]"""
 import sys
@@ -63,7 +63,7 @@ for a in (ax, bx):
 h = [plt.Line2D([], [], color=COL[k], lw=2.6, label=LAB[k]) for k in ("pod", "sa", "ne")]
 h += [plt.Line2D([], [], ls="", marker="o", ms=3.4, mec="0.3", mfc="0.3", label="Interpolation"),
       plt.Line2D([], [], ls="", marker="o", ms=3.4, mec="0.3", mfc="white", label="Extrapolation"),
-      plt.Line2D([], [], ls="", marker="x", ms=3.5, color="0.3", label="No Galerkin solution")]
+      plt.Line2D([], [], ls="", marker="x", ms=3.5, color="0.3", label="Not converged")]
 ax.legend(handles=h, ncol=6, loc="lower center", bbox_to_anchor=(0.5, 1.0), frameon=False, fontsize=7, handlelength=1.6,
           columnspacing=1.2)
 for a, t in ((ax, "(a)"), (bx, "(b)")):

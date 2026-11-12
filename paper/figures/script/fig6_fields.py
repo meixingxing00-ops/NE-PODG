@@ -1,6 +1,7 @@
 """论文 Fig. 6：graetz（E014）、conjugate（E007）、bfs（E017）的场与壁面传热，均为 N4 下 SA-PODG 误差最接近外推中位数的外推工况。
 每行一个算例：SA-PODG 与 NE-PODG 的有符号误差（温度 (T − T*)/max|T*|；bfs 为速度大小 (|U| − |U*|)/max|U*|），叠加参考解的等温线或流线，
-同一行两图色标相同；末行为沿壁面的相对误差：graetz 受热壁局部 Nu、conjugate 界面热流 q、bfs 受热壁局部 Nu，灰线为参考值（右轴）。
+同一行两图色标相同；末行：graetz 受热壁局部 Nu 与 conjugate 界面热流 q 的相对误差，灰线为参考值（右轴）；bfs 受热壁剪切 τ_w 沿 x/S 的分布，
+小图为主再附着点附近的放大，圆点为各方法的再附着位置。
 数据 cases/<算例>/results/n4/fields_<编号>.npz（各算例 scripts/fields.py）。
 用法（仓库根目录）：python paper/figures/script/fig6_fields.py [输出路径，默认 paper/figures/Fig_06.pdf；.png 用于预览]"""
 import sys
@@ -73,17 +74,14 @@ for r, row in enumerate(rows):
     cb.ax.yaxis.get_offset_text().set_fontsize(6.5)
     cb.set_label(row["label"], fontsize=7)
 # 末行：沿壁面的相对误差
-sub = gs[3, :].subgridspec(1, 3, wspace=0.42)
-curves = [("graetz", r"$x$", "xw", "Nu", r"local $Nu$"), ("conjugate", r"$x$", "xc", "q", r"interface $q$"),
-          ("bfs", r"$x$", "xw", "Nu", r"local $Nu$")]
+sub = gs[3, :].subgridspec(1, 3, wspace=0.62)
+curves = [("graetz", r"$x$", "xw", "Nu", r"local $Nu$"), ("conjugate", r"$x$", "xc", "q", r"interface $q$")]
 for j, (c, xl, xk, qk, ql) in enumerate(curves):
     d = D[c]
     ax = fig.add_subplot(sub[0, j])
     x = d[xk]
     ref = d[f"{qk}_fom"]
     m = np.isfinite(ref) & (np.abs(ref) > 0)
-    if c == "bfs":
-        m &= (x > 0) & (x < 20)
     for k, col, ls in (("sapodg", SA, "-"), ("VS_v", NE, "-")):
         ax.plot(x[m], np.abs(d[f"{qk}_{k}"][m] / ref[m] - 1), color=col, lw=0.9, ls=ls)
     ax.set_yscale("log")
@@ -96,8 +94,44 @@ for j, (c, xl, xk, qk, ql) in enumerate(curves):
     tw.tick_params(length=2, pad=1.5, labelsize=6.5, colors="0.45")
     ax.set_zorder(tw.get_zorder() + 1)
     ax.patch.set_visible(False)
-fig.legend(handles=[plt.Line2D([], [], color=SA, lw=0.9, label="SA-PODG"), plt.Line2D([], [], color=NE, lw=0.9, label="NE-PODG"),
-                    plt.Line2D([], [], color="0.6", lw=0.8, label="reference (right axis)")],
-           loc="lower center", bbox_to_anchor=(0.5, -0.005), ncol=3, frameon=False, fontsize=7)
+# bfs：受热壁（下壁）剪切与主再附着点；x 以台阶高度 S 无量纲化
+d = D["bfs"]
+S = float(d["ER"]) - 1
+xs = d["xs"] / S
+
+
+def reattach(tau):
+    """与 openmac recirculation 相同的规则：最小剪切下游第一个由负到正的零点。"""
+    i0 = int(np.argmin(tau))
+    k = i0 + int(np.flatnonzero((tau[i0:-1] < 0) & (tau[i0 + 1:] >= 0))[0])
+    return xs[k] - tau[k] * (xs[k + 1] - xs[k]) / (tau[k + 1] - tau[k])
+
+
+ax = fig.add_subplot(sub[0, 2])
+m = (xs > 0) & (xs < 20)
+ins = ax.inset_axes([0.5, 0.12, 0.45, 0.42])
+for k, col, ls, lab in (("fom", "k", "-", "HF"), ("sapodg", SA, "-", "SA"), ("VS_v", NE, "--", "NE")):
+    tau = d[f"shear_{k}"]
+    ax.plot(xs[m], tau[m], color=col, lw=0.9, ls=ls)
+    xr = reattach(tau)
+    zm = (xs > xr - 0.6) & (xs < xr + 0.6)
+    ins.plot(xs[zm], tau[zm], color=col, lw=0.9, ls=ls)
+    ins.plot(xr, 0, "o", ms=3, mfc="white" if k == "VS_v" else col, mec=col, mew=0.8, zorder=3)
+    print(k, f"x_r/S {xr:.3f}")
+ax.axhline(0, color="0.6", lw=0.5, zorder=0)
+ins.axhline(0, color="0.6", lw=0.5, zorder=0)
+ins.set_xlim(9.0, 10.2)
+ins.set_ylim(-2.5e-3, 2.5e-3)
+ins.tick_params(length=1.5, pad=1, labelsize=5.5)
+ins.set_yticks([])
+ins.set_title(r"near $x_r$", fontsize=6, pad=1)
+ax.indicate_inset_zoom(ins, edgecolor="0.5", lw=0.5)
+ax.set_xlabel(r"$x/S$", labelpad=1)
+ax.set_ylabel(r"wall shear $\tau_w$", labelpad=1, fontsize=7)
+ax.tick_params(length=2, pad=1.5)
+fig.legend(handles=[plt.Line2D([], [], color="k", lw=0.9, label="high-fidelity"),
+                    plt.Line2D([], [], color=SA, lw=0.9, label="SA-PODG"), plt.Line2D([], [], color=NE, lw=0.9, label="NE-PODG"),
+                    plt.Line2D([], [], color="0.6", lw=0.8, label="high-fidelity value (right axis)")],
+           loc="lower center", bbox_to_anchor=(0.5, -0.005), ncol=4, frameon=False, fontsize=7)
 fig.savefig(out, dpi=400)
 print(f"→ {out}")

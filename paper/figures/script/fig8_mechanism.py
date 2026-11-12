@@ -1,6 +1,6 @@
 """论文 Fig. 8：增广机制。(a) nc，N12：SA-PODG 与未训练（r1–r3）、训练（v、v1、v2）网络构造的 NE-PODG 的主场误差 e，
 三个种子合并；上方为 1 − Γ 与 χ_B/χ_W 的中位数；(b) 六个算例默认预算下 1 − Γ = (e_proj,B / e_proj,W)² 的分布；(c) χ_B/χ_W 的分布。
-细线为最小到最大值，粗段为四分位区间，点为中位数（实心内插、空心外推）。(b)、(c) 只用两者都解出且 SA-PODG 的 e_proj > 1e-9 的工况；
+细线为最小到最大值，粗段为四分位区间，点为中位数（实心内插、空心外推）。(b)、(c) 只用两者都解出且两者的 e_proj 都大于 1e-9 的工况；
 (a) 中 × 为未收敛工况。数据 paper/figures/data/paired.csv 与 cases/nc/results/n12/。
 用法（仓库根目录）：python paper/figures/script/fig8_mechanism.py [输出路径，默认 paper/figures/Fig_08.pdf；.png 用于预览]"""
 import sys
@@ -53,8 +53,8 @@ for j, role in enumerate(("interp", "extrap")):
         t = [pd.read_csv(R / f"VS_{k}_{role}.csv").set_index("id").loc[sa.index] for k in keys]
         e = np.concatenate([x.e.to_numpy() for x in t])
         ok = np.concatenate([(x.converged.astype(str) == "True").to_numpy() for x in t])
-        m = np.concatenate([(sa.e_proj > EPS).to_numpy()] * 3) & ok
         ep, epw = np.concatenate([x.e_proj.to_numpy() for x in t]), np.concatenate([sa.e_proj.to_numpy()] * 3)
+        m = (epw > EPS) & (ep > EPS) & ok
         ew = np.concatenate([sa.e.to_numpy()] * 3)
         g1 = np.median(((ep / epw) ** 2)[m])
         chi = np.median(((e / ep) / (ew / epw))[m])
@@ -72,7 +72,7 @@ ax.set_ylabel(r"Main-field error $e$", labelpad=2)
 for k, (a, lab) in enumerate(((axs[1], r"$1-\Gamma$"), (axs[2], r"$\chi_B/\chi_W$"))):
     for i, c in enumerate(CASES):
         for role, dr in (("interp", -0.17), ("extrap", 0.17)):
-            p = P[(P.case == c) & (P.role == role) & P.solved_sa & P.solved_ne & (P.ep_sa > EPS)]
+            p = P[(P.case == c) & (P.role == role) & P.solved_sa & P.solved_ne & (P.ep_sa > EPS) & (P.ep_ne > EPS)]
             v = (p.ep_ne / p.ep_sa) ** 2 if k == 0 else (p.e_ne / p.ep_ne) / (p.e_sa / p.ep_sa)
             summ(a, i + dr, v.to_numpy(), NE, role == "interp")
     style(a)
