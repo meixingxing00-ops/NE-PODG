@@ -15,7 +15,7 @@
   主方法为 VS_v（默认）。例：VS_r1、V_v、VS_v_fixP018、VS_v_z32、VS_vm64。
 结果 ROOT/results/n<B>/<space>_<role>.csv，每个工况一行：编号、参数、n_V、n_S、n_Z、主场误差 e、所用空间与 POD 空间的最佳逼近误差
 （按闭合所用的状态基，metrics.basis）、e_real、算例输出量的误差、收敛与迭代数（非线性闭合）、单次查询耗时 time 及其中网络方向与
-去投影的耗时 time_basis；有网络方向时另记保留方向主角正弦 s 的最小值、中位数与 s > 0.1、s > 0.01 的个数。"""
+去投影的耗时 time_basis；非线性闭合另记末次相对残差 res = ‖g‖/‖g(c⁽⁰⁾)‖；有网络方向时另记保留方向主角正弦 s 的最小值、中位数与 s > 0.1、s > 0.01 的个数。"""
 import csv
 import sys
 import time
@@ -106,7 +106,7 @@ def run(case, g, params, rom, outputs):
             row = dict(id=c["id"], **{k: c[k] for k in params}, nV=pod.V.shape[1], nS=ns, nZ=B.shape[1] - base.V.shape[1],
                        e=e, e_proj=ep, e_real=er, e_proj_pod=ep_pod, **outputs(y, aux, ref, mu))
             if st is not None:
-                row.update(converged=st["converged"], iters=st["iters"])
+                row.update(converged=st["converged"], iters=st["iters"], res=st["res"])
             row.update(time=t, time_basis=tb, s_min=sst[0], s_med=sst[1], n_s01=sst[2], n_s001=sst[3])
             if wr is None:
                 wr = csv.DictWriter(fh, list(row))
