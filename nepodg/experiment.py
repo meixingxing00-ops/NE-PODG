@@ -53,32 +53,64 @@ def train(case, g):
         fh.writelines(f"{(k + 1) * log},{a:.6e}\n" for k, a in enumerate(hist))
 
 
+class Setup:
+    """预算 N<B>、空间 mode 下的 POD 空间 pod、初值插值 init、基础空间 base（V 或 W）、n_S 与网络方向的设置。"""
+
+    def __init__(self, case, g, budget, mode, params):
+        self.case, self.g = case, g
+        ids = [c["id"] for c in case.cases() if c[f"n{budget}"] == "1"]
+        train = [g.load(i) for i in ids]
+        self.pod = space.POD(torch.stack([s[0] for s in train], 1), g.whiten)
+        self.init = closure.Init([case.eta(s[-1]) for s in train], self.pod.a)
+        self.base, self.ns = self.pod, 0
+        if mode == "sapodg" or mode.startswith("VS"):
+            self.base, self.ns, _ = space.sensitivity_space(self.pod, g.sens(ids).reshape(g.n, -1), g.whiten)
+        self.net, self.fix, self.zmax = None, None, None
+        if "_" in mode:
+            parts = mode.split("_")
+            trained, seed, m = candidates.kind(parts[1])
+            if trained:
+                self.net = candidates.load(case.MODELS / parts[1] / f"n{budget}.pt", g.X.device)
+            else:
+                torch.manual_seed(seed)
+                self.net = candidates.Net(m=m).to(g.X.device).eval()
+            for p in parts[2:]:
+                if p.startswith("fix"):
+                    self.fix = next(case.eta(tuple(float(c[k]) for k in params)) for c in case.cases() if c["id"] == p[3:])
+                else:
+                    self.zmax = int(p[1:])
+
+    def basis(self, mu):
+        """查询参数 μ 的状态基 B 与保留方向主角正弦的统计。"""
+        B, sst = self.base.V, [""] * 4
+        if self.net is not None:
+            g = self.g
+            eta = self.case.eta(mu) if self.fix is None else self.fix
+            Z, _, s = space.complement(candidates.directions(self.net, g.X, eta, g.admissible), g.whiten, self.base, r=self.zmax)
+            B = torch.cat([B, Z], 1)
+            s = s[:Z.shape[1]].cpu().numpy()
+            sst = [s.min(), np.median(s), int((s > 0.1).sum()), int((s > 0.01).sum())]
+        return B, sst
+
+    def c0(self, mu, B):
+        return np.concatenate([self.init(self.case.eta(mu)), np.zeros(B.shape[1] - self.pod.V.shape[1])])
+
+
+def solve(case, g, budget, cid, mode, rom):
+    """单个工况 cid 在预算 N<B>、空间 mode（pod、sapodg 或 <基>_<网络>…）下的降阶解：(主场, 辅助场, 闭合状态或 None)。"""
+    st = Setup(case, g, budget, mode, ())
+    mu = g.load(cid)[-1]
+    B, _ = st.basis(mu)
+    return rom(st.pod.mean, B, mu, st.c0(mu, B))
+
+
 def run(case, g, params, rom, outputs):
     """命令行 B role [space]：预算 N<B> 在 cases.csv 中 role 为该值的工况上降阶求解。params：参数列名；
     rom(y0, B, μ, c0) → (主场, 辅助场, 闭合状态或 None)，c0 为初值系数；outputs(主场, 辅助场, 参考快照, μ) → {列名: 值}。"""
     budget, role = int(sys.argv[1]), sys.argv[2]
     mode = sys.argv[3] if len(sys.argv) > 3 else "VS_v"
-    ids = [c["id"] for c in case.cases() if c[f"n{budget}"] == "1"]
-    train = [g.load(i) for i in ids]
-    pod = space.POD(torch.stack([s[0] for s in train], 1), g.whiten)
-    init = closure.Init([case.eta(s[-1]) for s in train], pod.a)
-    base, ns = pod, 0
-    if mode == "sapodg" or mode.startswith("VS"):
-        base, ns, _ = space.sensitivity_space(pod, g.sens(ids).reshape(g.n, -1), g.whiten)
-    net, fix, zmax = None, None, None
-    if "_" in mode:
-        parts = mode.split("_")
-        trained, seed, m = candidates.kind(parts[1])
-        if trained:
-            net = candidates.load(case.MODELS / parts[1] / f"n{budget}.pt", g.X.device)
-        else:
-            torch.manual_seed(seed)
-            net = candidates.Net(m=m).to(g.X.device).eval()
-        for p in parts[2:]:
-            if p.startswith("fix"):
-                fix = next(case.eta(tuple(float(c[k]) for k in params)) for c in case.cases() if c["id"] == p[3:])
-            else:
-                zmax = int(p[1:])
+    S = Setup(case, g, budget, mode, params)
+    pod, base = S.pod, S.base
     Vw_pod = metrics.basis(pod.V, g.whiten)
     out = case.ROOT / "results" / f"n{budget}" / f"{mode}_{role}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -88,22 +120,15 @@ def run(case, g, params, rom, outputs):
             ref = g.load(c["id"])
             mu = ref[-1]
             t0 = time.perf_counter()
-            B, sst = base.V, [""] * 4
-            if net is not None:
-                Z, _, s = space.complement(candidates.directions(net, g.X, case.eta(mu) if fix is None else fix, g.admissible),
-                                           g.whiten, base, r=zmax)
-                B = torch.cat([B, Z], 1)
-                s = s[:Z.shape[1]].cpu().numpy()
-                sst = [s.min(), np.median(s), int((s > 0.1).sum()), int((s > 0.01).sum())]
+            B, sst = S.basis(mu)
             torch.cuda.synchronize()
             tb = time.perf_counter() - t0
-            c0 = np.concatenate([init(case.eta(mu)), np.zeros(B.shape[1] - pod.V.shape[1])])
-            y, aux, st = rom(pod.mean, B, mu, c0)
+            y, aux, st = rom(pod.mean, B, mu, S.c0(mu, B))
             torch.cuda.synchronize()
             t = time.perf_counter() - t0
             e, ep, er = metrics.errors(y, ref[0], pod.mean, metrics.basis(B, g.whiten), g.whiten, g.lift)
             ep_pod = metrics.errors(y, ref[0], pod.mean, Vw_pod, g.whiten, g.lift)[1]
-            row = dict(id=c["id"], **{k: c[k] for k in params}, nV=pod.V.shape[1], nS=ns, nZ=B.shape[1] - base.V.shape[1],
+            row = dict(id=c["id"], **{k: c[k] for k in params}, nV=pod.V.shape[1], nS=S.ns, nZ=B.shape[1] - base.V.shape[1],
                        e=e, e_proj=ep, e_real=er, e_proj_pod=ep_pod, **outputs(y, aux, ref, mu))
             if st is not None:
                 row.update(converged=st["converged"], iters=st["iters"], res=st["res"])
