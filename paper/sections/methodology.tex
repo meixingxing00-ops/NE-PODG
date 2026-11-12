@@ -35,7 +35,7 @@ J_{\mathrm{eff}}=\frac{\partial F}{\partial\mathbf q}-\frac{\partial F}{\partial
 W=[V,\ S],\qquad W^{\mathsf T}MW=I .
 \label{eq:sensitivity}
 \end{equation}
-在式~\eqref{eq:galerkin} 中取 $X=W$ 即灵敏度增广 POD--Galerkin 方法（SA-PODG）。$W$ 包含训练快照及其一阶参数变化，与查询参数无关；SA-PODG 在每个训练点都使用灵敏度。
+在式~\eqref{eq:galerkin} 中取 $X=W$ 即灵敏度增广 POD--Galerkin 方法（SA-PODG）。$W$ 由中心化快照模态与一阶参数灵敏度方向构成，与查询参数无关。
 
 \subsection{Value-supervised neural candidate fields（场值监督的神经候选场）}
 \label{sec:network}
@@ -61,7 +61,7 @@ w_\theta=e^{\ell_\theta}\,r_\theta ,
 \frac{\partial\hat{\mathbf q}_\theta(\eta)}{\partial\mathbf b}=e^{\ell_\theta(\eta)}\,\Phi_\theta(\eta).
 \label{eq:bias}
 \end{equation}
-由于 $e^{\ell_\theta}>0$，$\operatorname{span}\Phi_\theta(\eta)$ 就是网络在 $\eta$ 处经读出偏置可到达的输出变化空间，网络预测 $\hat{\mathbf q}_\theta(\eta)$ 本身也在其中。NE-PODG 用这一空间提供增广方向。
+由于 $e^{\ell_\theta}>0$，$\operatorname{span}\Phi_\theta(\eta)$ 就是网络在 $\eta$ 处经读出偏置可到达的输出变化空间，网络预测 $\hat{\mathbf q}_\theta(\eta)$ 本身也在其中。
 
 \subsection{Complementary space construction and Galerkin closure（互补空间构造与 Galerkin 闭合）}
 \label{sec:closure}
@@ -103,7 +103,7 @@ e_{\mathrm{proj},B}=e_{\mathrm{proj},W}\sqrt{1-\Gamma_\theta},\qquad
 \label{sec:setup}
 
 \paragraph{算例}
-本文在六个参数化稳态传热问题上验证 NE-PODG（图~\ref{fig:cases}，表~\ref{tab:cases}）：方腔自然对流~\cite{devahldavis1983natural}、Couette--Graetz 问题~\cite{quarteroni2011certified}、通道共轭传热、顶盖驱动混合对流、多孔方腔自然对流与后台阶流动传热。它们覆盖两类主场与算子：Couette--Graetz 与共轭传热以温度为主场，能量方程线性、对流扩散算子非对称，前者含几何参数，后者含导热率跳变的流固界面；其余四个算例以流函数为主场，动量方程非线性：方腔自然对流、混合对流与多孔方腔中流动与温度双向耦合，分别由浮力、顶盖剪切与浮力、浮力与 Darcy--Brinkman 阻力驱动；后台阶为开口通道中含分离与再附着的强迫对流，温度为被动标量，扩张比为几何参数。各算例的参数域、主场、提升与传热量列于表~\ref{tab:cases}，控制方程与边界条件见附录~\ref{app:cases}。
+本文在六个参数化稳态传热问题上验证 NE-PODG（图~\ref{fig:cases}，表~\ref{tab:cases}）：方腔自然对流~\cite{devahldavis1983natural}、Couette--Graetz 问题~\cite{quarteroni2011certified}、通道共轭传热、顶盖驱动混合对流、多孔方腔自然对流与后台阶流动传热。它们覆盖两类主场与算子：Couette--Graetz 与共轭传热以温度为主场，能量方程线性、对流扩散算子非对称，前者含几何参数，后者含导热率跳变的流固界面；其余四个算例以流函数为主场，整体稳态方程组为非线性系统：方腔自然对流、混合对流与多孔方腔中流动与温度双向耦合，分别由浮力、顶盖剪切与浮力、浮力与 Darcy--Brinkman 阻力驱动；后台阶为开口通道中含分离与再附着的强迫对流，温度为被动标量，扩张比为几何参数。各算例的参数域、主场、提升与传热量列于表~\ref{tab:cases}，控制方程与边界条件见附录~\ref{app:cases}。
 
 \begin{figure}[H]
 \centering

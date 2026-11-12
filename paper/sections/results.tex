@@ -4,7 +4,7 @@
 \subsection{Accuracy across benchmark problems（跨算例的精度）}
 \label{sec:accuracy}
 
-三种方法的误差依次下降（图~\ref{fig:accuracy}(a)）：SA-PODG 的误差中位数比 POD--Galerkin 低 3.6--86 倍，NE-PODG 在所有算例的内插与外推测试上进一步降低误差。逐工况误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$ 均不小于 1（图~\ref{fig:accuracy}(b)），其中位数在 Couette--Graetz 上为 21--27，共轭传热为 7.6--25，三个方腔类算例为 4.6--9.9，后台阶约为 2.2。误差分布的尾部同步下降，混合对流外推的最大误差由 16.9\% 降为 3.06\%，后台阶内插由 33.1\% 降为 7.02\%。后台阶外推中 SA-PODG 有 2 个工况未收敛，NE-PODG 全部收敛。
+在各算例的默认快照预算下，三种方法的误差依次下降（图~\ref{fig:accuracy}(a)）：SA-PODG 的误差中位数比 POD--Galerkin 低 3.6--86 倍，NE-PODG 在所有算例的内插与外推测试上进一步降低误差。逐工况误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$ 均不小于 1（图~\ref{fig:accuracy}(b)），其中位数在 Couette--Graetz 上为 21--27，共轭传热为 7.6--25，三个方腔类算例为 4.6--9.9，后台阶约为 2.2。误差分布的尾部同步下降，混合对流外推的最大误差由 16.9\% 降为 3.06\%，后台阶内插由 33.1\% 降为 7.02\%。后台阶外推中 SA-PODG 有 2 个工况未收敛，NE-PODG 全部收敛。
 
 \begin{figure}[H]
 \centering
@@ -22,7 +22,7 @@
 \input{figures/data/table3.tex}
 \end{table}
 
-传热量误差随主场误差一同下降（表~\ref{tab:heat}）。平均与积分量的误差中位数降低 2.9--123 倍，例如方腔自然对流外推的平均 Nusselt 数由 0.0792\% 降为 0.00106\%，Couette--Graetz 外推的 $T_{\mathrm{av}}$ 由 0.359\% 降为 0.00517\%。局部量对主场误差更敏感：共轭传热外推中，界面热流很小的工况上壁温接近混合平均温度，局部 Nusselt 数的最大相对误差 SA-PODG 为 455\%，NE-PODG 为 7.63\%；后台阶内插的再附着长度误差中位数 NE-PODG 为 1.11\%、SA-PODG 为 0.871\%，最大值分别为 12.1\% 与 14.0\%。
+平均与积分传热量的误差总体随主场误差下降（表~\ref{tab:heat}）。平均与积分量的误差中位数降低 2.9--123 倍，例如方腔自然对流外推的平均 Nusselt 数由 0.0792\% 降为 0.00106\%，Couette--Graetz 外推的 $T_{\mathrm{av}}$ 由 0.359\% 降为 0.00517\%。局部量对主场误差更敏感：共轭传热外推中，界面热流很小的工况上壁温接近混合平均温度，局部 Nusselt 数的最大相对误差 SA-PODG 为 455\%，NE-PODG 为 7.63\%；后台阶内插的再附着长度误差中位数 NE-PODG 为 1.11\%、SA-PODG 为 0.871\%，最大值分别为 12.1\% 与 14.0\%。
 
 \subsection{Flow and heat-transfer predictions（流场与传热预测）}
 \label{sec:fields}
@@ -50,7 +50,7 @@
 \label{fig:fields_cases}
 \end{figure}
 
-图~\ref{fig:fields_cases} 给出另外三个算例的外推工况。Couette--Graetz 中，SA-PODG 的温度误差集中在受热段起点下游的热边界层内，受热壁局部 Nusselt 数的相对误差在受热段前部达到 $4\times10^{-2}$；NE-PODG 的温度误差在同一色标下几乎不可见，局部 Nusselt 数误差除受热段起点外低于 $10^{-3}$。共轭传热中，SA-PODG 的误差沿热边界层外缘形成条带并向下游增长；NE-PODG 去除了这一条带，界面热流的误差在入口段与加热段前部降低一到两个数量级，在下游与 SA-PODG 相当，约为 $3\times10^{-3}$。后台阶中，SA-PODG 的速度误差位于剪切层与再附着区附近；NE-PODG 降低了这部分误差，主场误差由 5.01\% 降为 2.87\%，主再附着长度 $x_r/S$ 为 9.688（高保真解 9.687，SA-PODG 9.496）。受热壁剪切的零点上，NE-PODG 与高保真解重合，SA-PODG 的再附着点提前；回流区内（$x/S<8$）两种方法的剪切分布都与高保真解有偏差，NE-PODG 的最小剪切略低于高保真解。
+图~\ref{fig:fields_cases} 给出另外三个算例的外推工况。Couette--Graetz 中，SA-PODG 的温度误差集中在受热段起点下游的热边界层内，受热壁局部 Nusselt 数的相对误差在受热段前部达到 $4\times10^{-2}$；NE-PODG 的温度误差明显缩小，局部 Nusselt 数误差除受热段起点外低于 $10^{-3}$。共轭传热中，SA-PODG 的误差沿热边界层外缘形成条带并向下游增长；NE-PODG 去除了这一条带，界面热流的误差在入口段与加热段前部降低一到两个数量级，在下游与 SA-PODG 相当，约为 $3\times10^{-3}$。后台阶中，SA-PODG 的速度误差位于剪切层与再附着区附近；NE-PODG 降低了这部分误差，主场误差由 5.01\% 降为 2.87\%，主再附着长度 $x_r/S$ 为 9.688（高保真解 9.687，SA-PODG 9.496）。受热壁剪切的零点上，NE-PODG 与高保真解重合，SA-PODG 的再附着点提前；回流区内（$x/S<8$）两种方法的剪切分布都与高保真解有偏差，NE-PODG 的最小剪切略低于高保真解。
 
 \subsection{Mechanism of neural enrichment（神经增广的机制）}
 \label{sec:mechanism}
@@ -83,7 +83,7 @@
 \end{tabular}
 \end{table}
 
-网络在训练快照上拟合准确，在未见参数处的直接输出误差较大（图~\ref{fig:training}，表~\ref{tab:network}）。方腔自然对流 $N_{12}$ 的训练快照上，网络直接输出的速度误差中位数为 0.23\%，在内插与外推工况上为 14.9\% 与 34.1\%；由同一网络构造互补空间后，NE-PODG 的误差中位数为 $1.2\times10^{-4}\%$ 与 0.21\%。Couette--Graetz 算例中，网络在 4 个训练快照上的误差中位数为 0.098\%，在内插与外推工况上为 65.0\% 与 39.7\%，NE-PODG 为 0.0483\% 与 0.0661\%。NE-PODG 的精度来自网络张成的候选空间与 Galerkin 闭合。
+网络在训练快照上拟合准确，在未见参数处的直接输出误差较大（图~\ref{fig:training}，表~\ref{tab:network}）。方腔自然对流 $N_{12}$ 的训练快照上，网络直接输出的速度误差中位数为 0.23\%，在内插与外推工况上为 14.9\% 与 34.1\%；由同一网络构造互补空间后，NE-PODG 的误差中位数为 $1.2\times10^{-4}\%$ 与 0.21\%。Couette--Graetz 算例中，网络在 4 个训练快照上的误差中位数为 0.098\%，在内插与外推工况上为 65.0\% 与 39.7\%，NE-PODG 为 0.0483\% 与 0.0661\%。
 
 \begin{figure}[H]
 \centering

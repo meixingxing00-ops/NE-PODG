@@ -3,15 +3,15 @@
 
 对流传热广泛存在于电子器件散热、换热设备、建筑热环境与能源系统中。其速度场与温度场由一组控制参数决定，参数变化会改变流动结构、边界层分布和壁面换热。设计优化、参数分析和多工况预测需要在参数空间内反复求解稳态传热控制方程，这类方程可以是给定流场下的线性对流扩散，也可以是流动与传热耦合的非线性系统。参数化降阶模型以低维试探空间近似高维离散系统~\cite{benner2015survey}，其精度取决于试探空间能否表示参数变化引起的解结构变化，而试探空间通常只能由有限个高保真快照构造。
 
-本征正交分解（Proper Orthogonal Decomposition，POD）从高保真快照中提取主导空间模态~\cite{sirovich1987turbulence,berkooz1993proper}；将高保真离散方程投影到 POD 试探空间，即得到 POD–Galerkin 降阶模型；投影直接作用于离散方程，降阶求解因而沿用生成快照的同一离散。该方法已用于非定常热混合~\cite{georgaka2020parametric}、参数化 Boussinesq 流动~\cite{knezevic2011reduced}、Rayleigh–Bénard 对流~\cite{cai2019development,chand2024pressure}和液态金属浮力流动~\cite{star2021pod}等流热耦合问题。降阶解始终位于试探空间之内，试探空间对目标解的最佳逼近误差构成降阶精度的下限，无论展开系数由插值、回归还是物理方程确定。在宽参数范围内，流动结构随参数显著变化，有限快照张成的空间难以表示未采样参数处的解，这一下限成为限制精度的主要因素。
+本征正交分解（Proper Orthogonal Decomposition，POD）从高保真快照中提取主导空间模态~\cite{sirovich1987turbulence,berkooz1993proper}；将高保真离散方程投影到 POD 试探空间，即得到 POD–Galerkin 降阶模型。该方法已用于非定常热混合~\cite{georgaka2020parametric}、参数化 Boussinesq 流动~\cite{knezevic2011reduced}、Rayleigh–Bénard 对流~\cite{cai2019development,chand2024pressure}和液态金属浮力流动~\cite{star2021pod}等流热耦合问题。降阶解始终位于试探空间之内，试探空间对目标解的最佳逼近误差构成降阶精度的下限，无论展开系数由插值、回归还是物理方程确定。在宽参数范围内，流动结构随参数显著变化，有限快照张成的空间难以表示未采样参数处的解，这一下限成为限制精度的主要因素。
 
-改进试探空间是提高参数化降阶精度的直接途径。Amsallem 等~\cite{amsallem2012nonlinear}按解状态构造局部降阶基。Hay 等~\cite{hay2009local,hay2010reduced}利用 POD 对参数的灵敏度扩展降阶基，提高了偏离采样参数处的表示精度。对稳态问题，训练点处解的参数灵敏度可由离散稳态方程直接求得，复用该点雅可比的分解，不需要额外的高保真工况。由快照与灵敏度共同张成的灵敏度增广空间同时包含训练点处的解及其一阶参数变化，在此空间上做 Galerkin 投影即得到灵敏度增广 POD–Galerkin 方法（SA-PODG）。该空间与查询参数无关；快照稀疏或查询点远离训练点时，解中仍有该空间未能表示的余量。
+改进试探空间是提高参数化降阶精度的直接途径。Amsallem 等~\cite{amsallem2012nonlinear}按解状态构造局部降阶基。Hay 等~\cite{hay2009local,hay2010reduced}利用 POD 对参数的灵敏度扩展降阶基，提高了偏离采样参数处的表示精度。对稳态问题，训练点处解的参数灵敏度可由离散稳态方程直接求得，复用该点雅可比的分解，不需要额外的高保真工况。由快照与灵敏度共同构成的灵敏度增广空间能够表示训练点处的解及其一阶参数变化，在此空间上做 Galerkin 投影即得到灵敏度增广 POD–Galerkin 方法（SA-PODG）。该空间与查询参数无关；快照稀疏或查询点远离训练点时，解中仍有该空间未能表示的余量。
 
 神经网络为参数相关的流热场表示提供了另一类工具。参数化物理信息神经网络（PINNs）以控制方程残差训练网络，已用于方腔自然对流~\cite{ye2025direct}、多参数瞬态热问题~\cite{gholampour2024parameterized}和高精度自然对流求解~\cite{cui2026comprehensive}；NeuroSEM 将 PINNs 与谱元求解器耦合，由两者分担不同子域或状态变量~\cite{shukla2025neurosem}。在降阶框架中，一类方法用神经网络学习参数到 POD 系数的映射~\cite{hesthaven2018non,weder2025galerkin}，或在系数学习中引入降阶方程残差~\cite{chen2021physics}，重构解仍处于预设的试探空间之内。另一类方法让神经网络参与表示空间的构造：深度自编码器建立非线性解流形~\cite{lee2020model,kadeethum2022non}，神经网络增广的投影降阶方法学习非线性近似流形~\cite{barnett2023neural}，自编码器与 Galerkin 投影结合以修正降阶表示~\cite{lepage2025hybrid}，深度正交分解则由网络构造随参数变化的局部基~\cite{franco2026deep}。可微分 PDE 约束层由网络提供一组函数，再由满足控制方程的优化确定其组合系数~\cite{negiar2023learning}，体现了网络提供表示、物理方程确定解的混合思路。
 
-本文沿这一思路，用神经网络补充 SA-PODG 基础空间之外的方向。网络以训练快照的场值为监督，在查询参数处给出一组候选场；候选场去除基础空间的分量后构成神经互补空间，与基础空间一起组成增广试探空间，降阶解由该空间上的 Galerkin 投影确定。
+沿着网络提供候选表示、物理方程确定解的思路，本文利用神经网络补充 SA-PODG 基础空间之外的方向。网络以训练快照的场值为监督，在查询参数处给出一组候选场；候选场去除基础空间的分量后构成神经互补空间，与基础空间一起组成增广试探空间，降阶解由该空间上的 Galerkin 投影确定。
 
-本文将上述方法称为神经增广 POD–Galerkin 方法（Neural-Enriched POD–Galerkin，NE-PODG），并在六类参数化稳态传热问题上验证：宽 Ra–Pr 范围内的方腔自然对流~\cite{devahldavis1983natural}、带几何参数的 Couette--Graetz 对流扩散~\cite{quarteroni2011certified}、通道共轭传热、顶盖驱动混合对流~\cite{iwatsu1993mixed}、Darcy--Brinkman 多孔方腔自然对流~\cite{lauriat1987natural}与后台阶分离流动传热~\cite{armaly1983experimental}。主要工作包括：
+本文将上述方法称为神经增广 POD–Galerkin 方法（Neural-Enriched POD–Galerkin，NE-PODG），并在六类参数化稳态传热问题上进行验证。主要工作包括：
 \begin{enumerate}
 \item 提出 NE-PODG，以场值监督训练的网络为 SA-PODG 构造随查询参数变化的互补空间；
 \item 建立余量捕获率与闭合放大系数的误差关系，辨识两者在不同问题中的作用，并通过训练与未训练网络的对照，说明场值监督训练带来精度提升的来源；
