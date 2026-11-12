@@ -1,6 +1,6 @@
-"""论文 Fig. 3：N12 下全部测试工况的 (a) 三种方法速度误差随 Ra 的分布；(b) SA-PODG 与 NE-PODG 的误差之比随 Ra 的分布，按 Pr 着色。
+"""论文附录 C 图（原 Fig. 3）：N12 下全部测试工况的 (a) 三种方法速度误差随 Ra 的分布；(b) SA-PODG 与 NE-PODG 的误差之比随 Ra 的分布，按 Pr 着色。
 灰色竖线为 N12 训练快照所在的 Ra，阴影为外推区。数据 cases/nc/results/n12/{pod,sapodg,VS_v}_{interp,extrap}.csv。
-用法（仓库根目录）：python paper/figures/script/fig3_accuracy.py [输出路径，默认 paper/figures/Fig_03.pdf；.png 用于预览]"""
+用法（仓库根目录）：python paper/figures/script/fig3_accuracy.py [输出路径，默认 paper/figures/Fig_C1.pdf；.png 用于预览]"""
 import sys
 from pathlib import Path
 
@@ -16,7 +16,7 @@ matplotlib.rcParams.update({"font.family": "Times New Roman", "mathtext.fontset"
 cm = matplotlib.colors.ListedColormap(plt.get_cmap("RdBu_r")([0.08 + 0.84 * i / 255 for i in range(256)]))  # 两端截去
 root = Path(__file__).resolve().parents[3]
 res = root / "cases" / "nc" / "results" / "n12"
-out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_03.pdf"
+out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_C1.pdf"
 load = lambda m: pd.concat([pd.read_csv(res / f"{m}_{r}.csv") for r in ("interp", "extrap")])
 d = {m: load(m) for m in ("pod", "sapodg", "VS_v")}
 assert all((d[m].id.values == d["VS_v"].id.values).all() for m in d)
