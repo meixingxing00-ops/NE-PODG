@@ -1,4 +1,4 @@
-"""论文 Fig. 8：增广机制。(a) nc，N12：SA-PODG 与未训练（r1–r3）、训练（v、v1、v2）网络构造的 NE-PODG 的主场误差 e，
+"""论文 Fig. 8：增广机制。(a) nc，N12：SA-PODG 与未训练（r1m256–r3m256）、训练（vm256、v1m256、v2m256）网络构造的 NE-PODG 的主场误差 e，
 三个种子合并；上方为 1 − Γ 与 χ_B/χ_W 的中位数；(b) 六个算例默认预算下 1 − Γ = (e_proj,B / e_proj,W)² 的分布；(c) χ_B/χ_W 的分布。
 细线为最小到最大值，粗段为四分位区间，点为中位数（实心内插、空心外推）。(b)、(c) 只用两者都解出且两者的 e_proj 都大于 1e-9 的工况；
 (a) 中 × 为未收敛工况。数据 paper/figures/data/paired.csv 与 cases/nc/results/n12/。
@@ -49,7 +49,7 @@ for j, role in enumerate(("interp", "extrap")):
     sa = pd.read_csv(R / f"sapodg_{role}.csv").set_index("id")
     filled = role == "interp"
     summ(ax, j * 3 + 0, sa.e.to_numpy(), SA, filled)
-    for i, (keys, col) in enumerate(((("r1", "r2", "r3"), RN), (("v", "v1", "v2"), NE))):
+    for i, (keys, col) in enumerate(((("r1m256", "r2m256", "r3m256"), RN), (("vm256", "v1m256", "v2m256"), NE))):
         t = [pd.read_csv(R / f"VS_{k}_{role}.csv").set_index("id").loc[sa.index] for k in keys]
         e = np.concatenate([x.e.to_numpy() for x in t])
         ok = np.concatenate([(x.converged.astype(str) == "True").to_numpy() for x in t])
@@ -63,7 +63,7 @@ for j, role in enumerate(("interp", "extrap")):
         ax.text(x, 3e1, f"{g1:.2g}\n{chi:.2f}", ha="center", va="top", fontsize=6.5)
 ax.text(-0.5, 3e1, r"$1-\Gamma$" + "\n" + r"$\chi_B/\chi_W$", ha="left", va="top", fontsize=6.5)
 style(ax)
-ax.set_ylim(1e-10, 1e2)
+ax.set_ylim(1e-11, 1e2)
 ax.set_xlim(-0.7, 5.6)
 ax.set_xticks([1, 4])
 ax.set_xticklabels(["Interpolation", "Extrapolation"])

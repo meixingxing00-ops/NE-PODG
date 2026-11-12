@@ -25,14 +25,14 @@ lines = [r"\begin{tabular}{llcccccc}", r"\toprule",
 for b in (12, 20, 30, 50):
     lines.append(r"\midrule")
     for j, (q, lab) in enumerate((("e_T", r"$e_T$"), ("e_Nu", r"$\overline{Nu}$"))):
-        cells = [fmt(load(b, m, r)[q].median()) for r in ("interp", "extrap") for m in ("pod", "sapodg", "VS_v")]
+        cells = [fmt(load(b, m, r)[q].median()) for r in ("interp", "extrap") for m in ("pod", "sapodg", "VS_vm256")]
         lines.append(f"{rf'$N_{{{b}}}$' if j == 0 else ''} & {lab} & " + " & ".join(cells) + r" \\")
 lines += [r"\midrule", r"\multicolumn{8}{l}{NE-PODG, seeds 1234 / 1 / 2 (min--max of the medians)} \\"]
 for b in (12, 50):
     for j, (q, lab) in enumerate((("e", r"$e$"), ("e_T", r"$e_T$"), ("e_Nu", r"$\overline{Nu}$"))):
         cells = []
         for r in ("interp", "extrap"):
-            v = [load(b, f, r)[q].median() for f in ("VS_v", "VS_v1", "VS_v2")]
+            v = [load(b, f, r)[q].median() for f in ("VS_vm256", "VS_v1m256", "VS_v2m256")]
             cells.append(rf"\multicolumn{{3}}{{c}}{{{fmt(min(v))}--{fmt(max(v))}}}")
         lines.append(f"{rf'$N_{{{b}}}$' if j == 0 else ''} & {lab} & " + " & ".join(cells) + r" \\")
 lines += [r"\bottomrule", r"\end{tabular}"]

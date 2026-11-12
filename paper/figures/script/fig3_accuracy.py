@@ -1,5 +1,5 @@
 """论文附录 C 图（原 Fig. 3）：N12 下全部测试工况的 (a) 三种方法速度误差随 Ra 的分布；(b) SA-PODG 与 NE-PODG 的误差之比随 Ra 的分布，按 Pr 着色。
-灰色竖线为 N12 训练快照所在的 Ra，阴影为外推区。数据 cases/nc/results/n12/{pod,sapodg,VS_v}_{interp,extrap}.csv。
+灰色竖线为 N12 训练快照所在的 Ra，阴影为外推区。数据 cases/nc/results/n12/{pod,sapodg,VS_vm256}_{interp,extrap}.csv。
 用法（仓库根目录）：python paper/figures/script/fig3_accuracy.py [输出路径，默认 paper/figures/Fig_C1.pdf；.png 用于预览]"""
 import sys
 from pathlib import Path
@@ -18,9 +18,9 @@ root = Path(__file__).resolve().parents[3]
 res = root / "cases" / "nc" / "results" / "n12"
 out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_C1.pdf"
 load = lambda m: pd.concat([pd.read_csv(res / f"{m}_{r}.csv") for r in ("interp", "extrap")])
-d = {m: load(m) for m in ("pod", "sapodg", "VS_v")}
-assert all((d[m].id.values == d["VS_v"].id.values).all() for m in d)
-Ra, Pr = d["VS_v"].Ra.values, d["VS_v"].Pr.values
+d = {m: load(m) for m in ("pod", "sapodg", "VS_vm256")}
+assert all((d[m].id.values == d["VS_vm256"].id.values).all() for m in d)
+Ra, Pr = d["VS_vm256"].Ra.values, d["VS_vm256"].Pr.values
 
 mm = 1 / 25.4
 fig, axs = plt.subplots(1, 2, figsize=(190 * mm, 70 * mm), gridspec_kw=dict(left=0.065, right=0.925, bottom=0.15,
@@ -44,7 +44,7 @@ def frame(ax, ylab):
 ax = axs[0]
 frame(ax, r"$e$")
 for m, name, c, mk, s in [("pod", "POD–Galerkin", "0.55", "^", 9), ("sapodg", "SA-PODG", cm(0.1), "s", 8),
-                          ("VS_v", "NE-PODG", cm(0.9), "o", 9)]:
+                          ("VS_vm256", "NE-PODG", cm(0.9), "o", 9)]:
     ax.scatter(Ra, d[m].e, s=s, marker=mk, c=[c], lw=0, alpha=0.85, label=name, zorder=3)
 ax.legend(loc="upper center", bbox_to_anchor=(0.45, 1.15), ncol=3, frameon=False, fontsize=7, handletextpad=0.2,
           columnspacing=1.2, markerscale=1.3)
@@ -55,7 +55,7 @@ ax.text(5.5e5, 1.01, "extrap.", ha="center", va="bottom", fontsize=7, transform=
 ax = axs[1]
 frame(ax, r"$e_{\mathrm{SA}}/e_{\mathrm{NE}}$")
 ax.axhline(1, color="0.3", lw=0.7, ls=(0, (4, 2)), zorder=1)
-sc = ax.scatter(Ra, d["sapodg"].e.values / d["VS_v"].e.values, s=11, c=Pr, cmap=cm, norm=LogNorm(0.1, 10), lw=0.3,
+sc = ax.scatter(Ra, d["sapodg"].e.values / d["VS_vm256"].e.values, s=11, c=Pr, cmap=cm, norm=LogNorm(0.1, 10), lw=0.3,
                 edgecolors="0.3", zorder=3)
 ax.set_ylim(0.85, 25)
 ax.set_yticks([1, 2, 5, 10, 20], ["1", "2", "5", "10", "20"])

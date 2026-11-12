@@ -1,6 +1,6 @@
 """论文 Fig. 7：N12 网络 (a) 训练损失；(b) 网络直接输出与 NE-PODG 的速度误差 e 在训练快照、内插、外推三组上的中位数，
-竖线为最小值到最大值。数据 paper/figures/data/n12_loss.csv（N12 网络 v 的训练损失，每 300 步平均）、
-cases/nc/results/n12/teacher_v_{train,interp,extrap}.csv、VS_v_{interp,extrap}.csv。
+竖线为最小值到最大值。数据 paper/figures/data/n12_loss.csv（N12 网络 vm256 的训练损失，每 300 步平均）、
+cases/nc/results/n12/teacher_vm256_{train,interp,extrap}.csv、VS_vm256_{interp,extrap}.csv。
 用法（仓库根目录）：python paper/figures/script/fig7_training.py [输出路径，默认 paper/figures/Fig_07.pdf；.png 用于预览]"""
 import sys
 from pathlib import Path
@@ -29,7 +29,8 @@ for s in (1e4, 2e4):
     ax.axvline(s, color="0.7", lw=0.6, ls=(0, (3, 2)), zorder=0)
 ax.plot(loss["step"], loss["loss"], color=cnet, lw=1.0)
 ax.plot(loss["step"].iloc[-1], loss["loss"].iloc[-1], "o", ms=3.5, color=cnet)
-ax.annotate(r"$1.6\times10^{-5}$", (loss["step"].iloc[-1], loss["loss"].iloc[-1]), xytext=(-4, 9),
+mant, ex = f"{loss['loss'].iloc[-1]:.1e}".split("e")
+ax.annotate(rf"${mant}\times10^{{{int(ex)}}}$",(loss["step"].iloc[-1], loss["loss"].iloc[-1]), xytext=(-4, 9),
             textcoords="offset points", ha="right", fontsize=7)
 ax.set(yscale="log", xlim=(0, 3.1e4))
 ax.set_xticks([0, 1e4, 2e4, 3e4], ["0", r"$1\times10^4$", r"$2\times10^4$", r"$3\times10^4$"])
@@ -42,8 +43,8 @@ ax.text(0.03, 0.96, "(a)", transform=ax.transAxes, va="top", fontsize=9)
 
 # (b) 中位数（点线）与最小值–最大值（竖线）
 ax = axs[1]
-series = [("network output", cnet, "o", [(0, "teacher_v_train"), (1, "teacher_v_interp"), (2, "teacher_v_extrap")], -0.05),
-          ("NE-PODG", cne, "s", [(1, "VS_v_interp"), (2, "VS_v_extrap")], 0.05)]
+series = [("network output", cnet, "o", [(0, "teacher_vm256_train"), (1, "teacher_vm256_interp"), (2, "teacher_vm256_extrap")], -0.05),
+          ("NE-PODG", cne, "s", [(1, "VS_vm256_interp"), (2, "VS_vm256_extrap")], 0.05)]
 for name, c, mk, items, dx in series:
     xs, med = [], []
     for x, f in items:

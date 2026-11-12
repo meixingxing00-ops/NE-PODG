@@ -1,6 +1,6 @@
 """论文 Fig. 9：方腔自然对流的增广维数与快照预算。(a) N12、(b) N50：逐工况增益中位数随增广维数 n_Z 的变化，实线为求解误差比
-e_SA/e，点线为最佳逼近误差比 e_proj,W/e_proj；圆点连线为把 m = 128 的网络截断到前 n_Z 个奇异方向（实线种子 1234，虚线种子 1），
-方块（种子 1234）与菱形（种子 1）为以 m = n_Z 重新训练的网络；深红实心为内插，浅红空心为外推。(c) 内插、(d) 外推：三种方法速度误差的中位数（实线）
+e_SA/e，点线为最佳逼近误差比 e_proj,W/e_proj；圆点连线为把 m = 256 的网络截断到前 n_Z 个奇异方向（实线种子 1234，虚线种子 1），
+方块（种子 1234）与菱形（种子 1）为以 m = n_Z 重新训练的网络（m = 512 只有种子 1234）；深红实心为内插，浅红空心为外推。(c) 内插、(d) 外推：三种方法速度误差的中位数（实线）
 与最大值（虚线）随快照预算的变化。数据 cases/nc/results/n<B>/。
 用法（仓库根目录）：python paper/figures/script/fig9_dimension_budget.py [输出路径，默认 paper/figures/Fig_09.pdf；.png 用于预览]"""
 import sys
@@ -21,7 +21,9 @@ res = root / "cases" / "nc" / "results"
 out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_09.pdf"
 load = lambda b, m, r: pd.read_csv(res / f"n{b}" / f"{m}_{r}.csv").set_index("id")
 ROLE = {"interp": (cm(0.95), True), "extrap": (cm(0.7), False)}
-DIMS = [8, 16, 32, 64, 128]
+DIMS = [8, 16, 32, 64, 128, 256]
+RETRAIN = {"v": [16, 32, 64, 128, 512], "v1": [16, 32, 64, 128]}
+retrained = lambda s, n: f"VS_{s}" if n == 128 else f"VS_{s}m{n}"
 
 mm = 1 / 25.4
 fig, axs = plt.subplots(2, 2, figsize=(190 * mm, 122 * mm), gridspec_kw=dict(left=0.07, right=0.98, bottom=0.08, top=0.9,
@@ -38,17 +40,17 @@ for k, b in enumerate((12, 50)):
     ax = axs[0, k]
     for r, (c, filled) in ROLE.items():
         for seed, ls in (("v", "-"), ("v1", "--")):
-            g = [gains(b, r, f"VS_{seed}_z{n}" if n < 128 else f"VS_{seed}") for n in DIMS]
+            g = [gains(b, r, f"VS_{seed}m256_z{n}" if n < 256 else f"VS_{seed}m256") for n in DIMS]
             ax.plot(DIMS, [x[0] for x in g], color=c, ls=ls, marker="o", ms=3, lw=1.0, mfc=c if filled else "white")
             if seed == "v":
                 ax.plot(DIMS, [x[1] for x in g], color=c, ls=":", lw=0.9)
-            m = [gains(b, r, f"VS_{seed}m{n}")[0] for n in DIMS[1:4]]
-            ax.plot(DIMS[1:4], m, ls="", marker="s" if seed == "v" else "D", ms=4, mec=c, mfc=c if filled else "white", mew=0.8)
+            m = [gains(b, r, retrained(seed, n))[0] for n in RETRAIN[seed]]
+            ax.plot(RETRAIN[seed], m, ls="", marker="s" if seed == "v" else "D", ms=4, mec=c, mfc=c if filled else "white", mew=0.8)
     ax.axhline(1, color="0.6", lw=0.6, ls="--", zorder=0)
-    ax.set(xscale="log", yscale="log", xlim=(6.5, 160))
-    ax.set_xticks(DIMS, [str(n) for n in DIMS])
+    ax.set(xscale="log", yscale="log", xlim=(6.5, 640))
+    ax.set_xticks(DIMS + [512], [str(n) for n in DIMS + [512]])
     ax.minorticks_off()
-    yt = [1, 2, 5, 10] if b == 12 else [1, 1.5, 2, 3, 4]
+    yt = [1, 2, 5, 10, 20, 50] if b == 12 else [1, 1.5, 2, 3, 5, 8]
     ax.set_yticks(yt, [f"{t:g}" for t in yt])
     ax.tick_params(length=2.5, pad=2)
     ax.set_xlabel(r"enrichment dimension $n_Z$", labelpad=1)
@@ -57,7 +59,7 @@ for k, b in enumerate((12, 50)):
     ax.text(-0.11, 1.04, "(a)" if k == 0 else "(b)", transform=ax.transAxes, fontsize=9)
 
 budgets = [12, 20, 30, 50]
-styles = [("pod", "POD–Galerkin", "0.45", "^"), ("sapodg", "SA-PODG", cm(0.1), "s"), ("VS_v", "NE-PODG", cm(0.9), "o")]
+styles = [("pod", "POD–Galerkin", "0.45", "^"), ("sapodg", "SA-PODG", cm(0.1), "s"), ("VS_vm256", "NE-PODG", cm(0.9), "o")]
 for k, (r, title) in enumerate([("interp", "interpolation"), ("extrap", "extrapolation")]):
     ax = axs[1, k]
     for m, name, c, mk in styles:

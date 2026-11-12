@@ -1,7 +1,7 @@
 """论文跨算例统计：六个算例默认预算下 POD-G、SA-PODG、NE-PODG 的配对结果（方法设计 §7）。
 口径：末次相对残差 res ≤ 1e-6 为解出（线性闭合均解出）；SA/NE 增益、Γ、χ_B/χ_W 与逐工况分解只用两者都解出的工况，Γ、χ 与分解另要求
 两者的 e_proj 都大于 1e-9（此下 e_proj 不可靠）。逐工况分解 ln(e_W/e_B) = −½ln(1−Γ) − ln(χ_B/χ_W)，记最佳逼近项绝对值大于闭合项的工况数。
-输出 paper/figures/data/：paired.csv（逐工况主场误差，nc 另含未训练网络 VS_r1）、summary.csv（每个算例与测试集一行）、
+输出 paper/figures/data/：paired.csv（逐工况主场误差，nc 另含未训练网络 VS_r1m256）、summary.csv（每个算例与测试集一行）、
 outputs.csv（各输出量误差的中位数 / 最大值）。用法（仓库根目录）：python paper/figures/script/stats.py"""
 from pathlib import Path
 
@@ -10,7 +10,7 @@ import pandas as pd
 
 root = Path(__file__).resolve().parents[3]
 DEFAULT = {"nc": 12, "graetz": 4, "conjugate": 4, "mixed": 4, "porous": 4, "bfs": 4}
-METHODS = {"pod": "pod", "sa": "sapodg", "ne": "VS_v"}
+METHODS = {"pod": "pod", "sa": "sapodg", "ne": "VS_vm256"}
 COMMON = {"id", "nV", "nS", "nZ", "e", "e_proj", "e_real", "e_proj_pod", "converged", "iters", "res", "time", "time_basis",
           "s_min", "s_med", "n_s01", "n_s001"}
 EPS, RES = 1e-9, 1e-6
@@ -22,7 +22,7 @@ for case, b in DEFAULT.items():
         d = {k: pd.read_csv(root / "cases" / case / "results" / f"n{b}" / f"{m}_{role}.csv").set_index("id")
              for k, m in METHODS.items()}
         if case == "nc":
-            d["r1"] = pd.read_csv(root / "cases" / "nc" / "results" / f"n{b}" / f"VS_r1_{role}.csv").set_index("id")
+            d["r1"] = pd.read_csv(root / "cases" / "nc" / "results" / f"n{b}" / f"VS_r1m256_{role}.csv").set_index("id")
         ids = d["sa"].index
         p = pd.DataFrame({"case": case, "role": role, "id": ids})
         for k, t in d.items():

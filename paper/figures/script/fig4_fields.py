@@ -21,7 +21,7 @@ res = root / "cases" / "nc" / "results" / "n12"
 d = np.load(res / "profiles_E022.npz")
 out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_04.pdf"
 x = d["nodes"]
-methods = [("sapodg", "SA-PODG"), ("VS_v", "NE-PODG")]
+methods = [("sapodg", "SA-PODG"), ("VS_vm256", "NE-PODG")]
 summ = {m: pd.read_csv(res / f"{m}_extrap.csv").set_index("id").loc["E022"] for m, _ in methods}
 
 mm = 1 / 25.4

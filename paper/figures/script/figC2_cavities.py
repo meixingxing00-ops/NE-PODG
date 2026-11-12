@@ -38,7 +38,7 @@ for r, (c, cid, title) in enumerate(rows):
     cb.ax.tick_params(labelsize=6, length=2)
     ax.set_title(title(d), fontsize=7.5, loc="left", pad=3)
     lim = np.abs(d["U_sapodg"] - Uref).max() / Uref.max()
-    for j, (k, lab) in enumerate((("sapodg", "SA-PODG"), ("VS_v", "NE-PODG"))):
+    for j, (k, lab) in enumerate((("sapodg", "SA-PODG"), ("VS_vm256", "NE-PODG"))):
         ax = axs[r, 1 + j]
         im = ax.pcolormesh(x, x, ((d[f"U_{k}"] - Uref) / Uref.max()).T, cmap=div, vmin=-lim, vmax=lim, shading="flat",
                            rasterized=True)
@@ -56,7 +56,7 @@ for r, (c, cid, title) in enumerate(rows):
         a.set_yticks([0, 0.5, 1])
         a.tick_params(length=2, pad=1.5, labelsize=6.5)
     ax = axs[r, 3]
-    for k, col in (("sapodg", SA), ("VS_v", NE)):
+    for k, col in (("sapodg", SA), ("VS_vm256", NE)):
         ax.plot(np.abs(d[f"Nu_{k}"] / d["Nu_fom"] - 1), xc, color=col, lw=0.9)
     ax.set_xscale("log")
     ax.set_ylim(0, 1)

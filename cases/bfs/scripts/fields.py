@@ -1,4 +1,4 @@
-"""论文 Fig. 6 数据：预算 N<B> 下单个工况的高保真（fom）、SA-PODG（sapodg）与 NE-PODG（VS_v）的流场、温度与受热壁局部 Nu。
+"""论文 Fig. 6 数据：预算 N<B> 下单个工况的高保真（fom）、SA-PODG（sapodg）与 NE-PODG（VS_vm256）的流场、温度与受热壁局部 Nu。
 存物理节点 x、y（随 ER），角点流函数 psi_<方法>（[i, j]，非活动角点为 nan），单元中心速度大小 U_<方法> 与温度 T_<方法>（非活动单元为 nan），
 受热壁面中心 xw 上的局部 Nu_<方法>（长度 S）与下壁剪切 shear_<方法>（单元中心 xs）。结果 results/n<B>/fields_<编号>.npz。
 用法（仓库根目录，PINNGPU）：python -m cases.bfs.scripts.fields B 编号"""
@@ -24,7 +24,7 @@ def rom(y0, B, mu, c0):
 q_r, T_r, mu = g.load(cid)
 mu = np.asarray(mu)
 sols = {"fom": (q_r, T_r)}
-for k in ("sapodg", "VS_v"):
+for k in ("sapodg", "VS_vm256"):
     q, T, st = experiment.solve(case, g, budget, cid, k, rom)
     assert st["res"] <= 1e-6, (k, st)
     sols[k] = (q, T)

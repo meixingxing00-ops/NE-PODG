@@ -20,8 +20,8 @@ styles = [("teacher", "network prediction", dict(color=cm(0.32), lw=1.0, ls=":")
           ("pod", "POD–Galerkin", dict(color="0.55", lw=1.0, ls="-.")),
           ("sapodg", "SA-PODG", dict(color=cm(0.08), lw=1.0, ls="--")),
           ("fom", "high-fidelity", dict(color="k", lw=1.6, ls="-")),
-          ("VS_v", "NE-PODG", dict(color=cm(0.9), lw=1.0, ls=(0, (4, 2))))]
-order = ["fom", "VS_v", "sapodg", "pod", "teacher"]                       # 图例顺序
+          ("VS_vm256", "NE-PODG", dict(color=cm(0.9), lw=1.0, ls=(0, (4, 2))))]
+order = ["fom", "VS_vm256", "sapodg", "pod", "teacher"]                       # 图例顺序
 # (量的坐标键, 量, 横轴标签, 纵轴标签, 放大区间, 放大图位置)
 panels = [("y", "u", r"$y$", r"$u$ at $x=0.5$", (0.80, 0.93), [0.53, 0.62, 0.43, 0.34]),
           ("x", "v", r"$x$", r"$v$ at $y=0.5$", (0.015, 0.065), [0.33, 0.10, 0.40, 0.33]),
@@ -41,7 +41,7 @@ for k, (ax, (xk, q, xl, yl, zx, pos)) in enumerate(zip(axs, panels)):
     ax.text(-0.2, 1.04, f"({'abc'[k]})", transform=ax.transAxes, fontsize=9)
     # 峰值附近局部放大：高保真、SA-PODG、NE-PODG
     sel = (x >= zx[0]) & (x <= zx[1])
-    ys = np.concatenate([d[f"{q}_{m}"][sel] for m in ("fom", "sapodg", "VS_v")])
+    ys = np.concatenate([d[f"{q}_{m}"][sel] for m in ("fom", "sapodg", "VS_vm256")])
     pad = 0.08 * (ys.max() - ys.min())
     ins = ax.inset_axes(pos)
     for m, name, kw in styles[2:]:

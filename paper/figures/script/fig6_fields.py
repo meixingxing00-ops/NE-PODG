@@ -31,24 +31,24 @@ rows = []
 # graetz：温度，x ∈ [0, 1 + L]
 d = D["graetz"]
 rows.append(dict(name=rf"Couette–Graetz, $L={d['L']:.3g}$, $Pe={d['Pe']:.3g}$", x=d["x"], y=d["y"], ref=d["T_fom"],
-                 err={k: (d[f"T_{k}"] - d["T_fom"]) / np.abs(d["T_fom"]).max() for k in ("sapodg", "VS_v")},
+                 err={k: (d[f"T_{k}"] - d["T_fom"]) / np.abs(d["T_fom"]).max() for k in ("sapodg", "VS_vm256")},
                  lines=(d["T_fom"], np.linspace(0.1, 0.9, 5) * d["T_fom"].max(), "k"), xlim=None,
                  label=r"$(T-T^\star)/\max|T^\star|$"))
 d = D["conjugate"]
 rows.append(dict(name=rf"Conjugate channel, $Pe={d['Pe']:g}$, $k_s/k_f={d['ratio']:g}$", x=d["x"], y=d["y"], ref=d["T_fom"],
-                 err={k: (d[f"T_{k}"] - d["T_fom"]) / np.abs(d["T_fom"]).max() for k in ("sapodg", "VS_v")},
+                 err={k: (d[f"T_{k}"] - d["T_fom"]) / np.abs(d["T_fom"]).max() for k in ("sapodg", "VS_vm256")},
                  lines=(d["T_fom"], np.linspace(0.1, 0.9, 5) * d["T_fom"].max(), "k"), xlim=None, iface=True,
                  label=r"$(T-T^\star)/\max|T^\star|$"))
 d = D["bfs"]
 pr = d["psi_fom"]
 rows.append(dict(name=rf"Backward-facing step, $Re={d['Re']:.3g}$, $ER={d['ER']:.3g}$", x=d["x"], y=d["y"], ref=d["U_fom"],
-                 err={k: (d[f"U_{k}"] - d["U_fom"]) / np.nanmax(d["U_fom"]) for k in ("sapodg", "VS_v")},
+                 err={k: (d[f"U_{k}"] - d["U_fom"]) / np.nanmax(d["U_fom"]) for k in ("sapodg", "VS_vm256")},
                  lines=(pr, np.r_[np.nanmin(pr) * np.array([0.6, 0.2]), np.linspace(0.1, 0.9, 5) * np.nanmax(pr)], "k"),
                  xlim=(-1, 12), label=r"$(|\mathbf{U}|-|\mathbf{U}^\star|)/\max|\mathbf{U}^\star|$"))
 for r, row in enumerate(rows):
     lim = np.nanmax(np.abs(row["err"]["sapodg"]))
     norm = matplotlib.colors.Normalize(-lim, lim)
-    for j, (k, lab) in enumerate((("sapodg", "SA-PODG"), ("VS_v", "NE-PODG"))):
+    for j, (k, lab) in enumerate((("sapodg", "SA-PODG"), ("VS_vm256", "NE-PODG"))):
         ax = fig.add_subplot(gs[r, j])
         X, Y = row["x"], row["y"]
         im = ax.pcolormesh(X, Y, row["err"][k].T, cmap=div, norm=norm, shading="flat", rasterized=True)
@@ -82,7 +82,7 @@ for j, (c, xl, xk, qk, ql) in enumerate(curves):
     x = d[xk]
     ref = d[f"{qk}_fom"]
     m = np.isfinite(ref) & (np.abs(ref) > 0)
-    for k, col, ls in (("sapodg", SA, "-"), ("VS_v", NE, "-")):
+    for k, col, ls in (("sapodg", SA, "-"), ("VS_vm256", NE, "-")):
         ax.plot(x[m], np.abs(d[f"{qk}_{k}"][m] / ref[m] - 1), color=col, lw=0.9, ls=ls)
     ax.set_yscale("log")
     ax.set_xlabel(xl, labelpad=1)
@@ -110,13 +110,13 @@ def reattach(tau):
 ax = fig.add_subplot(sub[0, 2])
 m = (xs > 0) & (xs < 20)
 ins = ax.inset_axes([0.5, 0.12, 0.45, 0.42])
-for k, col, ls, lab in (("fom", "k", "-", "HF"), ("sapodg", SA, "-", "SA"), ("VS_v", NE, "--", "NE")):
+for k, col, ls, lab in (("fom", "k", "-", "HF"), ("sapodg", SA, "-", "SA"), ("VS_vm256", NE, "--", "NE")):
     tau = d[f"shear_{k}"]
     ax.plot(xs[m], tau[m], color=col, lw=0.9, ls=ls)
     xr = reattach(tau)
     zm = (xs > xr - 0.6) & (xs < xr + 0.6)
     ins.plot(xs[zm], tau[zm], color=col, lw=0.9, ls=ls)
-    ins.plot(xr, 0, "o", ms=3, mfc="white" if k == "VS_v" else col, mec=col, mew=0.8, zorder=3)
+    ins.plot(xr, 0, "o", ms=3, mfc="white" if k == "VS_vm256" else col, mec=col, mew=0.8, zorder=3)
     print(k, f"x_r/S {xr:.3f}")
 ax.axhline(0, color="0.6", lw=0.5, zorder=0)
 ins.axhline(0, color="0.6", lw=0.5, zorder=0)

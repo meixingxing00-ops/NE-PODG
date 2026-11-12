@@ -1,4 +1,4 @@
-"""论文附录 C 数据：预算 N<B> 下单个工况的高保真（fom）、SA-PODG（sapodg）与 NE-PODG（VS_v）的流场、温度与冷壁局部 Nu。
+"""论文附录 C 数据：预算 N<B> 下单个工况的高保真（fom）、SA-PODG（sapodg）与 NE-PODG（VS_vm256）的流场、温度与冷壁局部 Nu。
 存节点 x（两个方向相同）、单元中心 xc，完整流函数 psi_<方法>（ψ_L + y，含边界角点），单元中心速度大小 U_<方法>、温度 T_<方法>
 （[i, j]）与冷壁局部 Nu_<方法>（沿 y）。结果 results/n<B>/fields_<编号>.npz。
 用法（仓库根目录，PINNGPU）：python -m cases.mixed.scripts.fields B 编号"""
@@ -17,7 +17,7 @@ cav = g.cav
 rom = lambda y0, B, mu, c0: closure.solve(g.reduced, y0, B, mu, c0)
 y_r, T_r, mu = g.load(cid)
 sols = {"fom": (y_r, T_r)}
-for k in ("sapodg", "VS_v"):
+for k in ("sapodg", "VS_vm256"):
     y, T, st = experiment.solve(case, g, budget, cid, k, rom)
     assert st["res"] <= 1e-6, (k, st)
     sols[k] = (y, T.cpu().numpy())
