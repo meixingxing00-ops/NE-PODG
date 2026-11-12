@@ -1,7 +1,6 @@
 """多孔方腔的实例化（实例化设计 §6–7）：主场为内部角点流函数 ψ（提升为 0），度量为速度 L²，温度为辅助场；
 Brinkman–Darcy 模型无动量输运（inertia=0），阻力系数 d = ν/Da。参数 μ = (Ra*, Da)，Ra = Ra*/Da。"""
 import csv
-import re
 from pathlib import Path
 
 import numpy as np
@@ -13,13 +12,6 @@ from solvers.mac.mac import Cavity, nodes
 ROOT = Path(__file__).resolve().parent
 MODELS = ROOT / "models"                    # <网络名>/n<B>.pt
 N, S, PR = 128, 2.5, 0.71
-SEED, M = 1234, 128
-
-
-def kind(name):
-    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。"""
-    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
-    return t == "v", int(seed or SEED), int(m or M)
 
 
 def coefficients(mu):

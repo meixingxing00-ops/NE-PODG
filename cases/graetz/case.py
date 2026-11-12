@@ -2,7 +2,6 @@
 向 nepodg 提供 whiten、闭合 solve、网络采样点 X 与容许映射 admissible、参数坐标 eta、快照与灵敏度读取。
 闭合为线性 Galerkin：T_r = T₀ + B c，(Bᵀ A B) c = Bᵀ(f − A T₀)，直接求解。"""
 import csv
-import re
 from pathlib import Path
 
 import numpy as np
@@ -13,19 +12,11 @@ from solvers.fv.fv import Channel, grid
 ROOT = Path(__file__).resolve().parent
 MODELS = ROOT / "models"                    # <网络名>/n<B>.pt
 DEV = torch.device("cuda")
-SEED, M = 1234, 128
 
 
 def mesh():
     """入口段 40、受热段 160、y 向 80 个单元（16000），tanh 加密参数 1.5、2.0、2.0；LUDS 对流格式。"""
     return Channel(*grid(40, 1.5, 160, 2.0, 80, 2.0), scheme="luds")
-
-
-def kind(name):
-    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。
-    种子默认 1234，m 默认 128，如 v、v1、vm64、v1m64、r1。"""
-    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
-    return t == "v", int(seed or SEED), int(m or M)
 
 
 def eta(mu):

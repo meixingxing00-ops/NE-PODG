@@ -2,7 +2,6 @@
 ν = 1 的离散 Stokes 解，与参数无关；度量为速度 L²，温度为辅助场。参数 μ = (Re, Ri)，ν = 1/Re，κ = 1/(Re Pr)，浮力系数 Ri。
 误差按方法设计 §7 以容许增量归一：‖y*‖_M（lift = 0）。"""
 import csv
-import re
 from pathlib import Path
 
 import numpy as np
@@ -14,14 +13,7 @@ from solvers.mac.mac import Cavity, nodes
 ROOT = Path(__file__).resolve().parent
 MODELS = ROOT / "models"                    # <网络名>/n<B>.pt
 N, S, PR = 128, 2.0, 0.71
-SEED, M = 1234, 128
 LID = lambda x: np.ones_like(x)
-
-
-def kind(name):
-    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。"""
-    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
-    return t == "v", int(seed or SEED), int(m or M)
 
 
 def coefficients(mu):

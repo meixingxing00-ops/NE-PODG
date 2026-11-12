@@ -1,4 +1,4 @@
-"""网络直接输出 û = Φ w 的误差：预算 N<B> 的训练网络（网络名 kind 见 case.kind，默认 v）在 interp（内插）、extrap（外推）或
+"""网络直接输出 û = Φ w 的误差：预算 N<B> 的训练网络（网络名 kind 见 candidates.kind，默认 v）在 interp（内插）、extrap（外推）或
 train（该预算的训练快照）工况上，
 速度误差 e（M 范数）；另以 û 的速度在全网格上解能量方程得温度，记温度误差与平均 Nu 误差。结果 results/n<B>/teacher_<kind>_<role>.csv。
 用法（仓库根目录，PINNGPU）：python -m cases.nc.scripts.teacher B role [kind]"""

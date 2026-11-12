@@ -3,7 +3,6 @@
 误差按方法设计 §7 以容许增量归一：‖q*‖_M（lift = 0）。
 闭合：g = Bᵀ r_y(ℓ_S + q)，G = Bᵀ J_yy B，r_y 与 J_yy 由 openmac 在 CPU 上组装。"""
 import csv
-import re
 from pathlib import Path
 
 import numpy as np
@@ -17,14 +16,7 @@ from cases.bfs.fom.grid_study import outputs
 ROOT = Path(__file__).resolve().parent
 MODELS = ROOT / "models"                    # <网络名>/n<B>.pt
 DEV = torch.device("cuda")
-SEED, M = 1234, 128
 DELTA = 0.5                                 # 边界因子的衰减长度：入口段半高
-
-
-def kind(name):
-    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。"""
-    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
-    return t == "v", int(seed or SEED), int(m or M)
 
 
 def _distance(x, y, a, b):

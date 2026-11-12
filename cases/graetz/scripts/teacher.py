@@ -1,4 +1,4 @@
-"""网络直接输出 T̂ = Φ w 的误差：预算 N<B> 的训练网络（网络名 kind 见 case.kind，默认 v）在 pool、interp、extrap 或 train（该预算的训练快照）工况上，
+"""网络直接输出 T̂ = Φ w 的误差：预算 N<B> 的训练网络（网络名 kind 见 candidates.kind，默认 v）在 pool、interp、extrap 或 train（该预算的训练快照）工况上，
 温度误差 e（参考域 L²）、T_av 误差与局部 Nu 沿受热壁的最大误差。结果 results/n<B>/teacher_<kind>_<role>.csv。
 用法（仓库根目录，PINNGPU）：python -m cases.graetz.scripts.teacher B role [kind]"""
 import csv

@@ -6,12 +6,22 @@
   L = mean_i ‖L(û(η_i) − u_i)‖² / ‖L u_i‖²
 训练前先只拟合幅值分支 ℓ，使每个训练工况的初始 ‖L û(η_i)‖ = 0.1‖L u_i‖（初始读出在 η = 0 处为零，该处工况不参与）。每步随机取 batch 个训练工况，在全部采样点上计算。
 """
+import re
+
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.func import vmap
 
 PREFIT_STEPS, PREFIT_LR, INIT_RATIO, MILESTONES = 2000, 1e-2, 0.1, (1 / 3, 2 / 3)
+SEED, M = 1234, 128
+
+
+def kind(name):
+    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。
+    种子默认 1234，m 默认 128，如 v、v1、vm64、v1m64、r1。"""
+    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
+    return t == "v", int(seed or SEED), int(m or M)
 
 
 def _mlp(dims, last_act):

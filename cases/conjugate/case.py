@@ -2,7 +2,6 @@
 任意单元向量都容许；度量为参考域分区 L²（单元面积），无辅助场。
 闭合为线性 Galerkin：u_r = u₀ + B c，(Bᵀ A B) c = Bᵀ(f − A ℓ_h − A u₀)，直接求解。"""
 import csv
-import re
 from pathlib import Path
 
 import numpy as np
@@ -13,13 +12,6 @@ from cases.conjugate.fom.config import LENGTH, THICKNESS, mesh, outputs
 ROOT = Path(__file__).resolve().parent
 MODELS = ROOT / "models"                    # <网络名>/n<B>.pt
 DEV = torch.device("cuda")
-SEED, M = 1234, 128
-
-
-def kind(name):
-    """网络名 → (是否训练, 种子, m)。v[种子][m<m>]：训练的网络；r<种子>[m<m>]：同结构随机初始化的未训练网络。"""
-    t, seed, m = re.fullmatch(r"([vr])(\d*)(?:m(\d+))?", name).groups()
-    return t == "v", int(seed or SEED), int(m or M)
 
 
 def eta(mu):
