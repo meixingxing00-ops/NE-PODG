@@ -1,0 +1,27 @@
+\begin{tabular}{llcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Interpolation} & \multicolumn{3}{c}{Extrapolation} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Budget & Error & POD-G & SA-PODG & NE-PODG & POD-G & SA-PODG & NE-PODG \\
+\midrule
+$N_{12}$ & $e_T$ & 0.00502 & $4.10\times10^{-5}$ & $1.59\times10^{-6}$ & 5.60 & 0.404 & 0.0215 \\
+ & $\overline{Nu}$ & $2.60\times10^{-4}$ & $3.49\times10^{-6}$ & $2.84\times10^{-8}$ & 2.84 & 0.0792 & 0.00106 \\
+\midrule
+$N_{20}$ & $e_T$ & 0.00420 & $6.09\times10^{-6}$ & $3.52\times10^{-7}$ & 2.29 & 0.0915 & 0.0123 \\
+ & $\overline{Nu}$ & $4.11\times10^{-4}$ & $2.27\times10^{-6}$ & $1.53\times10^{-8}$ & 1.02 & 0.00630 & $3.05\times10^{-4}$ \\
+\midrule
+$N_{30}$ & $e_T$ & $1.46\times10^{-4}$ & $2.62\times10^{-8}$ & $2.60\times10^{-9}$ & 0.993 & 0.0372 & 0.00465 \\
+ & $\overline{Nu}$ & $2.78\times10^{-5}$ & $1.93\times10^{-9}$ & $1.15\times10^{-10}$ & 0.212 & 0.00707 & $2.73\times10^{-4}$ \\
+\midrule
+$N_{50}$ & $e_T$ & $2.18\times10^{-6}$ & $9.57\times10^{-10}$ & $2.39\times10^{-10}$ & 0.254 & 0.00343 & 0.00150 \\
+ & $\overline{Nu}$ & $2.12\times10^{-7}$ & $5.07\times10^{-11}$ & $1.42\times10^{-11}$ & 0.0206 & $2.81\times10^{-4}$ & $7.54\times10^{-5}$ \\
+\midrule
+\multicolumn{8}{l}{NE-PODG, seeds 1234 / 1 / 2 (min--max of the medians)} \\
+$N_{12}$ & $e$ & \multicolumn{3}{c}{$1.19\times10^{-4}$--$1.51\times10^{-4}$} & \multicolumn{3}{c}{0.208--0.227} \\
+ & $e_T$ & \multicolumn{3}{c}{$1.59\times10^{-6}$--$2.21\times10^{-6}$} & \multicolumn{3}{c}{0.0215--0.0267} \\
+ & $\overline{Nu}$ & \multicolumn{3}{c}{$2.84\times10^{-8}$--$5.34\times10^{-8}$} & \multicolumn{3}{c}{0.00106--0.00154} \\
+$N_{50}$ & $e$ & \multicolumn{3}{c}{$2.47\times10^{-8}$--$3.61\times10^{-8}$} & \multicolumn{3}{c}{0.0155--0.0176} \\
+ & $e_T$ & \multicolumn{3}{c}{$2.13\times10^{-10}$--$3.50\times10^{-10}$} & \multicolumn{3}{c}{0.00144--0.00167} \\
+ & $\overline{Nu}$ & \multicolumn{3}{c}{$1.00\times10^{-11}$--$2.48\times10^{-11}$} & \multicolumn{3}{c}{$7.54\times10^{-5}$--$1.26\times10^{-4}$} \\
+\bottomrule
+\end{tabular}
