@@ -35,7 +35,7 @@ J_{\mathrm{eff}}=\frac{\partial F}{\partial\mathbf q}-\frac{\partial F}{\partial
 W=[V,\ S],\qquad W^{\mathsf T}MW=I .
 \label{eq:sensitivity}
 \end{equation}
-在式~\eqref{eq:galerkin} 中取 $X=W$ 即灵敏度增广 POD--Galerkin 方法（SA-PODG）。$W$ 包含训练快照及其一阶参数变化，与查询参数无关；本文在每个训练点都计算灵敏度，结果中的 SA-PODG 均指这一配置。
+在式~\eqref{eq:galerkin} 中取 $X=W$ 即灵敏度增广 POD--Galerkin 方法（SA-PODG）。$W$ 包含训练快照及其一阶参数变化，与查询参数无关；SA-PODG 在每个训练点都使用灵敏度。
 
 \subsection{Value-supervised neural candidate fields（场值监督的神经候选场）}
 \label{sec:network}
@@ -61,7 +61,7 @@ w_\theta=e^{\ell_\theta}\,r_\theta ,
 \frac{\partial\hat{\mathbf q}_\theta(\eta)}{\partial\mathbf b}=e^{\ell_\theta(\eta)}\,\Phi_\theta(\eta).
 \label{eq:bias}
 \end{equation}
-由于 $e^{\ell_\theta}>0$，$\operatorname{span}\Phi_\theta(\eta)$ 就是网络在 $\eta$ 处经读出偏置可到达的输出变化空间，网络预测 $\hat{\mathbf q}_\theta(\eta)$ 本身也在其中。NE-PODG 用这一空间提供增广方向，不直接以 $\hat{\mathbf q}_\theta$ 作为解。
+由于 $e^{\ell_\theta}>0$，$\operatorname{span}\Phi_\theta(\eta)$ 就是网络在 $\eta$ 处经读出偏置可到达的输出变化空间，网络预测 $\hat{\mathbf q}_\theta(\eta)$ 本身也在其中。NE-PODG 用这一空间提供增广方向。
 
 \subsection{Complementary space construction and Galerkin closure（互补空间构造与 Galerkin 闭合）}
 \label{sec:closure}

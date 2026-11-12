@@ -13,7 +13,7 @@
 
 本文将上述方法称为神经增广 POD–Galerkin 方法（Neural-Enriched POD–Galerkin，NE-PODG），并在六类参数化稳态传热问题上验证：宽 Ra–Pr 范围内的方腔自然对流~\cite{devahldavis1983natural}、带几何参数的 Couette--Graetz 对流扩散~\cite{quarteroni2011certified}、通道共轭传热、顶盖驱动混合对流~\cite{iwatsu1993mixed}、Darcy--Brinkman 多孔方腔自然对流~\cite{lauriat1987natural}与后台阶分离流动传热~\cite{armaly1983experimental}。主要工作包括：
 \begin{enumerate}
-\item 提出 NE-PODG：网络参与试探空间的构造，不直接预测降阶系数或最终解；场值监督训练的网络在查询参数处为 SA-PODG 提供互补空间，降阶解由增广空间上的 Galerkin 闭合确定；
+\item 提出 NE-PODG：场值监督训练的网络在查询参数处为 SA-PODG 提供互补空间，降阶解由增广空间上的 Galerkin 闭合确定；
 \item 建立余量捕获率与闭合放大系数的误差关系，辨识两者在不同问题中的作用，并通过训练与未训练网络的对照，说明场值监督训练带来精度提升的来源；
 \item 在稀疏快照下，于线性对流扩散、共轭传热、非线性流热耦合（自然对流、混合对流、多孔介质）与开口分离流动上，与 POD–Galerkin 和 SA-PODG 比较参数域内插与外推工况的主场与传热量预测精度，并在方腔算例上分析增广维数与快照预算对精度的影响。
 \end{enumerate}
