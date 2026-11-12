@@ -101,6 +101,75 @@ $T_w$ 为底壁温度，$T_b$ 为混合平均温度。
 \paragraph{验证}
 以每个方向加密 4 倍的网格（256000 单元）为参照，在 $(L,Pe)=(1,316)$、$(10,316)$、$(1,0.1)$、$(10,0.1)$、$(3.16,10)$ 上，温度场、$T_{\mathrm{av}}$ 与受热壁三个位置局部 Nusselt 数的相对差分别不超过 $4.4\times10^{-4}$、$1.4\times10^{-4}$ 与 $2.4\times10^{-4}$，格式二阶收敛。全部工况的温度非负，全局热量收支误差不超过 $2.4\times10^{-13}$。算子导数与灵敏度与中心差分的相对差分别不超过 $5.8\times10^{-8}$ 与 $4.0\times10^{-8}$。$T_{\mathrm{av}}(L,Pe)$ 曲面与文献~\cite{quarteroni2011certified}的结果定性一致，如 $(L,Pe)=(1,100)$ 处 $T_{\mathrm{av}}=24.9$，文献图中约为 25。
 
+\subsection{Conjugate heat transfer in a channel（通道共轭传热）}
+\label{app:conjugate}
+
+\paragraph{控制方程}
+流体通道 $\Omega_f=(0,5)\times(0,1)$ 与其下方的导热壁 $\Omega_s=(0,5)\times(-d,0)$，$d=0.25$，长度以流体通道高度无量纲化。流体为平均速度 1 的平面 Poiseuille 流 $u=6y(1-y)$、$v=0$，温度不反馈到流动。两区的稳态能量方程为
+\begin{equation}
+\mathbf u\cdot\nabla T_f-\frac1{Pe}\nabla^2T_f=0\quad(\Omega_f),\qquad
+-\frac{k_s/k_f}{Pe}\nabla^2T_s=0\quad(\Omega_s),
+\end{equation}
+两区均保留轴向导热。入口 $x=0$ 上 $T_f=T_s=0$；出口 $x=5$ 的扩散通量为零，流体保留对流出流；流体顶壁绝热；固体外壁 $y=-d$ 上 $T_s=g(x)$，$g(x)=\sin^2(\pi x/2)$（$0\le x\le1$），$g(x)=1$（$1<x\le5$）；界面 $y=0$ 上温度与热流连续，$(k_s/k_f)\,\partial_yT_s=\partial_yT_f$。传热量为界面总热流 $Q=\int_0^5q(x)\,\mathrm dx$、平均界面温度、出口混合温度与界面局部 Nusselt 数 $Nu(x)=Pe\,q(x)/(T_\Gamma(x)-T_b(x))$，$T_b$ 为以 Poiseuille 流量加权的混合平均温度，局部 Nusselt 数取 $x=0.25$、1.25、2.5、4.75 四个位置。
+
+\paragraph{离散与灵敏度}
+参考域等于物理域，流固界面为网格面。$x$ 方向 160 个单元向两端加密，固体与流体沿 $y$ 方向分别取 32 与 96 个单元并向界面加密，共 20480 个单元。单元中心有限体积在两区统一组装：扩散为串联热阻的两点通量，界面温度在共享面上消去；体积通量取 Poiseuille 剖面的精确积分，面温度取二阶线性迎风格式。离散方程为 $A(\mu)\mathbf T=\mathbf f(\mu)$，$A=K(k_s/k_f)/Pe+C$。主场为温度增量 $\mathbf q=\mathbf T-\boldsymbol\ell$，提升 $\boldsymbol\ell$ 在每个单元取其所在列的外壁温度 $g(x_i)$，与参数无关；容许映射为在单元中心取值，度量为单元面积构成的对角矩阵。稳态灵敏度复用 $A$ 的分解求得。
+
+\paragraph{验证与参数点}
+以四倍加密的网格（327680 单元）为参照，在训练区四角、中心与四个外推边界工况上，流体与固体温度、界面总热流、平均界面温度与出口混合温度的相对差不超过 0.02\%，四个位置局部 Nusselt 数的相对差不超过 0.095\%。离散格式另以分层平板导热的解析解与共轭 Graetz 单模态半解析解核对。全部 186 个工况的全局热量收支相对误差不超过 $1.5\times10^{-11}$。训练池为 $\log_{10}Pe=1,1.5,\ldots,3$ 与 $\log_{10}(k_s/k_f)=-1,-0.5,\ldots,2$ 的 $5\times7$ 规则网格；外推测试为 $Pe=1330$、1780、3160 与训练池 7 档导热率比的组合（21 个），以及 $k_s/k_f=0.075$、0.0562、0.0316、133、178、316 与训练池 5 档 $Pe$ 的组合（30 个）。
+
+\subsection{Lid-driven mixed convection（顶盖驱动混合对流）}
+\label{app:mixed}
+
+\paragraph{控制方程}
+单位方腔顶盖以恒速 $U_0$ 沿 $+x$ 运动，其余壁面静止；左壁 $T=-\tfrac12$，右壁 $T=+\tfrac12$，上下壁绝热。以腔宽、顶盖速度与两壁温差无量纲化，
+\begin{equation}
+\begin{gathered}
+\nabla\cdot\mathbf u=0,\qquad
+(\mathbf u\cdot\nabla)\mathbf u+\nabla p-\frac1{Re}\nabla^2\mathbf u-Ri\,T\,\mathbf e_y=0,\\
+\mathbf u\cdot\nabla T-\frac1{Re\,Pr}\nabla^2T=0,
+\end{gathered}
+\end{equation}
+$Re=U_0L/\nu$，$Ri=Gr/Re^2$，$Pr=0.71$。顶盖剪切驱动顺时针环流，侧壁温差的浮力驱动逆时针环流。传热量为冷壁平均 Nusselt 数。
+
+\paragraph{离散与验证}
+离散与方腔自然对流相同（附录~\ref{app:nc}），两个方向各 128 个单元。恒速顶盖由提升承担：$\boldsymbol\psi_L$ 为恒速顶盖、无热场、无动量输运时的离散 Stokes 解，主场为流函数增量 $\mathbf q=\boldsymbol\psi-\boldsymbol\psi_L$，增量在四壁上满足齐次条件，容许映射与方腔自然对流相同。稳态灵敏度由耦合雅可比对 $\nu=1/Re$、$\kappa=1/(Re\,Pr)$ 与浮力系数 $Ri$ 求导后换算到 $\eta$。六个代表工况在 128 与 256 网格之间冷壁平均 Nusselt 数的变化不超过 0.032\%，速度的 $M$ 范数差不超过 0.104\%。浮力部分由附录~\ref{app:nc} 的自然对流基准验证，顶盖部分与 Ghia 等~\cite{ghia1982high}的顶盖方腔解一致；与 Iwatsu 等~\cite{iwatsu1993mixed}的稳定竖向分层混合对流相比，9 个工况的平均 Nusselt 数相差 $-3.1\%$ 至 $+6.6\%$。训练池为 $Re=20\cdot5^{i/6}$（$i=0,\ldots,6$）与 $Ri=0.1\cdot50^{j/4}$（$j=0,\ldots,4$）的 $7\times5$ 网格；外推测试为 $Re=126$、158、200 与 $Ri=0.1\cdot50^{j/8}$（$j=0,\ldots,8$）的组合。
+
+\subsection{Natural convection in a porous cavity（多孔方腔自然对流）}
+\label{app:porous}
+
+\paragraph{控制方程}
+单位方腔充满均匀、各向同性的饱和多孔介质，四壁无滑移，热边界与方腔自然对流相同。采用局部热平衡与 Boussinesq 近似下的稳态 Darcy--Brinkman 模型，有效黏度取流体黏度，忽略动量输运项。以腔宽、自由落体速度与两壁温差无量纲化，
+\begin{equation}
+\begin{gathered}
+\nabla\cdot\mathbf u=0,\qquad
+\nabla p-\sqrt{\frac{Pr}{Ra}}\,\nabla^2\mathbf u+\frac{1}{Da}\sqrt{\frac{Pr}{Ra}}\,\mathbf u-T\,\mathbf e_y=0,\\
+\mathbf u\cdot\nabla T-\frac{1}{\sqrt{Ra\,Pr}}\nabla^2T=0,
+\end{gathered}
+\end{equation}
+$Da=K/L^2$，$Pr=0.71$，参数取修正 Rayleigh 数 $Ra^\ast=Ra\,Da$ 与 $Da$。传热量为冷壁平均 Nusselt 数。
+
+\paragraph{离散与验证}
+离散与方腔自然对流相同，阻力项在速度面上取对角形式，两个方向各 128 个单元并更强地向壁面加密。主场为流函数，提升为零。稳态灵敏度由耦合雅可比对黏性、扩散与阻力系数求导后换算到 $\eta$。六个代表工况在 128 与 256 网格之间冷壁平均 Nusselt 数的变化不超过 0.023\%；与 Lauriat 与 Prasad~\cite{lauriat1987natural}的 Brinkman 方腔结果相比，平均 Nusselt 数相差不超过 0.96\%。训练池为 $\log_{10}Ra^\ast=1.5,1.75,\ldots,3$ 与 $\log_{10}Da=-4,-3.5,\ldots,-2$ 的 $7\times5$ 网格；外推测试为 $Ra^\ast=1330$、1780、3160 与 $\log_{10}Da=-4,-3.75,\ldots,-2$ 的组合。
+
+\subsection{Flow and heat transfer over a backward-facing step（后台阶流动传热）}
+\label{app:bfs}
+
+\paragraph{控制方程}
+以入口通道高度 $h$ 与入口平均速度为尺度，入口通道为 $-4\le x\le0$、$0\le y\le1$，下游通道为 $0\le x\le40$、$-S\le y\le1$，台阶高度 $S=ER-1$。稳态方程为
+\begin{equation}
+\nabla\cdot\mathbf u=0,\qquad
+(\mathbf u\cdot\nabla)\mathbf u+\nabla p-\frac{2}{Re}\nabla^2\mathbf u=0,\qquad
+\mathbf u\cdot\nabla T-\frac{2}{Re\,Pr}\nabla^2T=0,
+\end{equation}
+$Re$ 以入口水力直径 $2h$ 定义，$Pr=0.71$，温度为被动标量。入口为充分发展的抛物线剖面 $u=6y(1-y)$ 与 $T=0$；台阶下游下壁 $T=1$，其余壁面绝热，壁面无滑移；出口取零总牵引与零扩散通量。传热量为下壁主回流区的再附着长度 $x_r$（以 $S$ 无量纲化）与受热壁的平均、局部 Nusselt 数（特征长度 $S$）。
+
+\paragraph{参考域与离散}
+参考域取 $ER=2$。下游下半部分 $-1\le\hat y\le0$ 经 $y=\hat y+(ER-2)\,a(\hat y)$、$a(\hat y)=-\tfrac32\hat y^2-\tfrac12\hat y^3$ 映到 $[-S,0]$，映射在 $\hat y=0$ 处一阶导数连续；流函数按标量拉回，速度经 Piola 变换，网格、掩码与自由度编号与参数无关。网格以入口高度 48 个单元为基准：$x$ 方向入口段 96 个、下游 960 个单元，$y$ 方向上下两半各 48 个单元，共 96768 个活动单元。离散在带掩码的 MAC 网格上进行，主场为自由角点（含出口角点）上的流函数增量 $\mathbf q=\mathbf y-\boldsymbol\ell_S$，提升 $\boldsymbol\ell_S$ 为 $ER=1.75$ 时满足入口与壁面数据的离散 Stokes 解，主场维数 95712，度量为参考域上速度的离散 $L^2$ 内积。容许映射将原始场乘以在入口、上壁与下壁折线处按距离平方趋于零的边界因子后在自由角点取值，网络输入为网格指标坐标。温度不进入主场残差，降阶解求出后在全网格上求解一次。稳态灵敏度由耦合雅可比对 $(Re,ER)$ 求导后换算到 $\eta$。
+
+\paragraph{验证与参数点}
+$Re\le600$ 范围内，与每个入口高度 64 个单元的网格相比，再附着长度、上壁分离区、受热壁最大与平均 Nusselt 数及五个位置的局部 Nusselt 数的相对差不超过 0.32\%；出口由 $40h$ 延长到 $60h$ 时输出的变化不超过 $2\times10^{-10}$。按文献设置计算，$Re=800$ 时主再附着长度、上壁分离与再附着位置与 Gartling~\cite{gartling1990test}的结果相差 $-0.93\%$、$-1.2\%$、$-0.62\%$，再附着长度与 Armaly 等~\cite{armaly1983experimental}的结果相差 $-4.1\%$ 至 $+1.3\%$。训练池为 $Re=100$--400 对数等分 7 档与 $ER=1.5$--2 等分 5 档的 $7\times5$ 网格；外推测试为 $Re=450$、520、600 与 $ER=1.5,1.56,\ldots,2$ 的组合。
+
 \section{Network training and reduced solution（网络训练与降阶求解）}
 \label{app:method}
 \setcounter{table}{0}
@@ -109,16 +178,44 @@ $T_w$ 为底壁温度，$T_b$ 为混合平均温度。
 \subsection{Network training（网络训练）}
 \label{app:training}
 
-训练快照的范数随参数相差很大。训练前先只拟合幅值分支 $\ell_\theta$，使各训练点的初始预测范数接近快照范数的指定比例，此时各点的相对误差都约为 1；随后用 Adam 训练全部参数，每步取一批训练点，在全部采样点（方腔为网格角点，Couette--Graetz 为单元中心）上计算损失~\eqref{eq:loss}，学习率在总步数的 1/3 与 2/3 处各降为 1/10。具体取值见表~\ref{tab:settings}。
+训练快照的范数随参数相差很大。训练前先只拟合幅值分支 $\ell_\theta$，使各训练点的初始预测范数接近快照范数的指定比例，此时各点的相对误差都约为 1；随后用 Adam 训练全部参数，每步取一批训练点，在全部采样点（方腔类算例为网格角点，后台阶为参考域角点，Couette--Graetz 与共轭传热为单元中心）上计算损失~\eqref{eq:loss}，学习率在总步数的 1/3 与 2/3 处各降为 1/10。具体取值见表~\ref{tab:settings}。
 
 \subsection{Solution of the reduced equations（降阶方程的求解）}
 \label{app:closure}
 
-方腔算例每次计算降阶残差~\eqref{eq:galerkin} 时，由当前流函数的速度在全网格上求解能量方程得到温度；能量方程雅可比的同一分解同时给出温度沿各基方向速度 $CX$ 的灵敏度，用于组装 $J_{\mathrm{eff}}X$。方程组用 Levenberg--Marquardt 法求解，当 $\Vert\mathbf g\Vert\le\epsilon_g\Vert\mathbf g(\mathbf c^{(0)})\Vert$，或步长降到 $\epsilon_c\max(1,\Vert\mathbf c\Vert)$ 以下时收敛。初值取训练快照 POD 系数在 $\eta$ 上的薄板样条插值，$S$ 与 $Z_\theta$ 方向的系数取零。三种方法使用相同的求解器、收敛判据与初值。
+方腔类算例每次计算降阶残差~\eqref{eq:galerkin} 时，由当前流函数的速度在全网格上求解能量方程得到温度；能量方程雅可比的同一分解同时给出温度沿各基方向速度 $CX$ 的灵敏度，用于组装 $J_{\mathrm{eff}}X$。方程组用 Levenberg--Marquardt 法求解，当 $\Vert\mathbf g\Vert\le\epsilon_g\Vert\mathbf g(\mathbf c^{(0)})\Vert$，或步长降到 $\epsilon_c\max(1,\Vert\mathbf c\Vert)$ 以下时收敛。初值取训练快照 POD 系数在 $\eta$ 上的薄板样条插值，$S$ 与 $Z_\theta$ 方向的系数取零。三种方法使用相同的求解器、收敛判据与初值。
 
-Couette--Graetz 算例的式~\eqref{eq:galerkin} 为约化线性方程组 $(X^{\mathsf T}AX)\,\mathbf c=X^{\mathsf T}(\mathbf f-A\bar{\mathbf q})$，直接求解。
+后台阶算例的温度不进入主场残差，$J_{\mathrm{eff}}$ 即流函数雅可比，温度在降阶解求出后求解一次。Couette--Graetz 与共轭传热算例的式~\eqref{eq:galerkin} 为约化线性方程组 $(X^{\mathsf T}AX)\,\mathbf c=X^{\mathsf T}(\mathbf f-A\bar{\mathbf q})$，直接求解。
 
 \section{Supplementary results（补充结果）}
 \label{app:results}
 \setcounter{table}{0}
 \setcounter{figure}{0}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Fig_C1.pdf}
+\caption{方腔自然对流快照预算 $N_{12}$ 下全部测试工况的 (a) 三种方法的速度误差 $e$ 与 (b) 误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$（颜色表示 $Pr$）随 $Ra$ 的分布。灰色竖线为训练快照所在的 $Ra$，阴影为外推区。}
+\label{fig:nc_ra}
+\end{figure}
+
+Couette--Graetz 算例训练池中 $N_4$ 快照以外的 31 个参数点上，三种方法的温度误差中位数 / 最大值为 18.3\% / 48.4\%（POD--Galerkin）、1.21\% / 5.40\%（SA-PODG）与 0.0467\% / 0.0923\%（NE-PODG），逐工况误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$ 的中位数为 31.8，最小值为 13.3；$T_{\mathrm{av}}$ 的误差中位数分别为 6.31\%、0.0293\% 与 0.00222\%。
+
+\begin{table}[H]
+\centering
+\caption{内插测试上 SA-PODG 与 NE-PODG 单次查询耗时的中位数（ms），包括网络候选场、互补空间构造、Galerkin 闭合与辅助场求解。}
+\label{tab:timing}
+\small
+\begin{tabular}{lcc}
+\toprule
+算例 & SA-PODG & NE-PODG \\
+\midrule
+方腔自然对流 & 23.1 & 301 \\
+Couette--Graetz & 5.92 & 104 \\
+共轭传热 & 7.85 & 104 \\
+混合对流 & 18.1 & 288 \\
+多孔方腔 & 18.9 & 278 \\
+后台阶 & 1550 & 2920 \\
+\bottomrule
+\end{tabular}
+\end{table}

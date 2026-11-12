@@ -26,18 +26,23 @@ def fmt(x):
     return f"{x:#.3g}".rstrip(".")
 
 
-lines = [r"\begin{tabular}{llcccccc}", r"\toprule",
-         r" & & \multicolumn{3}{c}{Interpolation} & \multicolumn{3}{c}{Extrapolation} \\",
-         r"\cmidrule(lr){3-5}\cmidrule(lr){6-8}",
-         r"Problem & Output & POD-G & SA-PODG & NE-PODG & POD-G & SA-PODG & NE-PODG \\", r"\midrule"]
+METH = (("pod", "POD-G"), ("sa", "SA-PODG"), ("ne", "NE-PODG"))
+lines = [r"\begin{tabular}{lllcccc}", r"\toprule",
+         r" & & & \multicolumn{2}{c}{Interpolation} & \multicolumn{2}{c}{Extrapolation} \\",
+         r"\cmidrule(lr){4-5}\cmidrule(lr){6-7}",
+         r"Problem & Output & Method & median & max & median & max \\"]
 for case, name, qs in ROWS:
+    lines.append(r"\midrule")
     for j, (q, lab) in enumerate(qs):
-        cells = []
-        for role in ("interp", "extrap"):
-            for m in ("pod", "sa", "ne"):
+        if j:
+            lines.append(r"\cmidrule(lr){2-7}")
+        for k, (m, mlab) in enumerate(METH):
+            cells = []
+            for role in ("interp", "extrap"):
                 r = O[(O.case == case) & (O.role == role) & (O.method == m) & (O.quantity == q)].iloc[0]
-                cells.append(f"{fmt(r['median'])} / {fmt(r['max'])}")
-        lines.append(f"{name if j == 0 else ''} & {lab} & " + " & ".join(cells) + r" \\")
+                cells += [fmt(r["median"]), fmt(r["max"])]
+            head = (name if j == 0 and k == 0 else "") + " & " + (lab if k == 0 else "")
+            lines.append(f"{head} & {mlab} & " + " & ".join(cells) + r" \\")
 lines += [r"\bottomrule", r"\end{tabular}"]
 out = root / "paper" / "figures" / "data" / "table3.tex"
 out.write_text("\n".join(lines) + "\n", encoding="utf-8")

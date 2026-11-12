@@ -1,24 +1,32 @@
 \section{Results and discussion（结果与讨论）}
 \label{sec:results}
 
-\subsection{Accuracy across the parameter domain（参数域上的精度）}
+\subsection{Accuracy across benchmark problems（跨算例的精度）}
 \label{sec:accuracy}
+
+六个算例覆盖了不同的主场、算子与参数化（表~\ref{tab:cases}）。Couette--Graetz 与共轭传热以温度为主场，算子线性、非对称，后者含导热率跳变的流固界面；方腔自然对流、混合对流与多孔方腔以流函数为主场，流热双向耦合，分别由浮力、剪切与浮力、多孔阻力主导；后台阶为开口通道中的分离流动，几何参数改变回流区的位置与尺度。除方腔自然对流取 12 个快照外，其余算例只用训练区四角的 4 个快照及其灵敏度。
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{Fig_C1.pdf}
-\caption{快照预算 $N_{12}$ 下全部测试工况的 (a) 三种方法的速度误差 $e$ 与 (b) SA-PODG 与 NE-PODG 的误差之比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$（颜色表示 $Pr$）随 $Ra$ 的分布。灰色竖线为训练快照所在的 $Ra$，阴影为外推区。}
+\includegraphics[width=\textwidth]{Fig_03.pdf}
+\caption{六个算例默认快照预算下的精度。(a) POD--Galerkin、SA-PODG 与 NE-PODG 主场误差 $e$ 的分布：细线为最小值到最大值，粗段为四分位区间，点为中位数（实心为内插，空心为外推），$\times$ 为该空间内没有 Galerkin 解的工况；(b) 两种方法都解出的工况上逐工况的误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$，横线为中位数。}
 \label{fig:accuracy}
 \end{figure}
 
+SA-PODG 的主场误差中位数比 POD--Galerkin 低 3.6--86 倍，NE-PODG 在所有算例的内插与外推测试上进一步降低误差（图~\ref{fig:accuracy}(a)）。两种方法都解出的工况上，逐工况的误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$ 均不小于 1（图~\ref{fig:accuracy}(b)）。误差比的中位数在 Couette--Graetz 上为 27.1（内插）与 21.3（外推），共轭传热为 25.2 与 7.58，方腔自然对流为 9.93 与 5.64，混合对流为 5.66 与 6.37，多孔方腔为 4.82 与 4.59，后台阶为 2.16 与 2.26：线性算例的增益最大，非线性流热耦合算例居中，后台阶最小。NE-PODG 同时压低误差分布的尾部，后台阶内插的最大误差由 33.1\% 降为 7.02\%，方腔自然对流外推由 10.4\% 降为 2.14\%，混合对流外推由 16.9\% 降为 3.06\%。后台阶外推的 27 个工况中，SA-PODG 在 2 个工况上没有 Galerkin 解，Levenberg--Marquardt 迭代停在相对残差 $2.4\times10^{-2}$ 与 $6.8\times10^{-2}$ 处；NE-PODG 在这两个工况上收敛，误差为 4.32\% 与 4.04\%。
+
 \begin{table}[H]
 \centering
-\caption{快照预算 $N_{12}$ 下三种方法的误差。}
-\label{tab:errors}
-\fbox{\parbox[c][3.5cm][c]{0.9\textwidth}{\centering 误差汇总（待填）：$N_{12}$，内插/外推，POD--Galerkin、SA-PODG、NE-PODG 的速度场、温度场与平均 Nu 误差的中位数与最大值。}}
+\caption{六个算例默认快照预算下传热量的相对误差（\%）。统计只含该方法解出的工况。$\overline{Nu}$ 为平均 Nusselt 数（方腔类算例为冷壁，后台阶为受热壁）；局部 $Nu$ 为沿受热壁（Couette--Graetz）或四个界面位置（共轭传热）的最大相对误差；$Q$ 为界面总热流。}
+\label{tab:heat}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\input{figures/data/table3.tex}
 \end{table}
 
-\subsection{Flow-field reconstruction and heat-transfer predictions（流场重构与传热量预测）}
+传热量误差的变化与主场误差一致（表~\ref{tab:heat}）。NE-PODG 降低了各算例平均与积分传热量的误差：方腔自然对流外推的平均 Nusselt 数误差中位数由 0.0792\% 降为 0.00106\%，Couette--Graetz 外推的 $T_{\mathrm{av}}$ 误差由 0.359\% 降为 0.00517\%，共轭传热内插的界面总热流误差由 0.558\% 降为 0.0502\%，多孔方腔外推的平均 Nusselt 数误差由 0.406\% 降为 0.0160\%。局部量对主场误差更敏感。共轭传热外推中，界面热流很小的工况上壁温与混合平均温度接近，局部 Nusselt 数的相对误差被放大，其最大值 SA-PODG 为 455\%，NE-PODG 为 7.63\%。后台阶的主再附着长度在内插测试上 NE-PODG 的误差中位数为 1.11\%，SA-PODG 为 0.871\%，最大值分别为 12.1\% 与 14.0\%；外推测试上中位数由 2.41\% 降为 1.83\%。
+
+\subsection{Flow and heat-transfer predictions（流场与传热预测）}
 \label{sec:fields}
 
 \begin{figure}[H]
@@ -35,7 +43,18 @@
 \label{fig:fields}
 \end{figure}
 
-\subsection{Contribution and accuracy mechanism of neural enrichment（神经增广的贡献与精度机制）}
+图~\ref{fig:contours} 与图~\ref{fig:fields} 给出方腔自然对流外推工况 $Ra=10^6$、$Pr=0.562$ 的场与剖面。SA-PODG 的速度误差分布在竖壁边界层与核心区，主场误差为 5.80\%；温度误差集中在核心区的分层结构上，为 1.68\%。NE-PODG 的速度与温度误差在全场都很小，主场误差为 0.853\%，温度误差为 0.105\%。中线速度剖面上，SA-PODG 在近壁峰值处偏离高保真解，NE-PODG 与之重合；热壁局部 Nusselt 数的峰值位于热壁底部，SA-PODG 在峰值附近偏低，NE-PODG 与高保真解一致，平均 Nusselt 数误差由 0.763\% 降为 0.0013\%。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Fig_06.pdf}
+\caption{Couette--Graetz（$L=3.16$、$Pe=178$）、共轭传热（$Pe=1330$、$k_s/k_f=100$）与后台阶（$Re=520$、$ER=1.94$）外推工况的场与壁面传热，各取 SA-PODG 误差最接近外推中位数的工况。前三行为 SA-PODG 与 NE-PODG 的有符号误差：温度为 $(T-T^\star)/\max|T^\star|$，后台阶为速度大小 $(|\mathbf U|-|\mathbf U^\star|)/\max|\mathbf U^\star|$，同一行两图色标相同；黑线为高保真解的等温线或流线（虚线为回流区流线），共轭传热中的水平虚线为流固界面。末行为沿壁面的相对误差：Couette--Graetz 与后台阶为受热壁局部 Nusselt 数，共轭传热为界面热流 $q$；灰线为高保真值（右轴）。}
+\label{fig:fields_cases}
+\end{figure}
+
+图~\ref{fig:fields_cases} 给出另外三个算例的外推工况。Couette--Graetz 中，SA-PODG 的温度误差集中在受热段起点下游的热边界层内，受热壁局部 Nusselt 数的相对误差在受热段前部达到 $4\times10^{-2}$；NE-PODG 的温度误差在同一色标下几乎不可见，局部 Nusselt 数误差除受热段起点外低于 $10^{-3}$。共轭传热中，SA-PODG 的误差沿热边界层外缘形成条带并向下游增长；NE-PODG 去除了这一条带，界面热流的误差在入口段与加热段前部降低一到两个数量级，在下游与 SA-PODG 相当，约为 $3\times10^{-3}$。后台阶中，SA-PODG 的速度误差位于剪切层与再附着区附近；NE-PODG 降低了这部分误差，主场误差由 5.01\% 降为 2.87\%，主再附着长度 $x_r/S$ 为 9.688（高保真解 9.687，SA-PODG 9.496）。受热壁局部 Nusselt 数在再附着点上游变化剧烈，两种方法在该段的相对误差都在 $10^{-1}$ 量级。
+
+\subsection{Mechanism of neural enrichment（神经增广的机制）}
 \label{sec:mechanism}
 
 \begin{figure}[H]
@@ -66,15 +85,22 @@
 \end{tabular}
 \end{table}
 
+网络在训练快照上拟合准确，在未见参数处的直接输出误差较大（图~\ref{fig:training}，表~\ref{tab:network}）。方腔自然对流 $N_{12}$ 的训练快照上，网络直接输出的速度误差中位数为 0.23\%，在内插与外推工况上为 14.9\% 与 34.1\%；由同一网络构造互补空间后，NE-PODG 的误差中位数为 $1.2\times10^{-4}\%$ 与 0.21\%。Couette--Graetz 算例中，网络在 4 个训练快照上的误差中位数为 0.098\%，在内插与外推工况上为 65.0\% 与 39.7\%，NE-PODG 为 0.0483\% 与 0.0661\%。NE-PODG 的精度来自网络张成的候选空间与 Galerkin 闭合，网络在查询参数处的预测值不直接进入降阶解。
+
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][5cm][c]{0.9\textwidth}{\centering 增广机制图（待绘制）\\[4pt](a) 方腔算例 $N_{12}$ 训练与未训练网络的求解误差 $e$、余量捕获率 $\Gamma$ 与 $\chi_B/\chi_W$；\\[2pt](b) 各算例默认预算下 $\Gamma$ 与 $\chi_B/\chi_W$ 的分布。}}
-\caption{神经增广的余量捕获率与闭合放大系数之比。}
+\includegraphics[width=\textwidth]{Fig_08.pdf}
+\caption{神经增广的机制。(a) 方腔自然对流 $N_{12}$：SA-PODG 与未训练、训练网络（各三个种子合并）构造的 NE-PODG 的主场误差，上方数字为 $1-\Gamma_\theta$ 与 $\chi_B/\chi_W$ 的中位数；(b) 六个算例的 $1-\Gamma_\theta=(e_{\mathrm{proj},B}/e_{\mathrm{proj},W})^2$；(c) 六个算例的 $\chi_B/\chi_W$。细线为最小值到最大值，粗段为四分位区间，点为中位数（实心为内插，空心为外推）；$\times$ 为未收敛工况。(b)(c) 只含两种方法都解出且 $e_{\mathrm{proj},W}>10^{-9}$ 的工况。NC：方腔自然对流；CG：Couette--Graetz；CC：共轭传热；MC：混合对流；PC：多孔方腔；BFS：后台阶。}
 \label{fig:mechanism}
 \end{figure}
 
-\subsection{Influence of enrichment dimension（增广维数的影响）}
+图~\ref{fig:mechanism}(a) 比较结构相同的训练与未训练网络。训练网络构造的增广空间使 $1-\Gamma_\theta$ 的中位数在内插与外推工况上为 0.014 与 0.037，未训练网络为 0.33 与 0.53；两者的 $\chi_B/\chi_W$ 中位数都在 0.99--1.08 之间。训练带来的误差下降来自余量捕获率的提高：训练网络的误差比 $e_{\mathrm{SA}}/e_{\mathrm{NE}}$ 中位数在三个种子上为 7.8--9.9（内插）与 5.3--6.1（外推），未训练网络为 1.7 与 1.3。
+
+图~\ref{fig:mechanism}(b)(c) 给出六个算例的 $1-\Gamma_\theta$ 与 $\chi_B/\chi_W$。$1-\Gamma_\theta$ 的中位数在 Couette--Graetz 与共轭传热上为 $10^{-3}$ 量级，在方腔自然对流、混合对流与多孔方腔上为 0.01--0.05，在后台阶上为 0.16（内插）与 0.14（外推），与图~\ref{fig:accuracy}(b) 的增益次序一致。$\chi_B/\chi_W$ 随算子性质变化。三个方腔类算例的中位数在 0.97--1.08 之间，增广空间上 Galerkin 解相对最佳逼近的放大与 SA-PODG 相当。非对称线性算子上该比值可明显大于 1：Couette--Graetz 内插为 1.46，共轭传热内插与外推为 1.26 与 1.84；这两个算例的余量捕获率接近 1，最佳逼近误差的下降仍转化为一个数量级以上的实际误差下降。后台阶的 $\chi_B/\chi_W$ 中位数为 1.21 与 1.32，余量捕获率又最低，因而增益最小。由式~\eqref{eq:error_ratio}，$\ln(e_W/e_B)=-\tfrac12\ln(1-\Gamma_\theta)-\ln(\chi_B/\chi_W)$。逐工况比较两项的绝对值，前五个算例的全部工况、后台阶内插 100 个工况中的 95 个与外推 25 个工况中的 17 个，最佳逼近项大于闭合项。NE-PODG 的精度收益主要来自神经互补空间对余量的捕获；后台阶外推中，闭合放大的变化对部分工况的收益有相当的影响。
+
+\subsection{Enrichment dimension and snapshot budget（增广维数与快照预算）}
 \label{sec:dimension}
+\label{sec:budget}
 
 \begin{figure}[H]
 \centering
@@ -82,9 +108,6 @@
 \caption{精度随增广维数的变化。}
 \label{fig:dimension}
 \end{figure}
-
-\subsection{Influence of snapshot budget（快照预算的影响）}
-\label{sec:budget}
 
 \begin{figure}[H]
 \centering

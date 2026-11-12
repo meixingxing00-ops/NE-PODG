@@ -1,17 +1,43 @@
-\begin{tabular}{llcccccc}
+\begin{tabular}{lllcccc}
 \toprule
- & & \multicolumn{3}{c}{Interpolation} & \multicolumn{3}{c}{Extrapolation} \\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-Problem & Output & POD-G & SA-PODG & NE-PODG & POD-G & SA-PODG & NE-PODG \\
+ & & & \multicolumn{2}{c}{Interpolation} & \multicolumn{2}{c}{Extrapolation} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Problem & Output & Method & median & max & median & max \\
 \midrule
-Natural convection & $\overline{Nu}$ & $2.60\times10^{-4}$ / 0.948 & $3.49\times10^{-6}$ / 0.0881 & $2.84\times10^{-8}$ / 0.00524 & 2.84 / 8.91 & 0.0792 / 1.22 & 0.00106 / 0.0829 \\
-Couette--Graetz & $T_{\mathrm{av}}$ & 7.78 / 29.1 & 0.0392 / 0.800 & 0.00118 / 0.0141 & 4.55 / 8.01 & 0.359 / 0.792 & 0.00517 / 0.0357 \\
- & local $Nu$ & 108 / 195 & 0.932 / 7.86 & 0.116 / 0.428 & 25.2 / 44.1 & 4.19 / 17.4 & 0.352 / 1.65 \\
-Conjugate channel & $Q$ & 14.4 / 39.9 & 0.558 / 4.43 & 0.0502 / 0.579 & 3.00 / 36.4 & 0.159 / 5.91 & 0.0531 / 0.560 \\
- & local $Nu$ & 41.8 / 191 & 7.17 / 25.9 & 1.36 / 9.04 & 48.0 / $3.77\times10^{4}$ & 7.01 / 455 & 0.649 / 7.63 \\
-Mixed convection & $\overline{Nu}$ & 0.262 / 2.43 & 0.00972 / 0.560 & $5.41\times10^{-4}$ / 0.0403 & 1.02 / 10.5 & 0.134 / 1.49 & 0.0467 / 0.238 \\
-Porous cavity & $\overline{Nu}$ & 1.05 / 6.42 & 0.0150 / 0.454 & $2.76\times10^{-4}$ / 0.0640 & 3.68 / 7.72 & 0.406 / 1.18 & 0.0160 / 0.313 \\
-Backward-facing step & $x_r$ & 15.8 / 49.4 & 0.871 / 14.0 & 1.11 / 12.1 & 13.3 / 52.4 & 2.41 / 22.7 & 1.83 / 10.3 \\
- & $\overline{Nu}$ & 0.459 / 1.04 & 0.0183 / 2.61 & 0.00197 / 0.217 & 1.86 / 9.43 & 0.329 / 4.27 & 0.104 / 1.52 \\
+Natural convection & $\overline{Nu}$ & POD-G & $2.60\times10^{-4}$ & 0.948 & 2.84 & 8.91 \\
+ &  & SA-PODG & $3.49\times10^{-6}$ & 0.0881 & 0.0792 & 1.22 \\
+ &  & NE-PODG & $2.84\times10^{-8}$ & 0.00524 & 0.00106 & 0.0829 \\
+\midrule
+Couette--Graetz & $T_{\mathrm{av}}$ & POD-G & 7.78 & 29.1 & 4.55 & 8.01 \\
+ &  & SA-PODG & 0.0392 & 0.800 & 0.359 & 0.792 \\
+ &  & NE-PODG & 0.00118 & 0.0141 & 0.00517 & 0.0357 \\
+\cmidrule(lr){2-7}
+ & local $Nu$ & POD-G & 108 & 195 & 25.2 & 44.1 \\
+ &  & SA-PODG & 0.932 & 7.86 & 4.19 & 17.4 \\
+ &  & NE-PODG & 0.116 & 0.428 & 0.352 & 1.65 \\
+\midrule
+Conjugate channel & $Q$ & POD-G & 14.4 & 39.9 & 3.00 & 36.4 \\
+ &  & SA-PODG & 0.558 & 4.43 & 0.159 & 5.91 \\
+ &  & NE-PODG & 0.0502 & 0.579 & 0.0531 & 0.560 \\
+\cmidrule(lr){2-7}
+ & local $Nu$ & POD-G & 41.8 & 191 & 48.0 & $3.77\times10^{4}$ \\
+ &  & SA-PODG & 7.17 & 25.9 & 7.01 & 455 \\
+ &  & NE-PODG & 1.36 & 9.04 & 0.649 & 7.63 \\
+\midrule
+Mixed convection & $\overline{Nu}$ & POD-G & 0.262 & 2.43 & 1.02 & 10.5 \\
+ &  & SA-PODG & 0.00972 & 0.560 & 0.134 & 1.49 \\
+ &  & NE-PODG & $5.41\times10^{-4}$ & 0.0403 & 0.0467 & 0.238 \\
+\midrule
+Porous cavity & $\overline{Nu}$ & POD-G & 1.05 & 6.42 & 3.68 & 7.72 \\
+ &  & SA-PODG & 0.0150 & 0.454 & 0.406 & 1.18 \\
+ &  & NE-PODG & $2.76\times10^{-4}$ & 0.0640 & 0.0160 & 0.313 \\
+\midrule
+Backward-facing step & $x_r$ & POD-G & 15.8 & 49.4 & 13.3 & 52.4 \\
+ &  & SA-PODG & 0.871 & 14.0 & 2.41 & 22.7 \\
+ &  & NE-PODG & 1.11 & 12.1 & 1.83 & 10.3 \\
+\cmidrule(lr){2-7}
+ & $\overline{Nu}$ & POD-G & 0.459 & 1.04 & 1.86 & 9.43 \\
+ &  & SA-PODG & 0.0183 & 2.61 & 0.329 & 4.27 \\
+ &  & NE-PODG & 0.00197 & 0.217 & 0.104 & 1.52 \\
 \bottomrule
 \end{tabular}

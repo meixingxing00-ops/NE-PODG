@@ -11,11 +11,11 @@
 
 本文沿这一思路，用神经网络补充 SA-PODG 基础空间之外的方向。网络以训练快照的场值为监督，预测写成一组候选场的线性读出；候选场张成的正是网络经最后一层读出偏置所能到达的输出变化空间。在查询参数处，候选场去除基础空间分量并正交化，构成神经互补空间，与基础空间一起组成增广试探空间；降阶解由有效残差在增广空间上的 Galerkin 投影确定，辅助场在闭合中同步求解。网络只提供空间方向，最终状态由控制方程决定。增广空间包含基础空间，其最佳逼近误差不高于 SA-PODG；互补空间对基础空间解余量的捕获率，以及实际误差与最佳逼近误差之比，共同决定增广后的求解误差。
 
-本文将上述方法称为神经增广 POD–Galerkin 方法（Neural-Enriched POD–Galerkin，NE-PODG），并以宽 Ra–Pr 范围内的方腔自然对流~\cite{devahldavis1983natural}和带几何参数的 Couette--Graetz 对流扩散问题~\cite{quarteroni2011certified}为算例进行验证。主要工作包括：
+本文将上述方法称为神经增广 POD–Galerkin 方法（Neural-Enriched POD–Galerkin，NE-PODG），并在六类参数化稳态传热问题上验证：宽 Ra–Pr 范围内的方腔自然对流~\cite{devahldavis1983natural}、带几何参数的 Couette--Graetz 对流扩散~\cite{quarteroni2011certified}、通道共轭传热、顶盖驱动混合对流~\cite{iwatsu1993mixed}、Darcy--Brinkman 多孔方腔自然对流~\cite{lauriat1987natural}与后台阶分离流动传热~\cite{armaly1983experimental}。主要工作包括：
 \begin{enumerate}
-\item 提出 NE-PODG：场值监督训练的网络在查询参数处为 SA-PODG 提供互补空间，降阶解由增广空间上的 Galerkin 闭合确定；
-\item 建立余量捕获率与闭合放大系数的误差关系，并通过训练与未训练网络的对照，说明场值监督训练带来精度提升的来源；
-\item 在少量快照下，与 POD–Galerkin 和 SA-PODG 比较各算例参数域内插与外推工况的主场与传热量预测精度，并在方腔算例上分析增广维数与快照预算对精度的影响。
+\item 提出 NE-PODG：网络参与试探空间的构造，不直接预测降阶系数或最终解；场值监督训练的网络在查询参数处为 SA-PODG 提供互补空间，降阶解由增广空间上的 Galerkin 闭合确定；
+\item 建立余量捕获率与闭合放大系数的误差关系，辨识两者在不同问题中的作用，并通过训练与未训练网络的对照，说明场值监督训练带来精度提升的来源；
+\item 在稀疏快照下，于线性对流扩散、共轭传热、非线性流热耦合（自然对流、混合对流、多孔介质）与开口分离流动上，与 POD–Galerkin 和 SA-PODG 比较参数域内插与外推工况的主场与传热量预测精度，并在方腔算例上分析增广维数与快照预算对精度的影响。
 \end{enumerate}
 
 第~\ref{sec:method}~节给出问题描述、NE-PODG 的构造与误差关系以及算例与数值设置；第~\ref{sec:results}~节报告精度、流场与传热预测、增广机制、增广维数与快照预算的结果；第~\ref{sec:conclusions}~节总结全文。
