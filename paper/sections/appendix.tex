@@ -212,19 +212,19 @@ Couette--Graetz 算例训练池中 $N_4$ 快照以外的 31 个参数点上，�
 
 \begin{table}[H]
 \centering
-\caption{内插测试上 SA-PODG 与 NE-PODG 单次查询耗时的中位数（ms），包括网络候选场、互补空间构造、Galerkin 闭合与辅助场求解。}
+\caption{内插测试上单次求解耗时的中位数（ms）。高保真求解从参数坐标最近的训练快照出发，非线性算例以 Newton 法求解到与生成快照时相同的容差，线性算例直接求解；降阶求解包括网络候选场、互补空间构造、Galerkin 闭合与辅助场求解。}
 \label{tab:timing}
 \small
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-算例 & SA-PODG & NE-PODG \\
+算例 & 高保真 & SA-PODG & NE-PODG \\
 \midrule
-方腔自然对流 & 23.1 & 301 \\
-Couette--Graetz & 5.92 & 104 \\
-共轭传热 & 7.85 & 104 \\
-混合对流 & 18.1 & 288 \\
-多孔方腔 & 18.9 & 278 \\
-后台阶 & 1550 & 2920 \\
+方腔自然对流 & 192 & 23.1 & 301 \\
+Couette--Graetz & 58.2 & 5.92 & 104 \\
+共轭传热 & 70.6 & 7.85 & 104 \\
+混合对流 & 198 & 18.1 & 288 \\
+多孔方腔 & 245 & 18.9 & 278 \\
+后台阶 & 5420 & 1550 & 2920 \\
 \bottomrule
 \end{tabular}
 \end{table}
