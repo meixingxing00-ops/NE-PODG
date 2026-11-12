@@ -35,12 +35,12 @@ def train(case, g):
     budget = int(sys.argv[1])
     name = sys.argv[2] if len(sys.argv) > 2 else "v"
     steps = int(sys.argv[3]) if len(sys.argv) > 3 else STEPS
-    _, seed, m = candidates.kind(name)
+    _, seed, m, layers, width = candidates.kind(name)
     ids = [c["id"] for c in case.cases() if c[f"n{budget}"] == "1"]
     snaps = [g.load(i) for i in ids]
     U = torch.stack([s[0] for s in snaps], 1)
     torch.manual_seed(seed)
-    net = candidates.Net(m=m, **NET).to(g.X.device)
+    net = candidates.Net(m=m, **{**NET, "layers": layers, "width": width}).to(g.X.device)
     t0 = time.perf_counter()
     log = max(1, steps // 100)
     hist = candidates.train(net, g.X, [case.eta(s[-1]) for s in snaps], U, g.admissible, g.whiten, steps, LR, BATCH, seed,
@@ -68,12 +68,12 @@ class Setup:
         self.net, self.fix, self.zmax = None, None, None
         if "_" in mode:
             parts = mode.split("_")
-            trained, seed, m = candidates.kind(parts[1])
+            trained, seed, m, layers, width = candidates.kind(parts[1])
             if trained:
                 self.net = candidates.load(case.MODELS / parts[1] / f"n{budget}.pt", g.X.device)
             else:
                 torch.manual_seed(seed)
-                self.net = candidates.Net(m=m).to(g.X.device).eval()
+                self.net = candidates.Net(m=m, layers=layers, width=width).to(g.X.device).eval()
             for p in parts[2:]:
                 if p.startswith("fix"):
                     self.fix = next(case.eta(tuple(float(c[k]) for k in params)) for c in case.cases() if c["id"] == p[3:])
