@@ -1,7 +1,7 @@
-"""论文 Fig. 6：N12 网络 (a) 训练损失；(b) 网络直接输出与 NE-PODG 的速度误差 e 在训练快照、内插、外推三组上的中位数，
+"""论文 Fig. 7：N12 网络 (a) 训练损失；(b) 网络直接输出与 NE-PODG 的速度误差 e 在训练快照、内插、外推三组上的中位数，
 竖线为最小值到最大值。数据 paper/figures/data/n12_loss.csv（N12 网络 v 的训练损失，每 300 步平均）、
 cases/nc/results/n12/teacher_v_{train,interp,extrap}.csv、VS_v_{interp,extrap}.csv。
-用法（仓库根目录）：python paper/figures/script/fig6_training.py [输出路径，默认 paper/figures/Fig_06.pdf；.png 用于预览]"""
+用法（仓库根目录）：python paper/figures/script/fig7_training.py [输出路径，默认 paper/figures/Fig_07.pdf；.png 用于预览]"""
 import sys
 from pathlib import Path
 
@@ -16,7 +16,7 @@ matplotlib.rcParams.update({"font.family": "Times New Roman", "mathtext.fontset"
 cm = matplotlib.colors.ListedColormap(plt.get_cmap("RdBu_r")([0.08 + 0.84 * i / 255 for i in range(256)]))  # 两端截去
 root = Path(__file__).resolve().parents[3]
 res = root / "cases" / "nc" / "results" / "n12"
-out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_06.pdf"
+out = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "paper" / "figures" / "Fig_07.pdf"
 loss = pd.read_csv(root / "paper" / "figures" / "data" / "n12_loss.csv")
 cnet, cne = cm(0.15), cm(0.9)
 
